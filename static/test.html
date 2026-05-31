@@ -277,20 +277,22 @@
 
         .login-modal-buttons {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         .btn-login {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 12px 30px;
+            padding: 12px 24px;
             border-radius: 10px;
             text-decoration: none;
             font-weight: 600;
             cursor: pointer;
             border: none;
             flex: 1;
+            min-width: 110px;
             transition: all 0.3s ease;
         }
 
@@ -302,18 +304,37 @@
         .btn-signup {
             background: #f0f0f0;
             color: #333;
-            padding: 12px 30px;
+            padding: 12px 24px;
             border-radius: 10px;
             text-decoration: none;
             font-weight: 600;
             cursor: pointer;
             border: none;
             flex: 1;
+            min-width: 110px;
             transition: all 0.3s ease;
         }
 
         .btn-signup:hover {
             background: #e0e0e0;
+        }
+
+        .btn-home {
+            background: white;
+            color: #667eea;
+            padding: 12px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            border: 2px solid #667eea;
+            flex: 1;
+            min-width: 110px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-home:hover {
+            background: #f0f2ff;
         }
 
         @media (max-width: 600px) {
@@ -345,6 +366,7 @@
                 Please log in or sign up to identify fossils.
             </div>
             <div class="login-modal-buttons">
+                <a href="/static/home.html" class="btn-home">Home</a>
                 <a href="/static/login.html" class="btn-login">Log In</a>
                 <a href="/static/login.html" class="btn-signup">Sign Up</a>
             </div>
