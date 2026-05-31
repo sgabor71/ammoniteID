@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AmmoniteID - Admin Command Center</title>
-    <link rel="stylesheet" href="/static/responsive-mobile.css">
     <style>
         * {
             margin: 0;
@@ -17,75 +16,6 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
-        }
-
-        /* Navigation Header */
-        header {
-            background: rgba(255,255,255,0.97);
-            backdrop-filter: blur(10px);
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 25px;
-            border-radius: 12px;
-        }
-
-        .header-logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #2c5f2d;
-            text-decoration: none;
-        }
-
-        .hamburger-btn {
-            display: none;
-            flex-direction: column;
-            gap: 5px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px;
-        }
-
-        .hamburger-btn span {
-            width: 25px;
-            height: 3px;
-            background: #2c5f2d;
-            border-radius: 3px;
-            transition: all 0.3s;
-        }
-
-        header nav {
-            display: flex;
-            gap: 1.5rem;
-            align-items: center;
-        }
-
-        header nav a {
-            color: #666;
-            text-decoration: none;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: all 0.3s;
-            padding: 5px 10px;
-            border-radius: 8px;
-        }
-
-        header nav a:hover {
-            background: rgba(44, 95, 45, 0.1);
-            color: #2c5f2d;
-        }
-
-        .header-right {
-            display: flex;
-            gap: 15px;
-            align-items: center;
         }
 
         .container {
@@ -107,6 +37,12 @@
         .header h1 {
             color: #2c5f2d;
             font-size: 2.2rem;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 15px;
+            align-items: center;
         }
 
         .refresh-btn {
@@ -520,6 +456,7 @@
             gap: 20px;
         }
 
+        /* Single column in modals for cleaner layout */
         .modal .grid-2 {
             grid-template-columns: 1fr;
         }
@@ -566,77 +503,82 @@
             display: none;
         }
 
+        /* ══════════════════════════════════════
+           MOBILE ONLY (max 768px)
+           Desktop completely unchanged
+        ══════════════════════════════════════ */
         @media (max-width: 768px) {
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
+            body { padding: 8px; }
 
-            .tabs {
-                overflow-x: auto;
-                flex-wrap: nowrap;
+            /* Header */
+            .header {
+                padding: 12px 15px !important;
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 10px;
             }
-
-            .editor-controls {
-                flex-direction: column;
-            }
-            
-            .hamburger-btn {
-                display: flex;
-            }
-            
-            header nav {
-                display: none;
-                width: 100%;
-                flex-direction: column;
-                gap: 1rem;
-                padding: 1rem 0;
-            }
-            
-            header nav.show {
-                display: flex;
-            }
-            
-            header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
+            .header h1 { font-size: 1.2rem !important; }
             .header-right {
-                margin-top: 10px;
-                flex-wrap: wrap;
+                width: 100%; flex-wrap: wrap; gap: 8px;
+                justify-content: flex-start;
             }
+            .header-right a { font-size: 0.85rem; }
+            .refresh-btn { padding: 8px 12px !important; font-size: 0.82rem !important; }
+            .last-updated { display: none; }
+
+            /* Tabs: horizontally scrollable */
+            .tabs {
+                overflow-x: auto; flex-wrap: nowrap;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none; gap: 6px;
+                padding-bottom: 4px;
+            }
+            .tabs::-webkit-scrollbar { display: none; }
+            .tab {
+                padding: 10px 14px !important; font-size: 0.82rem !important;
+                white-space: nowrap; flex-shrink: 0;
+            }
+
+            /* Panels */
+            .panel { padding: 15px !important; }
+            .section h2 { font-size: 1.2rem !important; }
+            .section h3 { font-size: 1rem !important; }
+
+            /* Stats grid */
+            .stats-grid { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+            .stat-card { padding: 15px !important; }
+            .stat-card h3 { font-size: 1.6rem !important; }
+            .stat-card p { font-size: 0.82rem !important; }
+
+            /* Grid layouts */
+            .grid-2 { grid-template-columns: 1fr !important; }
+
+            /* Tables → horizontal scroll on mobile */
+            .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            table th, table td { padding: 10px 8px !important; font-size: 0.82rem !important; white-space: nowrap; }
+
+            /* Forms */
+            input, textarea, select {
+                font-size: 16px !important; /* prevent iOS zoom */
+                touch-action: manipulation;
+                -webkit-user-select: text;
+            }
+            .editor-controls { flex-direction: column !important; gap: 8px !important; }
+            button { min-height: 40px; touch-action: manipulation; }
+
+            /* Partners, users sections */
+            .partner-card, .user-card {
+                padding: 12px !important; margin-bottom: 10px !important;
+            }
+
+            /* Action buttons */
+            .btn-group { flex-wrap: wrap !important; gap: 6px !important; }
+            .btn-group button { font-size: 0.82rem !important; padding: 7px 10px !important; }
         }
     </style>
     <script src="/static/admin-auth.js"></script>
 </head>
 <body>
-    <!-- Navigation Header -->
-    <header>
-        <a href="/static/home.html" class="header-logo">🐚 AmmoniteID</a>
-        <button class="hamburger-btn">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
-        <nav>
-            <a href="/static/home.html">Home</a>
-            <a href="/static/test.html">Identify</a>
-            <a href="/static/mylog.html">My Fossil Collection</a>
-            <a href="/static/about.html">About</a>
-            <a href="/static/contact.html">Contact</a>
-            <a href="/static/partners.html">Partners</a>
-        </nav>
-        <div class="header-right">
-            <span class="last-updated">Last updated: <span id="lastUpdate">Loading...</span></span>
-            <button class="refresh-btn" onclick="refreshData()">🔄 Refresh</button>
-            <button class="refresh-btn" onclick="adminLogout()" style="background:#c62828;">🚪 Log Out</button>
-        </div>
-    </header>
-
     <div class="container">
         <!-- Header -->
         <div class="header">
@@ -646,6 +588,9 @@
             </div>
             <div class="header-right">
                 <a href="/static/home.html" style="color:#2c5f2d; text-decoration:none; font-weight:bold; margin-right:15px;">← Home</a>
+                <span class="last-updated">Last updated: <span id="lastUpdate">Loading...</span></span>
+                <button class="refresh-btn" onclick="refreshData()">🔄 Refresh</button>
+                <button class="refresh-btn" onclick="adminLogout()" style="background:#c62828;margin-left:10px;">🚪 Log Out</button>
             </div>
         </div>
 
@@ -1397,8 +1342,6 @@
             </div>
         </div>
     </div>
-
-    <script src="/static/hamburger-menu.js"></script>
 
     <script>
         // Tab switching
