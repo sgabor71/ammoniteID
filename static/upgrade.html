@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upgrade to Premium — AmmoniteID</title>
+    <style>
+        :root { --deep-green: #2c5f2d; --light-green: #4a8c5c; --gold: #e67e22; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Georgia', serif; color: #333; background: #f9f9f4; min-height: 100vh; }
+        nav {
+            position: sticky; top: 0; background: rgba(255,255,255,0.97); backdrop-filter: blur(10px);
+            padding: 1.2rem 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); z-index: 1000;
+        }
+        .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--deep-green); text-decoration: none; }
+        .logo span { color: var(--gold); }
+        nav a.back { color: #666; text-decoration: none; font-size: 0.95rem; }
+        nav a.back:hover { text-decoration: underline; }
+
+        .hero {
+            text-align: center; padding: 60px 20px 30px; max-width: 700px; margin: 0 auto;
+        }
+        .hero h1 { font-size: 2.4rem; margin-bottom: 12px; color: var(--deep-green); }
+        .hero h1 span { color: var(--gold); }
+        .hero p { font-size: 1.15rem; color: #666; line-height: 1.6; }
+
+        .plans {
+            display: flex; gap: 24px; justify-content: center; padding: 30px 20px 50px;
+            max-width: 800px; margin: 0 auto; flex-wrap: wrap;
+        }
+        .plan {
+            background: #fff; border-radius: 16px; padding: 36px 30px; width: 340px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); text-align: center; position: relative;
+            border: 2px solid #eee; transition: transform 0.2s;
+        }
+        .plan:hover { transform: translateY(-4px); }
+        .plan.popular {
+            border-color: var(--gold); box-shadow: 0 4px 24px rgba(230,126,34,0.2);
+        }
+        .plan.popular::before {
+            content: '⭐ Best Value'; position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+            background: linear-gradient(135deg, #f39c12, #e67e22); color: #fff;
+            padding: 4px 18px; border-radius: 20px; font-size: 0.82rem; font-weight: bold;
+        }
+        .plan h2 { font-size: 1.3rem; color: #333; margin-bottom: 8px; }
+        .plan .price { font-size: 2.5rem; font-weight: bold; color: var(--deep-green); margin: 16px 0 6px; }
+        .plan .price small { font-size: 1rem; color: #888; font-weight: normal; }
+        .plan .saving { font-size: 0.88rem; color: var(--gold); font-weight: bold; margin-bottom: 16px; }
+        .plan ul { list-style: none; text-align: left; margin: 20px 0; }
+        .plan ul li { padding: 8px 0; font-size: 0.95rem; color: #555; border-bottom: 1px solid #f0f0f0; }
+        .plan ul li::before { content: '✅ '; }
+        .plan .btn-subscribe {
+            display: inline-block; width: 100%; padding: 14px;
+            background: linear-gradient(135deg, #f39c12, #e67e22); color: #fff;
+            border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold;
+            cursor: pointer; transition: all 0.3s; text-decoration: none;
+            margin-top: 10px;
+        }
+        .plan .btn-subscribe:hover { transform: scale(1.03); box-shadow: 0 4px 12px rgba(230,126,34,0.3); }
+        .plan .btn-subscribe.coming-soon {
+            background: #bbb; cursor: default;
+        }
+        .plan .btn-subscribe.coming-soon:hover { transform: none; box-shadow: none; }
+
+        .features-section {
+            max-width: 700px; margin: 0 auto; padding: 20px 20px 60px;
+        }
+        .features-section h2 { text-align: center; font-size: 1.5rem; color: var(--deep-green); margin-bottom: 24px; }
+        .feature-row {
+            display: flex; align-items: center; gap: 16px; padding: 14px 0;
+            border-bottom: 1px solid #eee; font-size: 0.95rem;
+        }
+        .feature-row .icon { font-size: 1.4rem; flex-shrink: 0; width: 36px; text-align: center; }
+        .feature-row .text strong { display: block; color: #333; }
+        .feature-row .text span { color: #888; font-size: 0.85rem; }
+
+        .note {
+            text-align: center; color: #999; font-size: 0.85rem; padding: 0 20px 40px;
+            max-width: 600px; margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .plans { flex-direction: column; align-items: center; }
+            .plan { width: 100%; max-width: 380px; }
+            .hero h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/static/home.html" class="logo">🐚 Ammonite<span>ID</span></a>
+            <a href="/static/home.html" class="back">← Back to AmmoniteID</a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <h1>Upgrade to <span>Premium</span></h1>
+        <p>Take your fossil hunting to the next level. Identify anywhere — even with no signal — save your collection, and unlock powerful tools.</p>
+    </div>
+
+    <div class="plans">
+        <div class="plan">
+            <h2>Monthly</h2>
+            <div class="price">£2.99<small>/month</small></div>
+            <div class="saving">&nbsp;</div>
+            <ul>
+                <li>Full offline identification</li>
+                <li>Save & manage your collection</li>
+                <li>Export to PDF & CSV</li>
+                <li>Advanced stats & map view</li>
+                <li>Cancel anytime</li>
+            </ul>
+            <button class="btn-subscribe" id="btnMonthly" onclick="subscribe('monthly')">Subscribe Monthly — £2.99</button>
+        </div>
+
+        <div class="plan popular">
+            <h2>Annual</h2>
+            <div class="price">£19.99<small>/year</small></div>
+            <div class="saving">Save 44% vs monthly</div>
+            <ul>
+                <li>Everything in Monthly</li>
+                <li>Full offline identification</li>
+                <li>Save & manage your collection</li>
+                <li>Export to PDF & CSV</li>
+                <li>Advanced stats & map view</li>
+            </ul>
+            <button class="btn-subscribe" id="btnAnnual" onclick="subscribe('annual')">Subscribe Annual — £19.99</button>
+        </div>
+    </div>
+
+    <div class="features-section">
+        <h2>What you unlock with Premium</h2>
+        <div class="feature-row">
+            <div class="icon">📡</div>
+            <div class="text"><strong>Offline Mode</strong><span>Identify fossils with no signal — perfect for the coast</span></div>
+        </div>
+        <div class="feature-row">
+            <div class="icon">💾</div>
+            <div class="text"><strong>Save & Manage Collection</strong><span>Keep every find in your personal fossil collection</span></div>
+        </div>
+        <div class="feature-row">
+            <div class="icon">📄</div>
+            <div class="text"><strong>Export to PDF & CSV</strong><span>Back up your collection or share it as a beautiful PDF</span></div>
+        </div>
+        <div class="feature-row">
+            <div class="icon">🗺️</div>
+            <div class="text"><strong>Location Map View</strong><span>See all your finds plotted on a map</span></div>
+        </div>
+        <div class="feature-row">
+            <div class="icon">📊</div>
+            <div class="text"><strong>Advanced Stats</strong><span>Rarity scores and deeper insights about your finds</span></div>
+        </div>
+        <div class="feature-row">
+            <div class="icon">🖼️</div>
+            <div class="text"><strong>Photo Editing</strong><span>Crop, rotate, and enhance your fossil photos</span></div>
+        </div>
+        <div class="feature-row">
+            <div class="icon">🔍</div>
+            <div class="text"><strong>Comparison Mode</strong><span>Side-by-side reference comparison</span></div>
+        </div>
+        <div class="feature-row">
+            <div class="icon">🎨</div>
+            <div class="text"><strong>Theme Switcher</strong><span>Choose between Natural and Modern themes</span></div>
+        </div>
+    </div>
+
+    <div class="note">
+        Payments are processed securely by Stripe. Cancel anytime from My Account. Your collection is stored on your device — export regularly to back up your fossils.
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        const auth = getAuth(initializeApp({
+            apiKey: "AIzaSyChXqOpXgpkLrn44mfIcPoTVPBk6neicBQ",
+            authDomain: "ammoniteid-f9d8e.firebaseapp.com",
+            projectId: "ammoniteid-f9d8e",
+            storageBucket: "ammoniteid-f9d8e.firebasestorage.app",
+            messagingSenderId: "828376677091",
+            appId: "1:828376677091:web:e302f3ff538b78bc83e3d6"
+        }));
+
+        let currentUid = null;
+
+        onAuthStateChanged(auth, (user) => {
+            currentUid = user ? user.uid : null;
+        });
+
+        window.subscribe = async function(plan) {
+            if (!currentUid) {
+                window.location.href = '/static/login.html';
+                return;
+            }
+            const btn = document.getElementById(plan === 'monthly' ? 'btnMonthly' : 'btnAnnual');
+            const orig = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Loading...';
+            try {
+                const res = await fetch('/api/stripe/create-checkout-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ uid: currentUid, plan })
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    alert('Error: ' + (err.detail || 'Could not start checkout.'));
+                    btn.disabled = false; btn.textContent = orig;
+                    return;
+                }
+                const data = await res.json();
+                window.location.href = data.url;
+            } catch (e) {
+                alert('Network error. Make sure the server is running.');
+                btn.disabled = false; btn.textContent = orig;
+            }
+        };
+
+        // Show cancelled message if returning from Stripe cancel
+        if (new URLSearchParams(window.location.search).get('cancelled') === '1') {
+            const note = document.querySelector('.note');
+            note.innerHTML = '⚠️ Payment cancelled — no charge was made. ' + note.innerHTML;
+            note.style.color = '#e67e22';
+        }
+    </script>
+</body>
+</html>

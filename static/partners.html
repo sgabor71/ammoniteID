@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Partners - AmmoniteID</title>
+    <style>
+        :root {
+            --deep-green: #2c5f2d;
+            --light-green: #97be5a;
+            --dark-brown: #4a3728;
+            --light-text: #2d2d2d;
+            --background: #faf9f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background-color: var(--background);
+            color: var(--light-text);
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        nav {
+            background: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2c5f2d;
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-menu a {
+            color: #5D4E3A;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            transition: color 0.3s;
+            padding-bottom: 5px;
+        }
+
+        .nav-menu a:hover {
+            color: #2c5f2d;
+        }
+
+        .nav-menu a.active {
+            border-bottom: 3px solid #2c5f2d;
+            color: #2c5f2d;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-outline {
+            padding: 0.6rem 1.5rem;
+            border: 2px solid #2c5f2d;
+            background: linear-gradient(135deg, #2c5f2d 0%, #1e4620 100%);
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-family: 'Arial', sans-serif;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.3s;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(44, 95, 45, 0.3);
+        }
+
+        .btn-outline:hover {
+            background: linear-gradient(135deg, #1e4620 0%, #2c5f2d 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(44, 95, 45, 0.4);
+        }
+
+        /* Header */
+        .page-header {
+            background: linear-gradient(135deg, var(--deep-green) 0%, #1e4620 100%);
+            color: white;
+            text-align: center;
+            padding: 4rem 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .page-header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .page-header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem 4rem;
+        }
+
+        .intro {
+            text-align: center;
+            margin-bottom: 3rem;
+            font-size: 1.2rem;
+            color: var(--dark-brown);
+            font-weight: bold;
+        }
+
+        /* Filter Buttons */
+        .filter-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.8rem 2rem;
+            background: white;
+            border: 2px solid var(--deep-green);
+            color: var(--deep-green);
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--deep-green);
+            color: white;
+        }
+
+        /* Partners Grid */
+        .partners-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .partner-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            border-left: 5px solid var(--deep-green);
+        }
+
+        .partner-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+        }
+
+        .partner-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .partner-logo {
+            width: 80px;
+            height: 80px;
+            min-width: 80px;
+            border-radius: 10px;
+            object-fit: cover;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            line-height: 1;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .partner-info h3 {
+            color: var(--deep-green);
+            font-size: 1.5rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .partner-description {
+            font-size: 1.1rem;
+            color: var(--light-text);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            font-weight: bold;
+        }
+
+        .partner-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .partner-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 1rem;
+            color: var(--dark-brown);
+            font-weight: bold;
+        }
+
+        .partner-detail-icon {
+            font-size: 1.2rem;
+        }
+
+        .partner-offer {
+            background: #fff8dc;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--light-green);
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+        }
+
+        .partner-offer strong {
+            color: var(--deep-green);
+        }
+
+        .partner-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .partner-btn {
+            flex: 1;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .btn-primary {
+            background: var(--deep-green);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1e4620;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--deep-green);
+            border: 2px solid var(--deep-green);
+        }
+
+        .btn-secondary:hover {
+            background: #f0f0f0;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .empty-state h2 {
+            color: var(--deep-green);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state p {
+            font-size: 1.2rem;
+            color: var(--light-text);
+            font-weight: bold;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark-brown);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+        }
+
+        footer p {
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-menu {
+                gap: 1rem;
+                font-size: 1rem;
+            }
+
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .partners-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-buttons {
+                flex-direction: column;
+            }
+
+            .filter-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="/static/home.html" class="logo">AmmoniteID</a>
+            <ul class="nav-menu">
+                <li><a href="/static/home.html">Home</a></li>
+                <li><a href="/static/test.html">Identify</a></li>
+                <li><a href="/static/mylog.html">My Collection</a></li>
+                <li><a href="/static/about.html">About</a></li>
+                <li><a href="/static/contact.html">Contact</a></li>
+                <li><a href="/static/partners.html" class="active">Partners</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <a href="#" class="btn-outline">Log In</a>
+                <a href="#" class="btn-outline">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="page-header">
+        <h1>Our Partners</h1>
+        <p>Supporting fossil hunters on the Yorkshire Coast</p>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <p class="intro">
+            Discover local businesses and services that make your fossil hunting adventure even better. 
+            Our partners offer special deals for AmmoniteID users!
+        </p>
+
+        <!-- Filter Buttons -->
+        <div class="filter-buttons">
+            <button class="filter-btn active" onclick="filterPartners('all')">All Partners</button>
+            <button class="filter-btn" onclick="filterPartners('food')">Food & Drink</button>
+            <button class="filter-btn" onclick="filterPartners('accommodation')">Accommodation</button>
+            <button class="filter-btn" onclick="filterPartners('activities')">Activities & Tours</button>
+            <button class="filter-btn" onclick="filterPartners('services')">Services</button>
+            <button class="filter-btn" onclick="filterPartners('other')">Other</button>
+        </div>
+
+        <!-- Partners Grid -->
+        <div id="partnersGrid" class="partners-grid">
+            <!-- Partners loaded dynamically -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <h2>🚧 Coming Soon</h2>
+            <p>We're currently partnering with various businesses. Check back soon!</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 AmmoniteID. All rights reserved.</p>
+    </footer>
+
+    <script>
+        let allPartners = [];
+        let currentFilter = 'all';
+
+        // Load partners from API
+        async function loadPartners() {
+            try {
+                // Try /api/content first, fallback to /api/admin/partners
+                let partnerData = [];
+                
+                try {
+                    const response = await fetch('/api/content');
+                    const data = await response.json();
+                    if (data.partners && data.partners.length > 0) {
+                        partnerData = data.partners;
+                    }
+                } catch(e) {}
+                
+                // Fallback: load from admin API directly
+                if (partnerData.length === 0) {
+                    const response2 = await fetch('/api/admin/partners');
+                    const data2 = await response2.json();
+                    partnerData = (data2.partners || []).map(p => ({
+                        id: p.partner_id,
+                        name: p.name,
+                        description: p.description || '',
+                        website: p.url,
+                        email: p.email || '',
+                        address: p.address || '',
+                        phone: p.phone || '',
+                        mapLink: p.map_link || '',
+                        offer: p.offer || '',
+                        category: p.category || 'activities',
+                        tier: p.tier || 'standard',
+                        status: p.status || 'active',
+                        logo: p.logo_emoji || '🏪',
+                        logoData: p.logo_path || '',
+                        bgColor: p.bg_color || '',
+                        anchor: p.anchor || p.partner_id
+                    }));
+                }
+                
+                // Filter active partners only
+                allPartners = partnerData.filter(p => 
+                    p.status !== 'paused' && p.status !== 'expired'
+                );
+                
+                // Sort by tier
+                const tierOrder = { premium: 0, standard: 1, basic: 2, free: 3 };
+                allPartners.sort((a, b) => (tierOrder[a.tier] || 999) - (tierOrder[b.tier] || 999));
+                
+                displayPartners();
+            } catch (error) {
+                console.error('Error loading partners:', error);
+                document.getElementById('emptyState').style.display = 'block';
+            }
+        }
+
+        // Display partners
+        function displayPartners() {
+            const grid = document.getElementById('partnersGrid');
+            const emptyState = document.getElementById('emptyState');
+
+            // Filter partners - only show active ones
+            let filteredPartners = allPartners.filter(p => p.status !== 'paused');
+            
+            if (currentFilter !== 'all') {
+                filteredPartners = filteredPartners.filter(p => p.category === currentFilter);
+            }
+
+            // Show empty state if no partners
+            if (filteredPartners.length === 0) {
+                grid.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            // Render partners
+            grid.innerHTML = filteredPartners.map(partner => {
+                const logoDisplay = partner.logoData ? 
+                    `<img src="${partner.logoData}" class="partner-logo" style="width: 80px; height: 80px; object-fit: cover; border-radius: 10px;">` :
+                    `<div class="partner-logo">${partner.logo || '🏪'}</div>`;
+                
+                const cardBorderColor = partner.bgColor || partner.bg_color || 'var(--deep-green)';
+                return `
+                <div class="partner-card" id="${partner.id || partner.anchor || ''}" style="border-left: 5px solid ${cardBorderColor};">
+                    <div class="partner-header">
+                        ${logoDisplay}
+                        <div class="partner-info">
+                            <h3>${partner.name}</h3>
+                        </div>
+                    </div>
+                    
+                    ${partner.description ? `<p class="partner-description">${partner.description}</p>` : ''}
+                    
+                    <div class="partner-details">
+                        ${partner.address ? `
+                            <div class="partner-detail">
+                                <span class="partner-detail-icon">📍</span>
+                                <span>${partner.address}</span>
+                            </div>
+                        ` : ''}
+                        ${partner.phone ? `
+                            <div class="partner-detail">
+                                <span class="partner-detail-icon">📞</span>
+                                <span>${partner.phone}</span>
+                            </div>
+                        ` : ''}
+                        ${partner.email ? `
+                            <div class="partner-detail">
+                                <span class="partner-detail-icon">📧</span>
+                                <span><a href="mailto:${partner.email}" style="color: inherit;">${partner.email}</a></span>
+                            </div>
+                        ` : ''}
+                        ${partner.website ? `
+                            <div class="partner-detail">
+                                <span class="partner-detail-icon">🌐</span>
+                                <span><a href="${partner.website}" target="_blank" style="color: inherit;">${partner.website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}</a></span>
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    ${partner.offer ? `
+                        <div class="partner-offer">
+                            <strong>🎁 Special Offer:</strong> ${partner.offer}
+                        </div>
+                    ` : ''}
+                    
+                    <div class="partner-actions">
+                        ${partner.website ? `
+                            <a href="${partner.website}" target="_blank" class="partner-btn btn-primary">Visit Website</a>
+                        ` : ''}
+                        ${partner.mapLink ? `
+                            <a href="${partner.mapLink}" target="_blank" class="partner-btn btn-secondary">📍 Get Directions</a>
+                        ` : ''}
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        // Filter partners by category
+        function filterPartners(category) {
+            currentFilter = category;
+            
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Display filtered partners
+            displayPartners();
+        }
+
+        // Load partners on page load
+        window.addEventListener('load', () => {
+            loadPartners();
+            // After loading, scroll to partner if anchor is in URL
+            setTimeout(() => {
+                const hash = window.location.hash;
+                if (hash) {
+                    const target = document.querySelector(hash);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        target.style.boxShadow = '0 0 20px rgba(44, 95, 45, 0.5)';
+                        target.style.transition = 'box-shadow 0.5s';
+                        setTimeout(() => { target.style.boxShadow = ''; }, 3000);
+                    }
+                }
+            }, 1000);
+        });
+    </script>
+
+    <!-- Firebase Authentication -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyChXqOpXgpkLrn44mfIcPoTVPBk6neicBQ",
+            authDomain: "ammoniteid-f9d8e.firebaseapp.com",
+            projectId: "ammoniteid-f9d8e",
+            storageBucket: "ammoniteid-f9d8e.firebasestorage.app",
+            messagingSenderId: "828376677091",
+            appId: "1:828376677091:web:e302f3ff538b78bc83e3d6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        onAuthStateChanged(auth, (user) => {
+            const authButtons = document.querySelector('.auth-buttons');
+            if (user) {
+                const displayName = user.displayName || user.email.split('@')[0];
+                authButtons.innerHTML = `
+                    <span style="color: var(--dark-brown); margin-right: 1rem; font-weight: bold;">Welcome, ${displayName}</span>
+                    <button class="btn-outline" onclick="handleLogout()">Log Out</button>
+                `;
+            } else {
+                authButtons.innerHTML = `
+                    <a href="/static/home.html#login" class="btn-outline">Log In</a>
+                    <a href="/static/home.html#signup" class="btn-outline">Sign Up</a>
+                `;
+            }
+        });
+
+        window.handleLogout = async function() {
+            try {
+                await signOut(auth);
+                window.location.href = '/static/home.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        };
+    </script>
+</body>
+</html>

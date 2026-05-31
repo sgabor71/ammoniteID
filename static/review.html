@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Queue - AmmoniteID</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Merriweather', serif;
+            background: #F5F1E8;
+            color: #000000;
+            line-height: 1.6;
+            background-image: url('background.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        nav {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            padding: 1.25rem 2rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        nav .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav .logo {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #2c5f2d;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        nav .logo:hover {
+            transform: translateX(-3px);
+        }
+
+        .home-btn {
+            padding: 0.75rem 1.75rem;
+            background: linear-gradient(135deg, #2c5f2d 0%, #1e4620 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            text-decoration: none;
+            font-family: 'Arial', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            box-shadow: 0 4px 12px rgba(44, 95, 45, 0.2);
+        }
+
+        .home-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(44, 95, 45, 0.3);
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            color: #2c5f2d;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #1a1a1a;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c5f2d;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* Queue Container */
+        .queue-container {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .main-content {
+            flex: 1;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e0e0e0;
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 1rem 1.5rem;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-family: 'Arial', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #666;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .tab:hover {
+            color: #2c5f2d;
+            background: rgba(44, 95, 45, 0.05);
+        }
+
+        .tab.active {
+            color: #2c5f2d;
+            border-bottom-color: #2c5f2d;
+        }
+
+        .tab-count {
+            display: inline-block;
+            background: #e0e0e0;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            margin-left: 0.5rem;
+        }
+
+        .tab.active .tab-count {
+            background: #2c5f2d;
+            color: white;
+        }
+
+        /* Review List/Table */
+        .review-list {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+        }
+
+        .review-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .review-table thead {
+            background: linear-gradient(135deg, #2c5f2d, #1e4620);
+            color: white;
+        }
+
+        .review-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .review-table tbody tr {
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .review-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .review-table tbody tr.expanded {
+            background: #e8f5e9;
+        }
+
+        .review-table td {
+            padding: 1rem;
+            color: #1a1a1a;
+        }
+
+        .review-table td img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .review-table td img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-confidence {
+            font-weight: 600;
+        }
+
+        .card-confidence.high {
+            color: #28a745;
+        }
+
+        .card-confidence.medium {
+            color: #ffc107;
+        }
+
+        .card-confidence.low {
+            color: #dc3545;
+        }
+
+        .error-flag {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            font-family: 'Arial', sans-serif;
+            margin-bottom: 0.25rem;
+            display: inline-block;
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+            margin-right: 0.5rem;
+        }
+
+        .corrected-flag {
+            background: linear-gradient(135deg, #28a745, #218838);
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            font-family: 'Arial', sans-serif;
+            margin-bottom: 0.25rem;
+            display: inline-block;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+            margin-right: 0.5rem;
+        }
+
+        /* Expanded Details Row */
+        .expanded-details {
+            background: #f8f9fa;
+            border-top: 2px solid #2c5f2d;
+        }
+
+        .expanded-content {
+            padding: 2rem;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .detail-photos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-photos img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid #e0e0e0;
+        }
+
+        .detail-photos img:hover {
+            transform: scale(1.05);
+            border-color: #2c5f2d;
+            box-shadow: 0 4px 12px rgba(44, 95, 45, 0.3);
+        }
+
+        .detail-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #2c5f2d;
+        }
+
+        .detail-item strong {
+            color: #2c5f2d;
+            display: block;
+            margin-bottom: 0.25rem;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .genus-breakdown {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .genus-breakdown h4 {
+            color: #2c5f2d;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+
+        .genus-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-family: 'Arial', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .genus-item.top {
+            background: rgba(44, 95, 45, 0.1);
+            border-left: 3px solid #2c5f2d;
+            font-weight: 600;
+        }
+
+        .detail-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .detail-actions button {
+            padding: 0.6rem 1.25rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Arial', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .btn-correct {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-correct:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-incorrect {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-incorrect:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .btn-ambiguous {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .btn-ambiguous:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        .btn-delete {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-keep {
+            background: #2c5f2d;
+            color: white;
+        }
+
+        .btn-keep:hover {
+            background: #1e4620;
+            transform: translateY(-2px);
+        }
+
+        .btn-keep.active {
+            background: #1e4620;
+        }
+
+        .auto-delete-info {
+            padding: 1rem;
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .auto-delete-info.warning {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            margin: 2rem;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: #dc3545;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            font-weight: bold;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .modal-close:hover {
+            background: #c82333;
+            transform: rotate(90deg);
+        }
+
+        .detail-header {
+            background: linear-gradient(135deg, #2c5f2d, #1e4620);
+            color: white;
+            padding: 2rem;
+        }
+
+        .detail-header h2 {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        /* Zoom Modal */
+        .zoom-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .zoom-modal.active {
+            display: flex;
+        }
+
+        .zoom-container {
+            position: relative;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow: hidden;
+        }
+
+        .zoom-image {
+            max-width: 100%;
+            max-height: 90vh;
+            cursor: move;
+            transition: transform 0.3s ease;
+        }
+
+        .zoom-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 1rem;
+            border-radius: 50px;
+        }
+
+        .zoom-controls button {
+            background: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .zoom-controls button:hover {
+            background: #2c5f2d;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .detail-info {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-actions {
+                flex-direction: column;
+            }
+
+            .detail-actions button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <a href="/static/home.html" class="logo">
+                <span>←</span> <span>🐚 AmmoniteID</span>
+            </a>
+            <a href="/static/home.html" class="home-btn">
+                🏠 Back to Home
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="card">
+            <h1>Expert Review Queue</h1>
+            <p class="subtitle">Review and validate AI identifications</p>
+
+            <!-- Stats Bar -->
+            <div class="stats-bar" id="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-total">0</div>
+                    <div class="stat-label">Total Entries</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-pending">0</div>
+                    <div class="stat-label">Pending Review</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-reviewed">0</div>
+                    <div class="stat-label">Reviewed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-ambiguous">0</div>
+                    <div class="stat-label">Ambiguous</div>
+                </div>
+            </div>
+
+            <!-- Queue Container -->
+            <div class="queue-container">
+                <div class="main-content">
+                    <!-- Tabs -->
+                    <div class="tabs">
+                        <button class="tab active" onclick="switchTab('pending')">
+                            Pending <span class="tab-count" id="countPending">0</span>
+                        </button>
+                        <button class="tab" onclick="switchTab('reviewed')">
+                            Reviewed <span class="tab-count" id="countReviewed">0</span>
+                        </button>
+                        <button class="tab" onclick="switchTab('incorrect')">
+                            Incorrect <span class="tab-count" id="countIncorrect">0</span>
+                        </button>
+                        <button class="tab" onclick="switchTab('ambiguous')">
+                            Ambiguous <span class="tab-count" id="countAmbiguous">0</span>
+                        </button>
+                    </div>
+
+                    <!-- Review List -->
+                    <div class="review-list">
+                        <table class="review-table">
+                            <thead>
+                                <tr>
+                                    <th>Photo</th>
+                                    <th>Family</th>
+                                    <th>Genus</th>
+                                    <th>Confidence</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>▼</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reviewTableBody">
+                                <!-- Populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Correction Modal -->
+    <div class="modal" id="correctionModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeCorrectionModal()">×</button>
+            
+            <div class="detail-header">
+                <h2>Correct Identification</h2>
+            </div>
+            
+            <div style="padding: 2rem;">
+                <p style="margin-bottom: 1.5rem; font-family: Arial; color: #666;">
+                    AI identified as: <strong id="aiIdentification"></strong><br>
+                    Please provide the correct identification:
+                </p>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-family: Arial; font-weight: 600; margin-bottom: 0.5rem; color: #2c5f2d;">Correct Family:</label>
+                    <select id="correctFamily" style="width: 100%; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 8px; font-family: Arial; font-size: 1rem;">
+                        <option value="">Select family...</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-family: Arial; font-weight: 600; margin-bottom: 0.5rem; color: #2c5f2d;">Correct Genus:</label>
+                    <select id="correctGenus" style="width: 100%; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 8px; font-family: Arial; font-size: 1rem;">
+                        <option value="">Select genus...</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-family: Arial; font-weight: 600; margin-bottom: 0.5rem; color: #2c5f2d;">Notes (optional):</label>
+                    <textarea id="correctionNotes" style="width: 100%; min-height: 80px; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 8px; font-family: Arial; font-size: 1rem; resize: vertical;"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button onclick="submitCorrection()" style="flex: 1; padding: 0.75rem; background: #2c5f2d; color: white; border: none; border-radius: 8px; font-family: Arial; font-weight: 600; font-size: 1rem; cursor: pointer;">
+                        ✓ Submit Correction
+                    </button>
+                    <button onclick="closeCorrectionModal()" style="flex: 1; padding: 0.75rem; background: #e0e0e0; color: #666; border: none; border-radius: 8px; font-family: Arial; font-weight: 600; font-size: 1rem; cursor: pointer;">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Photo Zoom Modal -->
+    <div class="zoom-modal" id="zoomModal">
+        <div class="zoom-container" id="zoomContainer">
+            <img id="zoomImage" class="zoom-image" alt="Zoomed photo">
+            <div class="zoom-controls">
+                <button onclick="zoomIn()">+</button>
+                <button onclick="zoomOut()">−</button>
+                <button onclick="resetZoom()">⟲</button>
+                <button onclick="closeZoom()">✕</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load from LocalStorage
+        let identifications = loadFromLocalStorage();
+        let currentTab = 'pending';
+        let expandedRow = null;
+        
+        function loadFromLocalStorage() {
+            const stored = localStorage.getItem('ammoniteReviewQueue');
+            if (stored) {
+                return JSON.parse(stored);
+            }
+            return [];
+        }
+        
+        function saveToLocalStorage() {
+            localStorage.setItem('ammoniteReviewQueue', JSON.stringify(identifications));
+            console.log('✓ Saved to localStorage');
+        }
+        
+        function calculateAutoDeleteDate(days) {
+            const date = new Date();
+            date.setDate(date.getDate() + days);
+            return date.toISOString().split('T')[0];
+        }
+
+        // Zoom variables
+        let currentZoom = 1;
+        let zoomImage = null;
+        let isDragging = false;
+        let startX, startY, translateX = 0, translateY = 0;
+
+        // Initialize
+        window.onload = function() {
+            identifications = loadFromLocalStorage();
+            updateCounts();
+            filterByStatus('pending');
+        };
+
+        // Update counts
+        function updateCounts() {
+            const total = identifications.length;
+            const pending = identifications.filter(i => i.status === 'pending').length;
+            const reviewed = identifications.filter(i => i.status === 'reviewed').length;
+            const incorrect = identifications.filter(i => i.status === 'incorrect').length;
+            const ambiguous = identifications.filter(i => i.status === 'ambiguous').length;
+
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-pending').textContent = pending;
+            document.getElementById('stat-reviewed').textContent = reviewed;
+            document.getElementById('stat-ambiguous').textContent = ambiguous;
+
+            document.getElementById('countPending').textContent = pending;
+            document.getElementById('countReviewed').textContent = reviewed;
+            document.getElementById('countIncorrect').textContent = incorrect;
+            document.getElementById('countAmbiguous').textContent = ambiguous;
+        }
+
+        // Switch tab
+        function switchTab(tab) {
+            currentTab = tab;
+            expandedRow = null; // Collapse any open row
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            filterByStatus(tab);
+        }
+
+        // Filter by status
+        function filterByStatus(status) {
+            const filtered = identifications.filter(i => i.status === status);
+            renderGrid(filtered);
+        }
+
+        // Render table
+        function renderGrid(items) {
+            const tbody = document.getElementById('reviewTableBody');
+            tbody.innerHTML = '';
+
+            if (items.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 3rem; color: #999;">No entries in this category</td></tr>';
+                return;
+            }
+
+            items.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.dataset.id = item.id;
+                tr.onclick = (e) => {
+                    if (!e.target.closest('img') && !e.target.closest('button')) {
+                        toggleExpand(item.id);
+                    }
+                };
+                
+                if (expandedRow === item.id) {
+                    tr.classList.add('expanded');
+                }
+
+                const confClass = item.confidence >= 70 ? 'high' : 
+                                  item.confidence >= 50 ? 'medium' : 'low';
+
+                // Determine flag: Error Corrected (green) or Error Reported (red)
+                let flag = '';
+                if (item.mlTrainingFlag && item.correctedFamily) {
+                    flag = '<div class="corrected-flag">✓ Error Corrected</div>';
+                } else if (item.userReportedError) {
+                    flag = '<div class="error-flag">🚩 Error Reported</div>';
+                }
+
+                tr.innerHTML = `
+                    <td><img src="${item.photo}" alt="${item.genus}" onclick="openZoom('${item.photo}'); event.stopPropagation();"></td>
+                    <td>${item.family}</td>
+                    <td>${flag}${item.genus}</td>
+                    <td class="card-confidence ${confClass}">${item.confidence}%</td>
+                    <td>${formatDate(item.date)}</td>
+                    <td>${item.status}</td>
+                    <td style="text-align: center;">${expandedRow === item.id ? '▲' : '▼'}</td>
+                `;
+
+                tbody.appendChild(tr);
+
+                // Add expanded details if this row is expanded
+                if (expandedRow === item.id) {
+                    const detailTr = document.createElement('tr');
+                    detailTr.className = 'expanded-details';
+                    detailTr.innerHTML = `
+                        <td colspan="7">
+                            <div class="expanded-content">
+                                ${renderDetailContent(item)}
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(detailTr);
+                }
+            });
+        }
+
+        // Toggle expand row
+        function toggleExpand(id) {
+            if (expandedRow === id) {
+                expandedRow = null;
+            } else {
+                expandedRow = id;
+            }
+            filterByStatus(currentTab);
+        }
+
+        // Render detail content
+        function renderDetailContent(item) {
+            const deleteInDays = item.autoDeleteDate && !item.keepForever ? 
+                Math.ceil((new Date(item.autoDeleteDate) - new Date()) / (1000 * 60 * 60 * 24)) : null;
+
+            let autoDeleteHTML = '';
+            if (!item.keepForever && deleteInDays !== null) {
+                const warningClass = deleteInDays <= 7 ? 'warning' : '';
+                autoDeleteHTML = `
+                    <div class="auto-delete-info ${warningClass}">
+                        ⏱️ Auto-delete in ${deleteInDays} day${deleteInDays !== 1 ? 's' : ''}
+                    </div>
+                `;
+            } else if (item.keepForever) {
+                autoDeleteHTML = `
+                    <div class="auto-delete-info" style="background: #d4edda; border-left-color: #28a745;">
+                        ✓ Kept Forever
+                    </div>
+                `;
+            }
+
+            let errorReportHTML = '';
+            if (item.userReportedError && !item.mlTrainingFlag) {
+                errorReportHTML = `
+                    <div style="background: #fff3cd; border-left: 4px solid #ff9800; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+                        <strong style="color: #856404;">🚩 User Reported Error:</strong><br>
+                        Suggested Genus: <strong>${item.reportedGenus || 'Not specified'}</strong><br>
+                        ${item.reportNotes ? `Notes: ${item.reportNotes}` : ''}
+                    </div>
+                `;
+            }
+
+            let correctionHTML = '';
+            if (item.mlTrainingFlag && item.correctedFamily) {
+                correctionHTML = `
+                    <div style="background: #d4edda; border-left: 4px solid #28a745; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+                        <strong style="color: #155724;">✓ Expert Correction Applied:</strong><br>
+                        Corrected to: <strong>${item.correctedFamily} - ${item.correctedGenus}</strong><br>
+                        ${item.correctionNotes ? `Notes: ${item.correctionNotes}` : ''}
+                        <br><small style="color: #666;">Flagged for ML retraining</small>
+                    </div>
+                `;
+            }
+
+            let genusHTML = '';
+            if (item.genusBreakdown && item.genusBreakdown.length > 0) {
+                genusHTML = `
+                    <div class="genus-breakdown">
+                        <h4>Genera (Subfamilies) Likelihood</h4>
+                        ${item.genusBreakdown.map((g, i) => `
+                            <div class="genus-item ${i === 0 ? 'top' : ''}">
+                                <span>${g.genus}</span>
+                                <span>${g.percentage}%</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            return `
+                ${autoDeleteHTML}
+                ${errorReportHTML}
+                ${correctionHTML}
+
+                <div class="detail-photos">
+                    ${item.allPhotos ? item.allPhotos.map(p => `
+                        <img src="${p}" alt="${item.genus}" onclick="openZoom('${p}')">
+                    `).join('') : `<img src="${item.photo}" alt="${item.genus}" onclick="openZoom('${item.photo}')">`}
+                </div>
+
+                <div class="detail-info">
+                    <div class="detail-item">
+                        <strong>Family</strong>
+                        ${item.family}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Genus</strong>
+                        ${item.genus}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Confidence</strong>
+                        ${item.confidence}%
+                    </div>
+                    <div class="detail-item">
+                        <strong>Date</strong>
+                        ${formatDate(item.date)}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Status</strong>
+                        ${item.status}
+                    </div>
+                </div>
+
+                ${genusHTML}
+
+                <div class="detail-actions">
+                    <button class="btn-correct" onclick="markAsReviewed(${item.id})">✓ Correct</button>
+                    <button class="btn-incorrect" onclick="openCorrectionModal(${item.id})">✗ Incorrect - Correct It</button>
+                    <button class="btn-ambiguous" onclick="markAsAmbiguous(${item.id})">❓ Ambiguous</button>
+                    <button class="btn-delete" onclick="deleteIdentification(${item.id})">❌ Delete</button>
+                    <button class="btn-keep ${item.keepForever ? 'active' : ''}" onclick="toggleKeepForever(${item.id})">
+                        ${item.keepForever ? '✓ Keep Forever' : '☐ Keep Forever'}
+                    </button>
+                </div>
+            `;
+        }
+
+        // Mark functions
+        function markAsReviewed(id) {
+            const item = identifications.find(i => i.id === id);
+            if (item) {
+                item.status = 'reviewed';
+                item.reviewedAt = new Date().toISOString();
+                item.autoDeleteDate = calculateAutoDeleteDate(30);
+                saveToLocalStorage();
+                
+                expandedRow = null;
+                
+                setTimeout(() => {
+                    updateCounts();
+                    filterByStatus(currentTab);
+                }, 100);
+            }
+        }
+
+        function markAsAmbiguous(id) {
+            const item = identifications.find(i => i.id === id);
+            if (item) {
+                item.status = 'ambiguous';
+                item.markedAmbiguousAt = new Date().toISOString();
+                item.autoDeleteDate = calculateAutoDeleteDate(90);
+                saveToLocalStorage();
+                
+                expandedRow = null;
+                
+                setTimeout(() => {
+                    updateCounts();
+                    filterByStatus(currentTab);
+                }, 100);
+            }
+        }
+
+        function deleteIdentification(id) {
+            if (confirm('Are you sure you want to permanently delete this entry?')) {
+                const index = identifications.findIndex(i => i.id === id);
+                
+                if (index > -1) {
+                    identifications.splice(index, 1);
+                    saveToLocalStorage();
+                    
+                    // Also remove from My Log
+                    let myLogs = JSON.parse(localStorage.getItem('ammoniteMyLogs') || '[]');
+                    const logIndex = myLogs.findIndex(log => log.id === id);
+                    if (logIndex > -1) {
+                        myLogs.splice(logIndex, 1);
+                        localStorage.setItem('ammoniteMyLogs', JSON.stringify(myLogs));
+                    }
+                    
+                    expandedRow = null;
+                    
+                    setTimeout(() => {
+                        updateCounts();
+                        filterByStatus(currentTab);
+                    }, 100);
+                }
+            }
+        }
+
+        function toggleKeepForever(id) {
+            const item = identifications.find(i => i.id === id);
+            if (item) {
+                item.keepForever = !item.keepForever;
+                item.autoDeleteDate = item.keepForever ? null : calculateAutoDeleteFromStatus(item);
+                saveToLocalStorage();
+                filterByStatus(currentTab);
+            }
+        }
+
+        function calculateAutoDeleteFromStatus(item) {
+            if (!item.status) return null;
+            
+            let days = 30;
+            
+            switch(item.status) {
+                case 'pending':
+                    days = 90;
+                    break;
+                case 'reviewed':
+                case 'incorrect':
+                    days = 30;
+                    break;
+                case 'ambiguous':
+                    days = 90;
+                    break;
+            }
+            
+            const deleteDate = new Date();
+            deleteDate.setDate(deleteDate.getDate() + days);
+            return deleteDate.toISOString().split('T')[0];
+        }
+
+        // Correction Modal
+        let currentCorrectionId = null;
+
+        const families = [
+            'Hildoceratidae',
+            'Dactylioceratidae',
+            'Amaltheidae',
+            'Schiloceratidae',
+            'Eleganticeratidae',
+            'Androgynoceratidae',
+            'Arietitidae',
+            'Polymorphitidae',
+            'Eoderoceratidae'
+        ];
+
+        const genera = [
+            'Harpoceras',
+            'Hildoceras',
+            'Grammoceras',
+            'Pseudolioceras',
+            'Dactylioceras',
+            'Catacoeloceras',
+            'Peronoceras',
+            'Gagaticeras',
+            'Amaltheus',
+            'Arnioceras',
+            'Eleganticeras',
+            'Androgynoceras',
+            'Arietites',
+            'Polymorphites',
+            'Eoderoceras'
+        ];
+
+        function populateCorrectionDropdowns() {
+            const familySelect = document.getElementById('correctFamily');
+            const genusSelect = document.getElementById('correctGenus');
+
+            families.forEach(f => {
+                const opt = document.createElement('option');
+                opt.value = f;
+                opt.textContent = f;
+                familySelect.appendChild(opt);
+            });
+
+            genera.forEach(g => {
+                const opt = document.createElement('option');
+                opt.value = g;
+                opt.textContent = g;
+                genusSelect.appendChild(opt);
+            });
+        }
+
+        function openCorrectionModal(id) {
+            const item = identifications.find(i => i.id === id);
+            if (!item) return;
+
+            currentCorrectionId = id;
+
+            if (document.getElementById('correctFamily').options.length === 1) {
+                populateCorrectionDropdowns();
+            }
+
+            document.getElementById('aiIdentification').textContent = `${item.family} - ${item.genus} (${item.confidence}%)`;
+            document.getElementById('correctFamily').value = '';
+            document.getElementById('correctGenus').value = '';
+            document.getElementById('correctionNotes').value = '';
+
+            document.getElementById('correctionModal').classList.add('active');
+        }
+
+        function closeCorrectionModal() {
+            document.getElementById('correctionModal').classList.remove('active');
+            currentCorrectionId = null;
+        }
+
+        function submitCorrection() {
+            const family = document.getElementById('correctFamily').value;
+            const genus = document.getElementById('correctGenus').value;
+            const notes = document.getElementById('correctionNotes').value;
+
+            if (!family || !genus) {
+                alert('Please select both Family and Genus');
+                return;
+            }
+
+            const item = identifications.find(i => i.id === currentCorrectionId);
+            if (item) {
+                item.status = 'incorrect';
+                item.correctedFamily = family;
+                item.correctedGenus = genus;
+                item.correctionNotes = notes;
+                item.markedIncorrectAt = new Date().toISOString();
+                item.autoDeleteDate = calculateAutoDeleteDate(30);
+                item.mlTrainingFlag = true;
+
+                saveToLocalStorage();
+
+                closeCorrectionModal();
+                expandedRow = null;
+
+                setTimeout(() => {
+                    updateCounts();
+                    filterByStatus(currentTab);
+                }, 100);
+
+                alert('✓ Correction submitted! This will be used to improve the AI model.');
+            }
+        }
+
+        // Format date DD/MM/YYYY
+        function formatDate(dateStr) {
+            const d = new Date(dateStr);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        // Photo zoom functions
+        function openZoom(src) {
+            zoomImage = document.getElementById('zoomImage');
+            zoomImage.src = src;
+            currentZoom = 1;
+            translateX = 0;
+            translateY = 0;
+            updateZoom();
+            document.getElementById('zoomModal').classList.add('active');
+
+            // Mouse wheel zoom
+            document.getElementById('zoomContainer').addEventListener('wheel', handleWheel);
+            
+            // Drag to pan
+            zoomImage.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', endDrag);
+        }
+
+        function closeZoom() {
+            document.getElementById('zoomModal').classList.remove('active');
+            document.getElementById('zoomContainer').removeEventListener('wheel', handleWheel);
+            zoomImage.removeEventListener('mousedown', startDrag);
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', endDrag);
+        }
+
+        function zoomIn() {
+            currentZoom = Math.min(currentZoom + 0.5, 5);
+            updateZoom();
+        }
+
+        function zoomOut() {
+            currentZoom = Math.max(currentZoom - 0.5, 1);
+            if (currentZoom === 1) {
+                translateX = 0;
+                translateY = 0;
+            }
+            updateZoom();
+        }
+
+        function resetZoom() {
+            currentZoom = 1;
+            translateX = 0;
+            translateY = 0;
+            updateZoom();
+        }
+
+        function updateZoom() {
+            zoomImage.style.transform = `scale(${currentZoom}) translate(${translateX}px, ${translateY}px)`;
+        }
+
+        function handleWheel(e) {
+            e.preventDefault();
+            if (e.deltaY < 0) {
+                zoomIn();
+            } else {
+                zoomOut();
+            }
+        }
+
+        function startDrag(e) {
+            if (currentZoom > 1) {
+                isDragging = true;
+                startX = e.clientX - translateX;
+                startY = e.clientY - translateY;
+                zoomImage.style.cursor = 'grabbing';
+            }
+        }
+
+        function drag(e) {
+            if (isDragging) {
+                translateX = e.clientX - startX;
+                translateY = e.clientY - startY;
+                updateZoom();
+            }
+        }
+
+        function endDrag() {
+            isDragging = false;
+            if (currentZoom > 1) {
+                zoomImage.style.cursor = 'move';
+            } else {
+                zoomImage.style.cursor = 'default';
+            }
+        }
+
+        // Close zoom on click outside
+        document.getElementById('zoomModal').onclick = function(e) {
+            if (e.target === this) closeZoom();
+        };
+
+        // Close modals on Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeCorrectionModal();
+                closeZoom();
+            }
+        });
+    </script>
+
+</body>
+</html>

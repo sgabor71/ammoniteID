@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account — AmmoniteID</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --cream: #F5F1E8; --dark-brown: #5D4E3A; --stone: #8B7355;
+            --deep-green: #2c5f2d; --light-green: #4a7c59;
+            --dark-text: #1a1a1a; --light-text: #666;
+            --shadow: 0 8px 32px rgba(0,0,0,0.12);
+        }
+        body { font-family: 'Georgia', serif; background: var(--cream); color: var(--dark-text); min-height: 100vh; }
+        nav {
+            background: rgba(255,255,255,0.98); backdrop-filter: blur(20px);
+            padding: 1.25rem 2rem; box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            position: sticky; top: 0; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo { font-size: 1.6rem; font-weight: bold; color: var(--deep-green); text-decoration: none; }
+        .nav-links { display: flex; gap: 2rem; list-style: none; }
+        .nav-links a { text-decoration: none; color: var(--dark-text); font-weight: 500; }
+        .nav-links a:hover { color: var(--deep-green); }
+        .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+        .card {
+            background: white; border-radius: 16px;
+            box-shadow: var(--shadow); padding: 30px; margin-bottom: 24px;
+        }
+        .card h2 { color: var(--deep-green); margin-bottom: 20px; font-size: 1.4rem; }
+        .account-header {
+            display: flex; align-items: center; gap: 20px;
+        }
+        .avatar {
+            width: 70px; height: 70px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--deep-green), var(--light-green));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; color: white; flex-shrink: 0;
+        }
+        .account-info h3 { font-size: 1.3rem; margin-bottom: 4px; }
+        .account-info p { color: var(--light-text); font-size: 0.95rem; }
+        .tier-badge {
+            display: inline-block; padding: 6px 16px; border-radius: 20px;
+            font-weight: bold; font-size: 0.9rem; margin-top: 8px;
+        }
+        .tier-free { background: #fff3e0; color: #e67e22; }
+        .tier-premium { background: #e8f5e9; color: var(--deep-green); }
+        .info-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid #f0f0f0;
+        }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { color: var(--light-text); font-size: 0.95rem; }
+        .info-value { font-weight: bold; color: var(--dark-text); }
+        .btn {
+            display: inline-block; padding: 12px 24px; border-radius: 8px;
+            font-size: 1rem; font-weight: bold; cursor: pointer;
+            text-decoration: none; text-align: center; border: none;
+            transition: all 0.3s;
+        }
+        .btn-green { background: var(--deep-green); color: white; }
+        .btn-green:hover { background: #1e4620; }
+        .btn-orange { background: linear-gradient(135deg, #f39c12, #e67e22); color: white; }
+        .btn-orange:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-red { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+        .btn-red:hover { background: #ffcdd2; }
+        .btn-outline { background: white; color: var(--deep-green); border: 2px solid var(--deep-green); }
+        .btn-outline:hover { background: var(--deep-green); color: white; }
+        .btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+        .warning-box {
+            background: #fff3cd; border-left: 4px solid #ff9800;
+            padding: 14px; border-radius: 8px; margin-top: 16px;
+            font-size: 0.9rem; color: #555;
+        }
+        .success-box {
+            background: #e8f5e9; border-left: 4px solid var(--deep-green);
+            padding: 14px; border-radius: 8px; margin-top: 16px;
+            font-size: 0.9rem; color: #333;
+        }
+        #loading { text-align: center; padding: 60px; color: var(--light-text); }
+        #notLoggedIn { display: none; }
+        #accountContent { display: none; }
+        .danger-zone { border: 2px solid #ffcdd2; }
+        .danger-zone h2 { color: #c62828; }
+        input[type="password"] {
+            width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0;
+            border-radius: 6px; font-size: 1rem; margin-top: 8px;
+        }
+        .password-wrapper { position: relative; }
+        .toggle-pwd {
+            position: absolute; right: 10px; top: 50%;
+            transform: translateY(-50%); background: none; border: none;
+            cursor: pointer; font-size: 1rem; color: #999;
+        }
+        #msgBox { display: none; margin-top: 12px; padding: 12px; border-radius: 6px; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="/static/home.html" class="logo">🐚 AmmoniteID</a>
+    <ul class="nav-links">
+        <li><a href="/static/home.html">Home</a></li>
+        <li><a href="/static/test.html">Identify</a></li>
+        <li><a href="/static/mylog.html">My Collection</a></li>
+    </ul>
+    <div id="navAuth"></div>
+</nav>
+
+<div class="container">
+
+    <!-- Loading state -->
+    <div id="loading">Loading your account...</div>
+
+    <!-- Not logged in -->
+    <div id="notLoggedIn">
+        <div class="card" style="text-align:center; padding:50px;">
+            <div style="font-size:3rem;margin-bottom:15px;">🔒</div>
+            <h2 style="color:var(--deep-green);margin-bottom:10px;">Please Log In</h2>
+            <p style="color:var(--light-text);margin-bottom:20px;">You need to be logged in to view your account.</p>
+            <a href="/static/login.html" class="btn btn-green">Log In / Sign Up</a>
+        </div>
+    </div>
+
+    <!-- Account content (shown when logged in) -->
+    <div id="accountContent">
+
+        <!-- Profile Card -->
+        <div class="card">
+            <h2>👤 My Account</h2>
+            <div class="account-header">
+                <div class="avatar" id="avatarIcon">👤</div>
+                <div class="account-info">
+                    <h3 id="displayName">Loading...</h3>
+                    <p id="userEmail">—</p>
+                    <span class="tier-badge" id="tierBadge">FREE</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subscription Card -->
+        <div class="card" id="subscriptionCard">
+            <h2>⭐ Subscription</h2>
+            <div id="freeInfo" style="display:none;">
+                <div class="info-row">
+                    <span class="info-label">Current Plan</span>
+                    <span class="info-value">Free</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Identifications</span>
+                    <span class="info-value">Unlimited (online only)</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Offline Mode</span>
+                    <span class="info-value">❌ Not available</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">My Collection</span>
+                    <span class="info-value">❌ Not available</span>
+                </div>
+                <div class="btn-row">
+                    <a href="/static/upgrade.html" class="btn btn-orange">⭐ Upgrade to Premium — £2.99/month</a>
+                </div>
+            </div>
+
+            <div id="premiumInfo" style="display:none;">
+                <div class="info-row">
+                    <span class="info-label">Current Plan</span>
+                    <span class="info-value" style="color:var(--deep-green);">⭐ Premium</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Offline Mode</span>
+                    <span class="info-value">✅ Enabled</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">My Collection</span>
+                    <span class="info-value">✅ Enabled</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Expires</span>
+                    <span class="info-value" id="premiumExpiry">—</span>
+                </div>
+                <div class="warning-box">
+                    ⚠️ To cancel or change your subscription, please contact us at <a href="/static/contact.html" style="color:var(--deep-green);">our contact page</a>. Stripe management coming soon.
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-red" onclick="confirmDowngrade()">↓ Downgrade to Free</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change Password Card -->
+        <div class="card">
+            <h2>🔑 Change Password</h2>
+            <div class="form-group">
+                <label style="display:block;margin-bottom:6px;color:var(--light-text);font-size:0.95rem;">New Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="newPassword" placeholder="Enter new password (min 6 characters)">
+                    <button type="button" class="toggle-pwd" onclick="togglePwd('newPassword', this)">👁️</button>
+                </div>
+            </div>
+            <div class="form-group" style="margin-top:15px;">
+                <label style="display:block;margin-bottom:6px;color:var(--light-text);font-size:0.95rem;">Confirm New Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="confirmPassword" placeholder="Confirm new password">
+                    <button type="button" class="toggle-pwd" onclick="togglePwd('confirmPassword', this)">👁️</button>
+                </div>
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-green" onclick="changePassword()">Update Password</button>
+            </div>
+            <div id="msgBox"></div>
+        </div>
+
+        <!-- Sign Out Card -->
+        <div class="card danger-zone">
+            <h2>⚠️ Account Actions</h2>
+            <div class="btn-row">
+                <button class="btn btn-outline" onclick="handleLogout()">🚪 Log Out</button>
+                <button class="btn btn-red" onclick="confirmDeleteAccount()" style="margin-left:auto;">🗑️ Delete Account</button>
+            </div>
+            <p style="color:var(--light-text);font-size:0.85rem;margin-top:12px;">
+                Deleting your account is permanent and cannot be undone. All your data will be removed.
+            </p>
+        </div>
+
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getAuth, onAuthStateChanged, signOut, updatePassword } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+    const auth = getAuth(initializeApp({
+        apiKey:        "AIzaSyChXqOpXgpkLrn44mfIcPoTVPBk6neicBQ",
+        authDomain:    "ammoniteid-f9d8e.firebaseapp.com",
+        projectId:     "ammoniteid-f9d8e",
+        storageBucket: "ammoniteid-f9d8e.firebasestorage.app",
+        messagingSenderId: "828376677091",
+        appId:         "1:828376677091:web:e302f3ff538b78bc83e3d6"
+    }));
+    let currentUser = null;
+
+    onAuthStateChanged(auth, async (user) => {
+        document.getElementById('loading').style.display = 'none';
+        if (!user) {
+            document.getElementById('notLoggedIn').style.display = 'block';
+            return;
+        }
+        currentUser = user;
+        document.getElementById('accountContent').style.display = 'block';
+
+        // Nav
+        document.getElementById('navAuth').innerHTML =
+            `<button onclick="handleLogout()" style="padding:8px 16px;background:none;border:2px solid var(--deep-green);border-radius:6px;color:var(--deep-green);font-weight:bold;cursor:pointer;">Log Out</button>`;
+
+        // Fill profile
+        const name = user.displayName || user.email.split('@')[0];
+        document.getElementById('displayName').textContent = name;
+        document.getElementById('userEmail').textContent = user.email;
+        document.getElementById('avatarIcon').textContent = name.charAt(0).toUpperCase();
+
+        // Get tier from backend
+        try {
+            const res = await fetch(`/api/auth/me/${user.uid}`);
+            if (res.ok) {
+                const data = await res.json();
+                const tier = (data.tier || 'FREE').toUpperCase();
+                localStorage.setItem('ammonite_tier', tier);
+                const badge = document.getElementById('tierBadge');
+                badge.textContent = tier === 'PREMIUM' ? '⭐ Premium' : '👤 Free';
+                badge.className = 'tier-badge ' + (tier === 'PREMIUM' ? 'tier-premium' : 'tier-free');
+                if (tier === 'PREMIUM') {
+                    document.getElementById('premiumInfo').style.display = 'block';
+                    document.getElementById('premiumExpiry').textContent =
+                        data.premium_expires ? data.premium_expires.split('T')[0] : 'No expiry set';
+                } else {
+                    document.getElementById('freeInfo').style.display = 'block';
+                }
+            }
+        } catch (e) {
+            document.getElementById('freeInfo').style.display = 'block';
+        }
+    });
+
+    function togglePwd(id, btn) {
+        const input = document.getElementById(id);
+        input.type = input.type === 'password' ? 'text' : 'password';
+        btn.textContent = input.type === 'password' ? '👁️' : '🙈';
+    }
+
+    function showMsg(msg, isError) {
+        const el = document.getElementById('msgBox');
+        el.style.display = 'block';
+        el.style.background = isError ? '#ffebee' : '#e8f5e9';
+        el.style.color = isError ? '#c62828' : '#2e7d32';
+        el.textContent = msg;
+    }
+
+    async function changePassword() {
+        const newPwd     = document.getElementById('newPassword').value;
+        const confirmPwd = document.getElementById('confirmPassword').value;
+        if (!newPwd || !confirmPwd) { showMsg('Both fields required', true); return; }
+        if (newPwd !== confirmPwd)   { showMsg('Passwords do not match', true); return; }
+        if (newPwd.length < 6)       { showMsg('Password must be at least 6 characters', true); return; }
+        try {
+            await updatePassword(currentUser, newPwd);
+            showMsg('✅ Password updated successfully!', false);
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        } catch (error) {
+            if (error.code === 'auth/requires-recent-login') {
+                showMsg('Please log out and log back in before changing your password.', true);
+            } else {
+                showMsg('Error: ' + error.message, true);
+            }
+        }
+    }
+
+    async function confirmDowngrade() {
+        const ok = confirm('Downgrade to Free?\n\nYou will lose:\n• Offline mode\n• My Collection\n• Premium features\n\nAre you sure?');
+        if (!ok) return;
+        try {
+            const res = await fetch(`/api/auth/set-tier/${currentUser.uid}?tier=FREE`, { method: 'POST' });
+            if (res.ok) {
+                localStorage.setItem('ammonite_tier', 'FREE');
+                alert('✅ Downgraded to Free tier. Changes take effect immediately.');
+                window.location.reload();
+            } else {
+                alert('Error downgrading. Please contact support.');
+            }
+        } catch (e) {
+            alert('Error: ' + e.message);
+        }
+    }
+
+    async function handleLogout() {
+        localStorage.removeItem('admin_uid');
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('ammonite_user_id');
+        localStorage.removeItem('ammonite_tier');
+        await signOut(auth);
+        window.location.href = '/static/home.html';
+    }
+
+    function confirmDeleteAccount() {
+        const ok = confirm('DELETE ACCOUNT?\n\nThis is permanent and cannot be undone.\nAll your data will be removed.\n\nType "DELETE" to confirm in the next prompt.');
+        if (!ok) return;
+        const confirm2 = prompt('Type DELETE to permanently delete your account:');
+        if (confirm2 !== 'DELETE') { alert('Cancelled.'); return; }
+        alert('Account deletion request received. Please contact us to complete this process.\n\nThis will be automated in a future update.');
+    }
+
+    // Expose to onclick attributes
+    window.handleLogout         = handleLogout;
+    window.changePassword       = changePassword;
+    window.confirmDowngrade     = confirmDowngrade;
+    window.confirmDeleteAccount = confirmDeleteAccount;
+    window.togglePwd            = togglePwd;
+</script>
+
+</body>
+</html>

@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In / Sign Up — AmmoniteID</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --deep-green: #2c5f2d; --accent: #e67e22; --light-bg: #f9f9f4; }
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, var(--deep-green) 0%, #1e4620 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 420px;
+            width: 100%;
+        }
+        .logo {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        h1 {
+            text-align: center;
+            color: var(--deep-green);
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #999;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #333;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+        .password-wrapper {
+            position: relative;
+        }
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: Arial, sans-serif;
+            transition: border-color 0.3s;
+        }
+        .password-wrapper input {
+            padding-right: 44px;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--deep-green);
+            box-shadow: 0 0 0 3px rgba(44, 95, 45, 0.1);
+        }
+        .toggle-pwd {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            color: #999;
+            padding: 0;
+            width: auto;
+        }
+        .toggle-pwd:hover { color: #333; }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--deep-green);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.05rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #1e4620;
+        }
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tab-btn.active {
+            color: var(--deep-green);
+            border-bottom-color: var(--deep-green);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .back-link a {
+            color: var(--deep-green);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🐚</div>
+        <h1>AmmoniteID</h1>
+        <p class="subtitle">Fossil Identification</p>
+
+        <div class="error" id="errorMsg"></div>
+
+        <!-- Tabs: Login / Sign Up -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="login">Log In</button>
+            <button class="tab-btn" data-tab="signup">Sign Up</button>
+        </div>
+
+        <!-- LOGIN TAB -->
+        <div id="login" class="tab-content active">
+            <div class="form-group">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email">
+            </div>
+
+            <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+                    <button type="button" class="toggle-pwd" id="toggleLoginPwd">👁️</button>
+                </div>
+            </div>
+
+            <button class="btn" id="loginBtn">Log In</button>
+        </div>
+
+        <!-- SIGNUP TAB -->
+        <div id="signup" class="tab-content">
+            <div class="form-group">
+                <label for="signupEmail">Email</label>
+                <input type="email" id="signupEmail" placeholder="your@email.com" autocomplete="email">
+            </div>
+
+            <div class="form-group">
+                <label for="signupPassword">Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="signupPassword" placeholder="••••••••" autocomplete="new-password">
+                    <button type="button" class="toggle-pwd" id="toggleSignupPwd">👁️</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="signupConfirm">Confirm Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="signupConfirm" placeholder="••••••••" autocomplete="new-password">
+                    <button type="button" class="toggle-pwd" id="toggleConfirmPwd">👁️</button>
+                </div>
+            </div>
+
+            <button class="btn" id="signupBtn">Create Account</button>
+        </div>
+
+        <div class="back-link">
+            <a href="/static/home.html">← Back to Home</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp }                                          from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        const app  = initializeApp({
+            apiKey:    "AIzaSyChXqOpXgpkLrn44mfIcPoTVPBk6neicBQ",
+            authDomain:"ammoniteid-f9d8e.firebaseapp.com",
+            projectId: "ammoniteid-f9d8e",
+            appId:     "1:828376677091:web:e302f3ff538b78bc83e3d6"
+        });
+        const auth = getAuth(app);
+
+        // ── UI helpers ───────────────────────────────────────
+        function showError(msg) {
+            const el = document.getElementById('errorMsg');
+            el.textContent = msg;
+            el.style.display = 'block';
+        }
+        function clearError() {
+            document.getElementById('errorMsg').style.display = 'none';
+        }
+        function setLoading(btnId, loading, label) {
+            const btn = document.getElementById(btnId);
+            btn.disabled = loading;
+            btn.innerHTML = loading ? '<span class="spinner"></span>' + label : label;
+        }
+        function firebaseMsg(code) {
+            if (!code) return 'Something went wrong. Try again.';
+            if (code.includes('invalid-credential') || code.includes('invalid-login-credentials') ||
+                code.includes('user-not-found')     || code.includes('wrong-password'))
+                return 'Incorrect email or password.';
+            if (code.includes('invalid-email'))        return 'Invalid email address.';
+            if (code.includes('email-already-in-use')) return 'Email already registered. Try logging in.';
+            if (code.includes('weak-password'))        return 'Password too weak (min 6 characters).';
+            if (code.includes('too-many-requests'))    return 'Too many attempts. Try again later.';
+            if (code.includes('user-disabled'))        return 'This account has been disabled.';
+            if (code.includes('network-request-failed')) return 'Network error. Check your connection.';
+            return 'Error: ' + code;
+        }
+
+        // ── Sync user to backend (non-fatal, 5s timeout) ─────
+        async function syncUser(uid, email, displayName) {
+            try {
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 5000);
+                const res = await fetch('/api/auth/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ uid, email, display_name: displayName }),
+                    signal: controller.signal
+                });
+                clearTimeout(timeout);
+                if (res.ok) {
+                    const data = await res.json();
+                    const tier = (data.user?.tier || 'FREE').toUpperCase();
+                    localStorage.setItem('ammonite_tier', tier);
+                }
+            } catch (e) {
+                console.warn('Sync failed (non-fatal):', e.message);
+            }
+            localStorage.setItem('ammonite_user_id', uid);
+            localStorage.removeItem('admin_uid');
+            localStorage.removeItem('admin_token');
+        }
+
+        // ── Login ─────────────────────────────────────────────
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const pwd   = document.getElementById('loginPassword').value;
+            if (!email || !pwd) { showError('Email and password required'); return; }
+            clearError();
+            setLoading('loginBtn', true, 'Logging in...');
+            console.log('Login attempt:', email);
+            try {
+                console.log('Calling Firebase signInWithEmailAndPassword...');
+                const cred = await signInWithEmailAndPassword(auth, email, pwd);
+                console.log('Firebase auth success, uid:', cred.user.uid);
+                await syncUser(cred.user.uid, cred.user.email, cred.user.displayName || email.split('@')[0]);
+                console.log('Sync complete, redirecting...');
+                window.location.href = '/static/test.html';
+            } catch (err) {
+                console.error('Login error:', err.code, err.message);
+                showError(firebaseMsg(err.code) + ' [' + (err.code || 'unknown') + ']');
+                setLoading('loginBtn', false, 'Log In');
+            }
+        }
+
+        // ── Signup ────────────────────────────────────────────
+        async function handleSignup() {
+            const email   = document.getElementById('signupEmail').value.trim();
+            const pwd     = document.getElementById('signupPassword').value;
+            const confirm = document.getElementById('signupConfirm').value;
+            if (!email || !pwd || !confirm) { showError('All fields required'); return; }
+            if (pwd !== confirm)            { showError('Passwords do not match'); return; }
+            if (pwd.length < 6)             { showError('Password must be at least 6 characters'); return; }
+            clearError();
+            setLoading('signupBtn', true, 'Creating account...');
+            try {
+                const cred = await createUserWithEmailAndPassword(auth, email, pwd);
+                await syncUser(cred.user.uid, email, email.split('@')[0]);
+                window.location.href = '/static/test.html';
+            } catch (err) {
+                showError(firebaseMsg(err.code));
+                setLoading('signupBtn', false, 'Create Account');
+            }
+        }
+
+        // ── Tab switching ─────────────────────────────────────
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            document.querySelector(`.tab-btn[data-tab="${tabName}"]`).classList.add('active');
+            clearError();
+        }
+
+        // ── Toggle password visibility ────────────────────────
+        function togglePwd(inputId, btn) {
+            const input = document.getElementById(inputId);
+            input.type = input.type === 'password' ? 'text' : 'password';
+            btn.textContent = input.type === 'password' ? '👁️' : '🙈';
+        }
+
+        // ── Wire up events ────────────────────────────────────
+        document.getElementById('loginBtn').addEventListener('click', handleLogin);
+        document.getElementById('signupBtn').addEventListener('click', handleSignup);
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+        });
+
+        document.getElementById('toggleLoginPwd').addEventListener('click',  e => togglePwd('loginPassword', e.currentTarget));
+        document.getElementById('toggleSignupPwd').addEventListener('click', e => togglePwd('signupPassword', e.currentTarget));
+        document.getElementById('toggleConfirmPwd').addEventListener('click',e => togglePwd('signupConfirm',  e.currentTarget));
+
+        ['loginEmail','loginPassword'].forEach(id =>
+            document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); })
+        );
+        ['signupEmail','signupPassword','signupConfirm'].forEach(id =>
+            document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') handleSignup(); })
+        );
+    </script>
+</body>
+</html>

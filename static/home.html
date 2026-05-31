@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AmmoniteID - Identify Ammonites Instantly</title>
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#2c5f2d">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AmmoniteID">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Merriweather', serif;
+            background: #F5F1E8;
+            color: #1a1a1a;
+            line-height: 1.6;
+            background-image: url('background.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+        }
+
+        /* Navigation */
+        nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 8px rgba(61, 48, 39, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        nav .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2c5f2d;
+            text-decoration: none;
+        }
+
+        nav .nav-links {
+            display: flex;
+            gap: 1.2rem;
+            list-style: none;
+            flex-wrap: nowrap;
+            flex: 1;
+            justify-content: center;
+        }
+
+        nav .nav-links a {
+            color: #5D4E3A;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.3s;
+            padding-bottom: 3px;
+            border-bottom: 3px solid transparent;
+        }
+
+        nav .nav-links a:hover {
+            color: #2c5f2d;
+        }
+
+        nav .nav-links a.active {
+            color: #2c5f2d;
+            border-bottom: 3px solid #2c5f2d;
+        }
+
+        nav .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-outline {
+            padding: 0.6rem 1.5rem;
+            border: 2px solid #2c5f2d;
+            background: linear-gradient(135deg, #2c5f2d 0%, #1e4620 100%);
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-family: 'Arial', sans-serif;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.3s;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(44, 95, 45, 0.3);
+        }
+
+        .btn-outline:hover {
+            background: linear-gradient(135deg, #1e4620 0%, #2c5f2d 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(44, 95, 45, 0.4);
+        }
+
+        /* Hero Section */
+        .hero {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .hero-content-center {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero-content-center h1 {
+            font-size: 3.5rem;
+            color: #000000;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+            font-weight: bold;
+        }
+
+        .hero-content-center p {
+            font-size: 1.3rem;
+            color: #000000;
+            margin-bottom: 2.5rem;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-weight: 500;
+        }
+
+        .btn-identify-large {
+            display: inline-block;
+            padding: 2rem 4rem;
+            background: linear-gradient(135deg, #2c5f2d 0%, #1e4620 100%);
+            color: white;
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(44, 95, 45, 0.4);
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        .btn-identify-large:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 12px 32px rgba(44, 95, 45, 0.6);
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 8px 24px rgba(44, 95, 45, 0.4); }
+            50% { box-shadow: 0 8px 32px rgba(44, 95, 45, 0.6); }
+        }
+
+        .hero-stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-text {
+            font-size: 1.3rem;
+            color: #1a1a1a;
+            font-weight: 600;
+            display: block;
+        }
+
+        .pricing-comparison {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .pricing-comparison h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #000000;
+            margin-bottom: 3rem;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .plan-column {
+            background: rgba(255, 255, 255, 0.6);
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .plan-column:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .plan-column.premium {
+            background: rgba(255, 255, 255, 0.6);
+            border: 3px solid #2c5f2d;
+            position: relative;
+        }
+
+        .plan-column h3 {
+            font-size: 2rem;
+            color: #1a1a1a;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: bold;
+        }
+
+        .premium-badge {
+            background: linear-gradient(135deg, #2c5f2d 0%, #1e4620 100%);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 2rem 0;
+        }
+
+        .feature-list li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            font-size: 1.15rem;
+            line-height: 1.6;
+            font-weight: bold;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .btn-upgrade {
+            display: inline-block;
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #2c5f2d 0%, #1e4620 100%);
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(44, 95, 45, 0.3);
+        }
+
+        .btn-upgrade:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(44, 95, 45, 0.4);
+        }
+
+        .btn-download-free {
+            display: inline-block;
+            width: 100%;
+            padding: 1rem 2rem;
+            background: #ecf0f1;
+            color: #2c5f2d;
+            text-align: center;
+            text-decoration: none;
+            border: 2px solid #2c5f2d;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-download-free:hover {
+            background: #2c5f2d;
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        footer {
+            background: rgba(61, 48, 39, 0.95);
+            color: #E8DCC8;
+            padding: 3rem 2rem 1rem 2rem;
+        }
+
+        footer .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h4 {
+            color: #8B7355;
+            margin-bottom: 1rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section a {
+            color: #E8DCC8;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: #8B7355;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #5D4E3A;
+            color: #A89A87;
+            font-size: 0.9rem;
+        }
+
+        .scroll-arrow {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            z-index: 999;
+            transition: all 0.3s ease;
+        }
+
+        .scroll-text {
+            background: rgba(44, 95, 45, 0.95);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(44, 95, 45, 0.4);
+        }
+
+        .arrow-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #2c5f2d 0%, #1e4620 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(44, 95, 45, 0.4);
+            animation: bounce 2s infinite;
+        }
+
+        .scroll-arrow:hover .arrow-icon {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(44, 95, 45, 0.6);
+        }
+
+        .scroll-arrow:hover .scroll-text {
+            background: rgba(30, 70, 32, 1);
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                grid-template-columns: 1fr;
+                padding: 2rem 1rem;
+            }
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+            nav .container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            nav .nav-links {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container">
+            <a href="/static/home.html" class="logo">AmmoniteID</a>
+            <ul class="nav-links">
+                <li><a href="/static/home.html" class="active">Home</a></li>
+                <li><a href="/static/test.html">Identify</a></li>
+                <li><a href="/static/mylog.html">My Fossil Collection</a></li>
+                <li><a href="/static/about.html">About</a></li>
+                <li><a href="/static/contact.html">Contact</a></li>
+                <li><a href="/static/partners.html">Partners</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <a href="#login" class="btn-outline">Log In</a>
+                <a href="#signup" class="btn-outline">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <div id="partner-ad-banner"></div>
+
+    <section class="hero">
+        <div class="hero-content-center">
+            <!-- Download buttons on either side of title -->
+            <div style="display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:20px;flex-wrap:wrap;width:100%;">
+                <button onclick="showFreeModeInfo()" style="padding:14px 32px;background:rgba(255,255,255,0.25);color:white;border:2px solid rgba(255,255,255,0.7);border-radius:30px;font-size:1.05rem;font-weight:bold;cursor:pointer;backdrop-filter:blur(4px);transition:all 0.3s;min-width:160px;" onmouseover="this.style.background='rgba(255,255,255,0.4)';this.style.transform='scale(1.05)'" onmouseout="this.style.background='rgba(255,255,255,0.25)';this.style.transform='scale(1)'">
+                    📲 Download Free
+                </button>
+
+                <div>
+                    <h1 id="heroTitle" style="margin-bottom:0;">Identify Your Ammonite Fossils Instantly</h1>
+                </div>
+
+                <a href="/static/upgrade.html" style="padding:14px 32px;background:linear-gradient(135deg,#f39c12,#e67e22);color:white;border:none;border-radius:30px;font-size:1.05rem;font-weight:bold;cursor:pointer;text-decoration:none;display:inline-block;transition:all 0.3s;box-shadow:0 4px 15px rgba(230,126,34,0.5);min-width:160px;text-align:center;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    ⭐ Download Premium
+                </a>
+            </div>
+
+            <p id="heroSubtitle">Upload a photo and discover what you've found</p>
+            <a href="/static/test.html" class="btn-identify-large" id="ctaButton">🔍 IDENTIFY NOW</a>
+
+            <div class="hero-stats-cards">
+                <div class="stat-card"><span class="stat-text" id="feature1Title">AI-powered fossil identification</span></div>
+                <div class="stat-card"><span class="stat-text" id="feature2Title">Accurate, fast, and easy to use</span></div>
+                <div class="stat-card"><span class="stat-text" id="feature3Title">Hundreds of identifications processed daily</span></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="pricing-comparison" id="features">
+        <div class="container">
+            <h2>Choose Your Plan</h2>
+            <div class="comparison-grid">
+                <div class="plan-column">
+                    <h3>Free Account</h3>
+                    <ul class="feature-list">
+                        <li>✅ Unlimited identifications - upload up to 3 files or take up to 3 photos</li>
+                        <li>✅ Online mode only (requires mobile or Wi-Fi signal)</li>
+                        <li>✅ Take photos offline, identify later when back online</li>
+                        
+                    </ul>
+                    <button class="btn-download-free" onclick="showFreeModeInfo()">📲 Download Free</button>
+                </div>
+                <div class="plan-column premium">
+                    <h3>Premium Account <span class="premium-badge">UPGRADE</span></h3>
+                    <ul class="feature-list">
+                        <li>✅ Unlimited identifications - upload up to 3 files or take up to 3 photos</li>
+                        <li>✅ Save to My Fossil Collection</li>
+                        <li>✅ Offline mode — identify anywhere, even without signal</li>
+                        <li>✅ Advanced stats (rarity scores, insights)</li>
+                        <li>✅ Location map view</li>
+                        <li>✅ Export your collection (PDF, CSV)</li>
+                        
+                    </ul>
+                    <a href="/static/upgrade.html" class="btn-upgrade">⭐ Download Premium</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FREE MODE INFO MODAL -->
+    <div id="freeModeModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:#fff; border-radius:16px; max-width:440px; width:90%; padding:32px; margin:auto; position:relative; box-shadow:0 8px 30px rgba(0,0,0,0.2);">
+            <h2 style="color:#2c5f2d; margin-bottom:20px; font-size:1.4rem;">📡 How Free Mode Works</h2>
+
+            <div style="margin-bottom:18px;">
+                <div style="font-weight:bold; color:#2c5f2d; margin-bottom:6px;">🌐 With internet signal:</div>
+                <div style="color:#555; padding-left:28px;">Take a photo → Identify now</div>
+            </div>
+
+            <div style="margin-bottom:18px;">
+                <div style="font-weight:bold; color:#c0392b; margin-bottom:6px;">📵 Without signal:</div>
+                <div style="color:#555; padding-left:28px;">Take photos → Identify later<br>when you're back online</div>
+            </div>
+
+            <div style="background:#f0f8f0; border-radius:10px; padding:14px; margin-bottom:24px;">
+                <div style="font-weight:bold; color:#e67e22; margin-bottom:4px;">⭐ With Premium:</div>
+                <div style="color:#555; padding-left:28px;">Take a photo → Identify now<br>— even without signal</div>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <button onclick="acceptFreeMode()" style="flex:1; padding:12px; background:#2c5f2d; color:#fff; border:none; border-radius:10px; font-size:1rem; font-weight:bold; cursor:pointer;">📲 Download Free</button>
+                <a href="/static/upgrade.html" style="flex:1; padding:12px; background:linear-gradient(135deg,#f39c12,#e67e22); color:#fff; border:none; border-radius:10px; font-size:1rem; font-weight:bold; cursor:pointer; text-decoration:none; text-align:center; display:flex; align-items:center; justify-content:center;">⭐ Download Premium</a>
+            </div>
+
+            <button onclick="closeFreeModeModal()" style="position:absolute; top:12px; right:16px; background:none; border:none; font-size:1.5rem; color:#999; cursor:pointer;">×</button>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section"><h4>Legal</h4><ul><li><a href="/static/disclaimer.html">Disclaimer</a></li><li><a href="/static/privacy.html">Privacy Policy</a></li><li><a href="/static/terms.html">Terms of Service</a></li></ul></div>
+                <div class="footer-section"><h4>Admin</h4><ul><li><a href="/static/admin-setup.html">Admin Setup</a></li></ul></div>
+            </div>
+            <div class="footer-bottom"><p>&copy; 2025 AmmoniteID. Created by fossil enthusiasts for fossil enthusiasts.</p></div>
+        </div>
+    </footer>
+
+    <div class="scroll-arrow" id="scrollArrow">
+        <span class="scroll-text">Scroll Down</span>
+        <span class="arrow-icon">▼</span>
+    </div>
+
+    <script>
+        const scrollArrow = document.getElementById('scrollArrow');
+        function updateScrollArrow() {
+            const scrollPosition = window.scrollY;
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            if (scrollPosition + windowHeight >= documentHeight - 100) {
+                scrollArrow.style.opacity = '0';
+                scrollArrow.style.pointerEvents = 'none';
+            } else {
+                scrollArrow.style.opacity = '1';
+                scrollArrow.style.pointerEvents = 'auto';
+            }
+        }
+        window.addEventListener('scroll', updateScrollArrow);
+        window.addEventListener('resize', updateScrollArrow);
+        updateScrollArrow();
+        scrollArrow.addEventListener('click', () => { window.scrollBy({ top: window.innerHeight, behavior: 'smooth' }); });
+    </script>
+
+        <style>
+        /* ── Partner Ad Banner — HYBRID canonical block (identical on all pages) ── */
+        #partner-ad-banner {
+            position: sticky;
+            top: 70px;
+            z-index: 99;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+            min-height: 140px;
+            overflow: hidden;
+            transform: translateY(-110%);
+            opacity: 0;
+        }
+        @keyframes bannerSlideIn {
+            from { transform: translateY(-110%); opacity: 0; }
+            to   { transform: translateY(0);     opacity: 1; }
+        }
+        @keyframes bannerSlideOut {
+            from { transform: translateY(0);     opacity: 1; }
+            to   { transform: translateY(-110%); opacity: 0; }
+        }
+        .banner-in  { animation: bannerSlideIn  0.6s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .banner-out { animation: bannerSlideOut 0.4s ease forwards; }
+        @keyframes adFromLeft {
+            from { transform: translateX(-40px); opacity: 0; }
+            to   { transform: translateX(0);     opacity: 1; }
+        }
+        @keyframes adFromRight {
+            from { transform: translateX(40px); opacity: 0; }
+            to   { transform: translateX(0);    opacity: 1; }
+        }
+        @keyframes adFromTop {
+            from { transform: translateY(-30px); opacity: 0; }
+            to   { transform: translateY(0);     opacity: 1; }
+        }
+        @keyframes adFromBottom {
+            from { transform: translateY(30px); opacity: 0; }
+            to   { transform: translateY(0);    opacity: 1; }
+        }
+        @keyframes adFadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        .ad-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            min-height: 140px;
+            padding: 1rem 2rem;
+            flex-wrap: wrap;
+        }
+        .ad-left {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+        }
+        .ad-partner-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #1a1a1a;
+            text-decoration: none;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .ad-partner-name:hover { text-decoration: underline; color: #2c5f2d; }
+        .ad-detail {
+            font-family: Arial, sans-serif;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #333;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .ad-detail a { color: #2c5f2d; text-decoration: none; font-weight: bold; }
+        .ad-detail a:hover { text-decoration: underline; }
+        .ad-bar { color: rgba(0,0,0,0.35); padding: 0 13px; font-weight: 400; flex-shrink: 0; }
+        .ad-offer {
+            margin-left: 14px;
+            font-family: Arial, sans-serif;
+            font-size: 0.88rem;
+            font-weight: bold;
+            color: #1e4620;
+            background: rgba(255,255,255,0.7);
+            padding: 3px 10px;
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+        .ad-more-info {
+            flex-shrink: 0;
+            padding: 0.5rem 1.1rem;
+            background: #2c5f2d;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-family: Arial, sans-serif;
+            font-size: 0.9rem;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+        .ad-more-info:hover { background: #1e4620; transform: translateY(-2px); }
+        @media (max-width: 768px) {
+            .ad-content { padding: 0 1rem; gap: 0.5rem; }
+            .ad-detail { font-size: 0.78rem; }
+            .ad-partner-name { font-size: 0.95rem; }
+            .ad-bar { padding: 0 8px; }
+            .ad-offer { font-size: 0.76rem; margin-left: 8px; }
+            .ad-more-info { font-size: 0.78rem; padding: 0.4rem 0.7rem; }
+        }
+    </style>
+
+        <script>
+        let partners = [];
+        let adRotationTimer = null;
+        let rotationIndex = 0;
+        let rotationList = [];
+
+        async function loadAdPartners() {
+            try {
+                const response = await fetch('/api/admin/partners');
+                const data = await response.json();
+                partners = (data.partners || []).filter(p => p.status === 'active' && p.active).map(p => ({
+                    name: p.name, url: p.url, email: p.email || '', phone: p.phone || '',
+                    bgColor: p.bg_color, anchor: p.anchor || p.partner_id,
+                    description: p.description || '', offer: p.offer || '',
+                    logo_path: p.logo_path || '',
+                    display_duration: (p.display_duration || 15) * 1000,
+                    rotation_weight: p.rotation_weight || 1
+                }));
+                if (partners.length > 0) initializeAds();
+                else { const b = document.getElementById('partner-ad-banner'); if (b) b.style.display = 'none'; }
+            } catch (error) {
+                console.error('Error loading ad partners:', error);
+                partners = [{ name: "Lyme Regis Museum", url: "https://www.lymeregismuseum.co.uk", email: "info@lymeregismuseum.co.uk", phone: "+44 1297 443370", bgColor: "rgba(255,182,193,1.0)", anchor: "lyme-regis-museum", description: "Discover millions of years of history", offer: "", logo_path: "", display_duration: 15000, rotation_weight: 1 }];
+                initializeAds();
+            }
+        }
+
+        const adAnimations = ['adFromLeft', 'adFromRight', 'adFromTop', 'adFromBottom', 'adFadeIn'];
+
+        function showAd(index) {
+            const banner = document.getElementById('partner-ad-banner');
+            if (!banner || !partners[index]) return;
+            const partner = partners[index];
+
+            // Persist state across pages
+            localStorage.setItem('adCurrentIndex', index);
+            localStorage.setItem('adShownTime', Date.now());
+
+            if (typeof trackAdImpression === 'function') trackAdImpression(partner.anchor, partner.name);
+            const adShownTime = Date.now();
+
+            const existingAd = banner.querySelector('.ad-content');
+            if (existingAd) existingAd.remove();
+
+            banner.style.backgroundColor = partner.bgColor;
+
+            const logo = partner.logo_path
+                ? `<img src="${partner.logo_path}" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;">`
+                : '';
+
+            const website = partner.url ? partner.url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '') : '';
+            const nameClickUrl = partner.url ? partner.url : `/static/partners.html#${partner.anchor}`;
+            const nameTarget = partner.url ? '_blank' : '_self';
+
+            let details = [];
+            if (website)       details.push(`<span class="ad-detail"><a href="${partner.url}" target="_blank" onclick="event.stopPropagation()">${website}</a></span>`);
+            if (partner.phone) details.push(`<span class="ad-detail"><a href="tel:${partner.phone}" onclick="event.stopPropagation()">${partner.phone}</a></span>`);
+            if (partner.email) details.push(`<span class="ad-detail"><a href="mailto:${partner.email}" onclick="event.stopPropagation()">${partner.email}</a></span>`);
+            if (partner.description) details.push(`<span class="ad-detail">${partner.description.length > 60 ? partner.description.slice(0,60)+'…' : partner.description}</span>`);
+
+            const bar = '<span class="ad-bar">|</span>';
+            const detailsHtml = details.length ? bar + details.join(bar) : '';
+            const offerHtml = partner.offer ? `<span class="ad-offer">🎁 ${partner.offer}</span>` : '';
+
+            // Random animation (slow, 1.2s)
+            const anim = adAnimations[Math.floor(Math.random() * adAnimations.length)];
+
+            const adContent = document.createElement('div');
+            adContent.className = 'ad-content';
+            adContent.style.animation = `${anim} 1.2s ease forwards`;
+            adContent.innerHTML =
+                `<div class="ad-left">` +
+                    `<a href="${nameClickUrl}" target="${nameTarget}" class="ad-partner-name">${logo}${partner.name}</a>` +
+                    detailsHtml +
+                    offerHtml +
+                `</div>` +
+                `<a href="/static/partners.html#${partner.anchor}" class="ad-more-info">More info →</a>`;
+
+            banner.appendChild(adContent);
+
+            // Slide whole banner in on every ad load/rotation
+            banner.classList.remove('banner-in', 'banner-out');
+            requestAnimationFrame(() => banner.classList.add('banner-in'));
+
+            if (typeof trackAdClick === 'function') {
+                const nameEl = adContent.querySelector('.ad-partner-name');
+                const moreEl = adContent.querySelector('.ad-more-info');
+                nameEl.addEventListener('click', () => trackAdClick(partner.anchor, partner.name, Math.round((Date.now()-adShownTime)/1000)));
+                moreEl.addEventListener('click', () => trackAdClick(partner.anchor, partner.name, Math.round((Date.now()-adShownTime)/1000)));
+            }
+        }
+
+        function buildRotationList() {
+            let list = [];
+            partners.forEach((p, i) => { const w = p.rotation_weight || 1; for (let k = 0; k < w; k++) list.push(i); });
+            return list;
+        }
+
+        function rotateAd() {
+            if (rotationList.length === 0) return;
+            rotationIndex = (rotationIndex + 1) % rotationList.length;
+            const pIndex = rotationList[rotationIndex];
+            const banner = document.getElementById('partner-ad-banner');
+            const duration = partners[pIndex].display_duration || 15000;
+            clearTimeout(adRotationTimer);
+            // Slide banner out, swap content, slide back in
+            if (banner) {
+                banner.classList.remove('banner-in');
+                banner.classList.add('banner-out');
+                setTimeout(() => {
+                    showAd(pIndex);
+                }, 400);
+            } else {
+                showAd(pIndex);
+            }
+            adRotationTimer = setTimeout(rotateAd, duration);
+        }
+
+        function initializeAds() {
+            const banner = document.getElementById('partner-ad-banner');
+            if (partners.length === 0) { if (banner) banner.style.display = 'none'; return; }
+            
+            rotationList = buildRotationList();
+
+            // Resume from localStorage if possible
+            const savedIndex = parseInt(localStorage.getItem('adCurrentIndex') || '0');
+            const savedTime = parseInt(localStorage.getItem('adShownTime') || '0');
+            const elapsed = Date.now() - savedTime;
+            
+            // Find the saved index in rotation list
+            let startPos = rotationList.indexOf(savedIndex);
+            if (startPos === -1) startPos = 0;
+            
+            const currentPartner = partners[rotationList[startPos]] || partners[0];
+            const duration = currentPartner.display_duration || 15000;
+            const remaining = Math.max(duration - elapsed, 1000);
+            
+            rotationIndex = startPos;
+            showAd(rotationList[rotationIndex]);
+            
+            if (partners.length > 1) {
+                adRotationTimer = setTimeout(rotateAd, remaining);
+            }
+        }
+
+        window.addEventListener('load', loadAdPartners);
+    </script>
+
+    <script src="/static/ad-tracking.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyChXqOpXgpkLrn44mfIcPoTVPBk6neicBQ",
+            authDomain: "ammoniteid-f9d8e.firebaseapp.com",
+            projectId: "ammoniteid-f9d8e",
+            storageBucket: "ammoniteid-f9d8e.firebasestorage.app",
+            messagingSenderId: "828376677091",
+            appId: "1:828376677091:web:e302f3ff538b78bc83e3d6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        onAuthStateChanged(auth, (user) => {
+            const authButtons = document.querySelector('.auth-buttons');
+            if (user) {
+                const displayName = user.displayName || user.email.split('@')[0];
+                authButtons.innerHTML = `<a href="/static/my-account.html" style="color:var(--dark-brown);margin-right:1rem;font-weight:bold;text-decoration:none;">👤 ${displayName}</a><button class="btn-outline" onclick="handleLogout()">Log Out</button>`;
+            } else {
+                authButtons.innerHTML = `<a href="/static/login.html" class="btn-outline">Log In</a><a href="/static/login.html" class="btn-outline">Sign Up</a>`;
+            }
+        });
+
+        window.handleLogout = async function() { try { localStorage.removeItem('admin_uid'); localStorage.removeItem('admin_token'); await signOut(auth); window.location.reload(); } catch (error) { alert('Error logging out.'); } };
+    </script>
+
+    <script async>
+        async function loadPageContent() {
+            try {
+                const response = await fetch('/api/content/home');
+                const data = await response.json();
+                if (data.title) document.getElementById('heroTitle').textContent = data.title;
+                if (data.subtitle) document.getElementById('heroSubtitle').textContent = data.subtitle;
+                if (data.cta) document.getElementById('ctaButton').innerHTML = '🔍 ' + data.cta.toUpperCase();
+                if (data.feature1 && data.feature1.title) document.getElementById('feature1Title').textContent = data.feature1.title;
+                if (data.feature2 && data.feature2.title) document.getElementById('feature2Title').textContent = data.feature2.title;
+                if (data.feature3 && data.feature3.title) document.getElementById('feature3Title').textContent = data.feature3.title;
+            } catch (error) { console.error('Error loading page content:', error); }
+        }
+        window.addEventListener('DOMContentLoaded', loadPageContent);
+    </script>
+
+    <!-- Free Mode Modal + PWA Install -->
+    <script>
+        function showFreeModeInfo() {
+            const modal = document.getElementById('freeModeModal');
+            modal.style.display = 'flex';
+        }
+
+        function closeFreeModeModal() {
+            document.getElementById('freeModeModal').style.display = 'none';
+        }
+
+        function acceptFreeMode() {
+            closeFreeModeModal();
+            // Trigger PWA install if available
+            if (window._deferredInstallPrompt) {
+                window._deferredInstallPrompt.prompt();
+                window._deferredInstallPrompt.userChoice.then(choice => {
+                    if (choice.outcome === 'accepted') {
+                        console.log('PWA installed');
+                    }
+                    window._deferredInstallPrompt = null;
+                });
+            } else {
+                // PWA not available or already installed — go to identify page
+                window.location.href = '/static/test.html';
+            }
+        }
+
+        // Capture PWA install prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            window._deferredInstallPrompt = e;
+        });
+
+        // Close modal on backdrop click
+        document.getElementById('freeModeModal').addEventListener('click', function(e) {
+            if (e.target === this) closeFreeModeModal();
+        });
+
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(reg => console.log('SW registered'))
+                .catch(err => console.warn('SW registration failed', err));
+        }
+    </script>
+
+</body>
+</html>

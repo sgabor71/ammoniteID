@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Premium — AmmoniteID</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Georgia', serif; background: linear-gradient(135deg, #2c5f2d 0%, #1e4620 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .card { background: white; border-radius: 20px; padding: 50px 40px; max-width: 480px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .icon { font-size: 4rem; margin-bottom: 20px; }
+        h1 { color: #2c5f2d; font-size: 2rem; margin-bottom: 12px; }
+        p { color: #666; font-size: 1.05rem; line-height: 1.7; margin-bottom: 30px; }
+        .features { background: #f0f7f0; border-radius: 12px; padding: 20px; margin-bottom: 30px; text-align: left; }
+        .features li { list-style: none; padding: 6px 0; color: #333; font-family: Arial, sans-serif; font-size: 0.95rem; }
+        .features li::before { content: '✅ '; }
+        .btn { display: inline-block; background: #2c5f2d; color: white; padding: 14px 32px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 1.05rem; font-family: Arial, sans-serif; }
+        .btn:hover { background: #1e4620; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="icon">⭐</div>
+        <h1>You're Premium!</h1>
+        <p>Your payment was successful. Your account has been upgraded — all premium features are now unlocked.</p>
+        <ul class="features">
+            <li>Offline identification</li>
+            <li>My Fossil Collection</li>
+            <li>Export to PDF & CSV</li>
+            <li>Advanced stats & map view</li>
+            <li>No ads</li>
+        </ul>
+        <a href="/static/test.html" class="btn">Start Identifying →</a>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        const auth = getAuth(initializeApp({
+            apiKey: "AIzaSyChXqOpXgpkLrn44mfIcPoTVPBk6neicBQ",
+            authDomain: "ammoniteid-f9d8e.firebaseapp.com",
+            projectId: "ammoniteid-f9d8e",
+            storageBucket: "ammoniteid-f9d8e.firebasestorage.app",
+            messagingSenderId: "828376677091",
+            appId: "1:828376677091:web:e302f3ff538b78bc83e3d6"
+        }));
+        // Update localStorage tier so feature gates unlock immediately
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                localStorage.setItem('ammonite_user_id', user.uid);
+                localStorage.setItem('ammonite_tier', 'PREMIUM');
+                try {
+                    const res = await fetch(`/api/auth/me/${user.uid}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        localStorage.setItem('ammonite_tier', (data.tier || 'PREMIUM').toUpperCase());
+                    }
+                } catch(e) {}
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  ammoniteid:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_PATH=/data/ammonite.db
+      - PORT=8000
+      # Add these from your Firebase & Stripe keys:
+      - FIREBASE_API_KEY=${FIREBASE_API_KEY}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - STRIPE_PRICE_MONTHLY=${STRIPE_PRICE_MONTHLY}
+      - STRIPE_PRICE_ANNUAL=${STRIPE_PRICE_ANNUAL}
+    volumes:
+      - ./ammonite.db:/data/ammonite.db
+      - ./reviews:/app/reviews
+      - ./uploads:/app/uploads
+    restart: unless-stopped
