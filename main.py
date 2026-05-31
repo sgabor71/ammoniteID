@@ -19,7 +19,7 @@ from auth_api import auth_router, get_user_tier
 from features_api import features_router
 from stripe_api import stripe_router
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import JSONResponse, FileResponse, RedirectResponse
 from typing import List
 import uuid
 import os
@@ -261,13 +261,8 @@ def save_to_review_queue(
 
 @app.get("/")
 def root():
-    """Health check — confirms the server is running."""
-    return {
-        "status":        "running",
-        "app":           "AmmoniteID",
-        "version":       APP_VERSION,
-        "model_version": MODEL_VERSION,
-    }
+    """Redirect to home page"""
+    return RedirectResponse(url="/static/home.html", status_code=301)
 
 
 @app.post("/identify")
