@@ -111,9 +111,9 @@
 
         @media (max-width: 768px) {
             nav { padding: 0.6rem 1rem !important; position: relative; }
-            nav .container, nav .nav-container { flex-wrap: nowrap !important; gap: 0.5rem !important; }
+            nav .container { flex-wrap: nowrap !important; gap: 0.5rem !important; }
             nav .logo { font-size: 1.2rem !important; }
-            nav .nav-links, nav .nav-menu { display: none !important; }
+            nav .nav-links { display: none !important; }
             .auth-buttons .btn-outline { padding: 0.35rem 0.7rem !important; font-size: 0.8rem !important; }
             .auth-buttons { gap: 0.4rem !important; }
 
@@ -122,16 +122,14 @@
                 gap: 5px; background: none; border: none; cursor: pointer;
                 padding: 6px; margin-left: 6px; flex-shrink: 0;
             }
-            .hamburger-btn span { display: block; width: 22px; height: 2.5px; background: #2c5f2d; border-radius: 2px; transition: all 0.3s ease; }
+            .hamburger-btn span { display: block; width: 22px; height: 2.5px; background: #2c5f2d; border-radius: 2px; transition: all 0.3s; }
             .hamburger-btn.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 8px); }
             .hamburger-btn.open span:nth-child(2) { opacity: 0; }
             .hamburger-btn.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -8px); }
-
             .mobile-menu {
                 display: none; flex-direction: column;
                 position: absolute; top: 100%; left: 0; right: 0;
-                background: rgba(255,255,255,0.99);
-                box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+                background: rgba(255,255,255,0.99); box-shadow: 0 6px 16px rgba(0,0,0,0.12);
                 z-index: 1050; padding: 0.3rem 0;
             }
             .mobile-menu.open { display: flex !important; }
@@ -142,8 +140,147 @@
                 border-bottom: 1px solid #f0ece4; display: block; width: 100%;
             }
             .mobile-menu a:hover, .mobile-menu button:hover { background: #f5f1e8; color: #2c5f2d; }
-            .mobile-menu a:last-child, .mobile-menu button:last-child { border-bottom: none; }
+
+            /* MOBILE: hide desktop table, show cards */
+            .desktop-table { display: none !important; }
+            .mobile-cards  { display: block !important; }
+            .stats-sidebar { display: none !important; }
+            .main-container { flex-direction: column !important; }
+            .controls { flex-direction: column !important; align-items: stretch !important; }
+            .controls-left { flex-wrap: wrap !important; }
+            select { width: 100% !important; }
+            .btn-filters { width: 100% !important; }
+            .bulk-actions { flex-wrap: wrap !important; gap: 0.5rem !important; }
+            .bulk-actions button { flex: 1 !important; min-width: 140px !important; }
         }
+
+        /* DESKTOP: show table, hide cards */
+        @media (min-width: 769px) {
+            .desktop-table { display: block !important; }
+            .mobile-cards  { display: none !important; }
+        }
+
+        /* ── MOBILE CARDS ── */
+        .mobile-cards { display: none; }
+        .fossil-card {
+            background: white; border-radius: 14px; padding: 0;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            margin-bottom: 14px; overflow: hidden;
+            border: 2px solid transparent; transition: border-color 0.2s;
+        }
+        .fossil-card.selected { border-color: #2c5f2d; background: #f0f5f0; }
+        .fossil-card-top {
+            display: flex; align-items: stretch; gap: 0;
+        }
+        .card-checkbox-wrap {
+            display: flex; align-items: center; justify-content: center;
+            padding: 0 10px; background: #f8f9fa;
+        }
+        .card-checkbox-wrap input[type=checkbox] {
+            width: 20px; height: 20px; cursor: pointer; accent-color: #2c5f2d;
+        }
+        .card-photo {
+            width: 90px; height: 90px; object-fit: cover; flex-shrink: 0;
+            cursor: zoom-in;
+        }
+        .card-photo-placeholder {
+            width: 90px; height: 90px; background: #f0ece4;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; flex-shrink: 0;
+        }
+        .card-info {
+            flex: 1; padding: 10px 12px; min-width: 0;
+        }
+        .card-family {
+            font-weight: bold; color: #2c5f2d; font-size: 1rem;
+            font-family: 'Arial', sans-serif; white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis;
+        }
+        .card-genus {
+            color: #5D4E3A; font-size: 0.88rem; font-family: 'Arial', sans-serif;
+            margin: 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .card-meta {
+            display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap;
+        }
+        .card-conf-high { color: #28a745; font-weight: bold; font-size: 0.82rem; font-family: Arial; }
+        .card-conf-med  { color: #ff9800; font-weight: bold; font-size: 0.82rem; font-family: Arial; }
+        .card-conf-low  { color: #dc3545; font-weight: bold; font-size: 0.82rem; font-family: Arial; }
+        .card-date { color: #999; font-size: 0.78rem; font-family: Arial; }
+        .card-source { color: #aaa; font-size: 0.75rem; font-family: Arial; }
+        .card-actions {
+            display: flex; border-top: 1px solid #f0ece4;
+            background: #fafafa;
+        }
+        .card-actions button {
+            flex: 1; padding: 10px 4px; border: none; background: none;
+            cursor: pointer; font-size: 1.1rem; transition: background 0.2s;
+            border-right: 1px solid #f0ece4;
+        }
+        .card-actions button:last-child { border-right: none; }
+        .card-actions button:hover { background: #f0ece4; }
+        .card-expand-btn {
+            width: 100%; padding: 8px; border: none; background: #f0f5f0;
+            color: #2c5f2d; font-family: Arial; font-size: 0.85rem; font-weight: bold;
+            cursor: pointer; border-top: 1px solid #e8f0e8;
+        }
+        .card-expanded {
+            padding: 14px; background: white; border-top: 2px solid #2c5f2d;
+            display: none;
+        }
+        .card-expanded.open { display: block; }
+        .card-expanded-photos {
+            display: flex; gap: 8px; overflow-x: auto; margin-bottom: 12px;
+            scrollbar-width: none;
+        }
+        .card-expanded-photos img {
+            height: 130px; border-radius: 8px; flex-shrink: 0; cursor: zoom-in;
+        }
+        .card-detail-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;
+        }
+        .card-detail-item {
+            background: #f8f9fa; padding: 8px; border-radius: 6px;
+            border-left: 3px solid #2c5f2d;
+        }
+        .card-detail-item strong {
+            display: block; color: #2c5f2d; font-size: 0.75rem; font-family: Arial;
+        }
+        .card-detail-item span { font-size: 0.9rem; font-family: Arial; }
+        .card-notes textarea {
+            width: 100%; padding: 8px; border: 1px solid #e0e0e0;
+            border-radius: 6px; font-family: Arial; font-size: 0.85rem;
+            min-height: 60px; resize: vertical;
+        }
+
+        /* ── BULK ACTIONS BAR ── */
+        .bulk-actions {
+            display: flex; gap: 1rem; align-items: center;
+            padding: 12px 0; flex-wrap: wrap;
+        }
+        .bulk-actions label {
+            display: flex; align-items: center; gap: 8px;
+            font-family: Arial; font-weight: bold; cursor: pointer; font-size: 0.95rem;
+        }
+        .bulk-actions input[type=checkbox] { width: 18px; height: 18px; accent-color: #2c5f2d; }
+        .btn-delete-selected {
+            padding: 8px 18px; background: #dc3545; color: white; border: none;
+            border-radius: 8px; font-family: Arial; font-weight: bold; cursor: pointer;
+            font-size: 0.9rem; transition: all 0.3s; opacity: 0.45; pointer-events: none;
+        }
+        .btn-delete-selected.active { opacity: 1; pointer-events: auto; }
+        .btn-delete-selected.active:hover { background: #c82333; }
+        .btn-delete-all {
+            padding: 8px 18px; background: #7b1a1a; color: white; border: none;
+            border-radius: 8px; font-family: Arial; font-weight: bold; cursor: pointer;
+            font-size: 0.9rem; transition: all 0.3s; margin-left: auto;
+        }
+        .btn-delete-all:hover { background: #5a1010; }
+
+        /* Desktop table: add checkbox column */
+        .desktop-table th:first-child,
+        .desktop-table td:first-child { width: 40px; text-align: center; }
+        .row-checkbox { width: 16px; height: 16px; accent-color: #2c5f2d; cursor: pointer; }
 
     </style>
 </head>
@@ -161,16 +298,13 @@
                 <li><a href="/static/partners.html">Partners</a></li>
             </ul>
             <div class="auth-buttons" id="authButtons">
-                <a href="#login" class="btn-outline">Log In</a>
-                <a href="#signup" class="btn-outline">Sign Up</a>
+                <a href="/static/login.html" class="btn-outline">Log In</a>
+                <a href="/static/login.html" class="btn-outline">Sign Up</a>
             </div>
-            <!-- Hamburger (mobile only) -->
             <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu">
                 <span></span><span></span><span></span>
             </button>
         </div>
-    
-        <!-- Mobile dropdown -->
         <div class="mobile-menu" id="mobileMenu">
             <a href="/static/home.html">🏠 Home</a>
             <a href="/static/test.html">🔍 Identify</a>
@@ -235,12 +369,28 @@
             </div>
 
             <div class="card list-view" id="listView">
-                <div class="table-container">
-                    <table id="fossilTable">
-                        <thead><tr><th>Photo</th><th class="sortable">Family</th><th class="sortable">Genus</th><th class="sortable">Conf</th><th class="sortable">Date</th><th>⭐</th><th>🗑️</th><th>▼</th></tr></thead>
-                        <tbody id="tableBody"></tbody>
-                    </table>
+                <!-- Bulk actions bar -->
+                <div class="bulk-actions">
+                    <label>
+                        <input type="checkbox" id="selectAllCheck" onchange="toggleSelectAll(this.checked)">
+                        Select All
+                    </label>
+                    <button class="btn-delete-selected" id="deleteSelectedBtn" onclick="deleteSelected()">🗑️ Delete Selected (<span id="selectedCount">0</span>)</button>
+                    <button class="btn-delete-all" onclick="deleteAll()">🗑️ Delete All</button>
                 </div>
+
+                <!-- Desktop table -->
+                <div class="desktop-table">
+                    <div class="table-container">
+                        <table id="fossilTable">
+                            <thead><tr><th><input type="checkbox" id="tableSelectAll" onchange="toggleSelectAll(this.checked)" class="row-checkbox"></th><th>Photo</th><th class="sortable">Family</th><th class="sortable">Genus</th><th class="sortable">Conf</th><th class="sortable">Date</th><th>⭐</th><th>🗑️</th><th>▼</th></tr></thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Mobile cards -->
+                <div class="mobile-cards" id="mobileCards"></div>
             </div>
 
             <div class="card empty-state hidden" id="emptyState">
@@ -486,6 +636,50 @@
 
     <script>
         let fossilData = [], filteredData = [], currentSort = 'date-desc', expandedRow = null;
+        let selectedIds = new Set();
+
+        function toggleCardSelect(id, checked) {
+            if (checked) selectedIds.add(id); else selectedIds.delete(id);
+            updateBulkBar();
+            const card = document.getElementById('card-'+id);
+            if (card) card.classList.toggle('selected', checked);
+        }
+        function toggleSelectAll(checked) {
+            selectedIds.clear();
+            if (checked) filteredData.forEach(f => selectedIds.add(f.id));
+            const sa = document.getElementById('selectAllCheck');
+            const tsa = document.getElementById('tableSelectAll');
+            if (sa) sa.checked = checked;
+            if (tsa) tsa.checked = checked;
+            updateBulkBar(); renderData();
+        }
+        function updateBulkBar() {
+            const count = selectedIds.size;
+            const btn = document.getElementById('deleteSelectedBtn');
+            const countEl = document.getElementById('selectedCount');
+            if (countEl) countEl.textContent = count;
+            if (btn) { if (count > 0) btn.classList.add('active'); else btn.classList.remove('active'); }
+        }
+        function deleteSelected() {
+            if (selectedIds.size === 0) return;
+            if (!confirm('Delete ' + selectedIds.size + ' selected fossil' + (selectedIds.size>1?'s':'') + '? This cannot be undone.')) return;
+            fossilData = fossilData.filter(f => !selectedIds.has(f.id));
+            filteredData = filteredData.filter(f => !selectedIds.has(f.id));
+            selectedIds.clear(); expandedRow = null;
+            saveFossilsToStorage(); updateBulkBar(); renderData(); updateStats();
+        }
+        function deleteAll() {
+            if (fossilData.length === 0) return;
+            if (!confirm('Delete ALL ' + fossilData.length + ' fossils? This cannot be undone.')) return;
+            fossilData = []; filteredData = []; selectedIds.clear(); expandedRow = null;
+            saveFossilsToStorage(); updateBulkBar(); renderData(); updateStats();
+        }
+        function toggleCardExpand(id, btn) {
+            expandedRow = expandedRow === id ? null : id;
+            const exp = document.getElementById('card-exp-'+id);
+            if (exp) exp.classList.toggle('open', expandedRow === id);
+            if (btn) btn.textContent = expandedRow === id ? '▲ Hide Details' : '▼ Show Details';
+        }
         function loadFossilsFromStorage() { const stored = localStorage.getItem('ammoniteMyLogs'); fossilData = stored ? JSON.parse(stored) : []; filteredData = [...fossilData]; }
         function saveFossilsToStorage() { localStorage.setItem('ammoniteMyLogs', JSON.stringify(fossilData)); }
         function populateFilters() {
@@ -551,7 +745,8 @@
                 const photoThumb = hasPhotos
                     ? `<div class="thumb-wrap"><img src="${fossil.photos[0]}" alt="${fossil.genus}" onclick="openZoom('${fossil.photos[0].replace(/'/g,"&#39;")}'); event.stopPropagation();">${fossil.photos.length > 1 ? `<span class="thumb-count">+${fossil.photos.length - 1}</span>` : ''}</div>`
                     : `<span style="color:#bbb;font-size:0.8rem;">—</span>`;
-                tr.innerHTML = `<td>${photoThumb}</td><td>${fossil.family}</td><td>${fossil.genus}</td><td class="${confClass}">${fossil.confidence}%</td><td>${new Date(fossil.date).toLocaleDateString()}</td><td><span class="action-icon favorite-icon ${fossil.favorite ? '' : 'inactive'}" onclick="toggleFavorite(${fossil.id}); event.stopPropagation();">⭐</span></td><td><span class="action-icon delete-icon" onclick="deleteFossil(${fossil.id}); event.stopPropagation();">🗑️</span></td><td><span class="action-icon expand-icon">${expandedRow === fossil.id ? '▲' : '▼'}</span></td>`;
+                const isSelected = selectedIds.has(fossil.id);
+                tr.innerHTML = `<td><input type="checkbox" class="row-checkbox" ${isSelected?'checked':''} onclick="toggleCardSelect(${fossil.id}, this.checked); event.stopPropagation();"></td><td>${photoThumb}</td><td>${fossil.family}</td><td>${fossil.genus}</td><td class="${confClass}">${fossil.confidence}%</td><td>${new Date(fossil.date).toLocaleDateString()}</td><td><span class="action-icon favorite-icon ${fossil.favorite ? '' : 'inactive'}" onclick="toggleFavorite(${fossil.id}); event.stopPropagation();">⭐</span></td><td><span class="action-icon delete-icon" onclick="deleteFossil(${fossil.id}); event.stopPropagation();">🗑️</span></td><td><span class="action-icon expand-icon">${expandedRow === fossil.id ? '▲' : '▼'}</span></td>`;
                 tbody.appendChild(tr);
                 if (expandedRow === fossil.id) {
                     const detailTr = document.createElement('tr');
@@ -575,9 +770,64 @@
                             </div>
                         </div>`;
                     }
-                    detailTr.innerHTML = `<td colspan="7"><div class="expanded-content">${photosHtml}<div class="detail-info"><div class="detail-item"><strong>Family</strong>${fossil.family}</div><div class="detail-item"><strong>Genus</strong>${fossil.genus}</div><div class="detail-item"><strong>Confidence</strong>${fossil.confidence}%</div><div class="detail-item"><strong>Date</strong>${new Date(fossil.date).toLocaleDateString()}</div></div><div class="detail-notes"><label>Personal Notes:</label><textarea onblur="saveNotes(${fossil.id}, this.value)">${fossil.notes || ''}</textarea></div>${fossil.genusBreakdown && fossil.genusBreakdown.length > 0 ? `<div class="genus-breakdown-compact"><h4>Genera Likelihood</h4>${fossil.genusBreakdown.map((g,i) => `<div class="genus-item-compact ${i===0?'top':''}"><span>${g.genus}</span><span>${g.percentage}%</span></div>`).join('')}</div>` : ''}<div class="detail-actions"><button class="btn-favorite" onclick="toggleFavorite(${fossil.id})">${fossil.favorite ? '☆ Unfavorite' : '☆ Favorite'}</button><button class="btn-keep" onclick="toggleKeepForever(${fossil.id})">${fossil.keepForever ? '✓ Keep Forever' : '☐ Keep Forever'}</button><button class="btn-share" onclick="openShareModal(${fossil.id})">📤 Share</button><button class="btn-delete-detail" onclick="deleteFossil(${fossil.id})">🗑️ Delete</button></div></div></td>`;
+                    detailTr.innerHTML = `<td colspan="8"><div class="expanded-content">${photosHtml}<div class="detail-info"><div class="detail-item"><strong>Family</strong>${fossil.family}</div><div class="detail-item"><strong>Genus</strong>${fossil.genus}</div><div class="detail-item"><strong>Confidence</strong>${fossil.confidence}%</div><div class="detail-item"><strong>Date</strong>${new Date(fossil.date).toLocaleDateString()}</div></div><div class="detail-notes"><label>Personal Notes:</label><textarea onblur="saveNotes(${fossil.id}, this.value)">${fossil.notes || ''}</textarea></div>${fossil.genusBreakdown && fossil.genusBreakdown.length > 0 ? `<div class="genus-breakdown-compact"><h4>Genera Likelihood</h4>${fossil.genusBreakdown.map((g,i) => `<div class="genus-item-compact ${i===0?'top':''}">${g.genus} — ${g.percentage}%</div>`).join('')}</div>` : ''}<div class="detail-actions"><button class="btn-favorite" onclick="toggleFavorite(${fossil.id})">${fossil.favorite ? '☆ Unfavorite' : '☆ Favorite'}</button><button class="btn-keep" onclick="toggleKeepForever(${fossil.id})">${fossil.keepForever ? '✓ Keep Forever' : '☐ Keep Forever'}</button><button class="btn-share" onclick="openShareModal(${fossil.id})">📤 Share</button><button class="btn-delete-detail" onclick="deleteFossil(${fossil.id})">🗑️ Delete</button></div></div></td>`;
                     tbody.appendChild(detailTr);
                 }
+
+                // ── MOBILE CARD ──
+                const photoMob = fossil.photos && fossil.photos.length > 0
+                    ? `<img class="card-photo" src="${fossil.photos[0]}" onclick="openZoom('${fossil.photos[0]}')">`
+                    : `<div class="card-photo-placeholder">🪨</div>`;
+                const extraPhotos = fossil.photos && fossil.photos.length > 1
+                    ? fossil.photos.slice(1).map(p => `<img src="${p}" onclick="openZoom('${p}')">`).join('')
+                    : '';
+                const genusBreakHtml = fossil.genusBreakdown && fossil.genusBreakdown.length > 0
+                    ? `<div class="card-detail-grid" style="margin-top:10px;">` +
+                      fossil.genusBreakdown.map((g,i) => `<div class="card-detail-item"><strong>${i===0?'Best Match':'Likely'}</strong><span>${g.genus} — ${g.percentage}%</span></div>`).join('') +
+                      `</div>` : '';
+
+                const card = document.createElement('div');
+                card.className = `fossil-card ${isSelected ? 'selected' : ''}`;
+                card.id = `card-${fossil.id}`;
+                card.innerHTML = `
+                    <div class="fossil-card-top">
+                        <div class="card-checkbox-wrap">
+                            <input type="checkbox" ${isSelected?'checked':''} onchange="toggleCardSelect(${fossil.id}, this.checked)">
+                        </div>
+                        ${photoMob}
+                        <div class="card-info">
+                            <div class="card-family">${fossil.family || 'Unknown'}</div>
+                            <div class="card-genus">${fossil.genus || '—'}</div>
+                            <div class="card-meta">
+                                <span class="${confMobClass}">${fossil.confidence}% ${confLabel}</span>
+                                <span class="card-date">${new Date(fossil.date).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button onclick="toggleFavorite(${fossil.id})" title="Favourite">${fossil.favorite ? '⭐' : '☆'}</button>
+                        <button onclick="toggleKeepForever(${fossil.id})" title="Keep Forever">${fossil.keepForever ? '📌' : '📎'}</button>
+                        <button onclick="openShareModal(${fossil.id})" title="Share">📤</button>
+                        <button onclick="deleteFossil(${fossil.id})" title="Delete" style="color:#dc3545;">🗑️</button>
+                    </div>
+                    <button class="card-expand-btn" onclick="toggleCardExpand(${fossil.id}, this)">
+                        ${expandedRow === fossil.id ? '▲ Hide Details' : '▼ Show Details'}
+                    </button>
+                    <div class="card-expanded ${expandedRow === fossil.id ? 'open' : ''}" id="card-exp-${fossil.id}">
+                        ${fossil.photos && fossil.photos.length > 1 ? `<div class="card-expanded-photos">${fossil.photos.map(p=>`<img src="${p}" onclick="openZoom('${p}')">`).join('')}</div>` : ''}
+                        <div class="card-detail-grid">
+                            <div class="card-detail-item"><strong>Family</strong><span>${fossil.family}</span></div>
+                            <div class="card-detail-item"><strong>Genus</strong><span>${fossil.genus}</span></div>
+                            <div class="card-detail-item"><strong>Confidence</strong><span>${fossil.confidence}%</span></div>
+                            <div class="card-detail-item"><strong>Date</strong><span>${new Date(fossil.date).toLocaleDateString()}</span></div>
+                        </div>
+                        ${genusBreakHtml}
+                        <div class="card-notes" style="margin-top:10px;">
+                            <label style="font-size:0.85rem;font-family:Arial;color:#666;">Notes:</label>
+                            <textarea onblur="saveNotes(${fossil.id}, this.value)">${fossil.notes || ''}</textarea>
+                        </div>
+                    </div>`;
+                mobileCards.appendChild(card);
             });
             document.getElementById('totalCount').textContent = fossilData.length;
         }
@@ -695,7 +945,7 @@
             const idx = Math.round(track.scrollLeft / imgW);
             dotsEl.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
         }
-        window.onload = function() { loadFossilsFromStorage(); populateFilters(); renderData(); updateStats(); };
+        // Data loading now handled by onAuthStateChanged after tier check
     </script>
 
     <script type="module">
@@ -705,77 +955,48 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         onAuthStateChanged(auth, async (user) => {
-            const authButtons = document.querySelector('.auth-buttons');
-            const gate = document.getElementById('premiumGate');
-            if (user) {
-                const displayName = user.displayName || user.email.split('@')[0];
-                authButtons.innerHTML = `<span style="color:var(--dark-brown);margin-right:1rem;font-weight:bold;">Welcome, ${displayName}</span><button class="btn-outline" onclick="handleLogout()">Log Out</button>`;
-
-                // Check tier — auto-sync if needed, block FREE users
-                try {
-                    let res = await fetch(`/api/auth/me/${user.uid}`);
-
-                    // 404 = not synced yet — sync now, then re-check
-                    if (res.status === 404) {
-                        await fetch('/api/auth/sync', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                uid: user.uid,
-                                email: user.email,
-                                display_name: user.displayName || user.email.split('@')[0]
-                            })
-                        });
-                        res = await fetch(`/api/auth/me/${user.uid}`);
-                    }
-
-                    if (!res.ok) {
-                        gate.style.display = 'flex';
-                        return;
-                    }
-                    const data = await res.json();
-                    const tier = (data.tier || 'FREE').toUpperCase();
-                    if (tier !== 'PREMIUM') {
-                        gate.style.display = 'flex';
-                    } else {
-                        gate.style.display = 'none';
-                    }
-                } catch (e) {
-                    console.error('Tier check error:', e);
-                    gate.style.display = 'flex';
-                }
-            } else {
-                authButtons.innerHTML = `<a href="/static/login.html" class="btn-outline">Log In</a><a href="/static/login.html" class="btn-outline">Sign Up</a>`;
-                gate.style.display = 'flex';
-            }
-        });
-        window.handleLogout = async function() { try { localStorage.removeItem('admin_uid'); localStorage.removeItem('admin_token'); await signOut(auth); window.location.reload(); } catch (error) { alert('Error logging out.'); } };
-    </script>
-
-
-    <!-- Firebase Auth + Mobile Header -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        const firebaseConfig = { apiKey:"AIzaSyChXqOpXgpkLrn44mfIcPoTVPBk6neicBQ", authDomain:"ammoniteid-f9d8e.firebaseapp.com", projectId:"ammoniteid-f9d8e", storageBucket:"ammoniteid-f9d8e.firebasestorage.app", messagingSenderId:"828376677091", appId:"1:828376677091:web:e302f3ff538b78bc83e3d6" };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        onAuthStateChanged(auth, (user) => {
             const authButtons = document.getElementById('authButtons');
             const mobileAuthLinks = document.getElementById('mobileAuthLinks');
-            if (!authButtons) return;
             if (user) {
                 localStorage.setItem('ammonite_user_id', user.uid);
-                authButtons.innerHTML = `<a href="/static/my-account.html" class="btn-outline" style="font-size:0.95rem;padding:0.5rem 1rem;">👤 My Account</a><button class="btn-outline" style="font-size:0.9rem;padding:0.5rem 1rem;" onclick="handleLogout()">🚪 Log Out</button>`;
+                const displayName = user.displayName || user.email.split('@')[0];
+                if (authButtons) authButtons.innerHTML = `<a href="/static/my-account.html" class="btn-outline" style="font-size:0.95rem;padding:0.5rem 1rem;">👤 My Account</a><button class="btn-outline" style="font-size:0.9rem;padding:0.5rem 1rem;" onclick="handleLogout()">🚪 Log Out</button>`;
                 if (mobileAuthLinks) mobileAuthLinks.innerHTML = `<a href="/static/my-account.html">👤 My Account</a><button onclick="handleLogout()">🚪 Log Out</button>`;
+
+                // Check tier — redirect FREE users to upgrade page
+                try {
+                    let res = await fetch(`/api/auth/me/${user.uid}`);
+                    if (res.status === 404) {
+                        await fetch('/api/auth/sync', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid:user.uid, email:user.email, display_name:displayName}) });
+                        res = await fetch(`/api/auth/me/${user.uid}`);
+                    }
+                    if (!res.ok) { window.location.href = '/static/upgrade.html'; return; }
+                    const data = await res.json();
+                    const tier = (data.tier || 'FREE').toUpperCase();
+                    localStorage.setItem('ammonite_tier', tier);
+                    if (tier !== 'PREMIUM') {
+                        window.location.href = '/static/upgrade.html';
+                        return;
+                    }
+                    // PREMIUM: load collection
+                    loadFossilsFromStorage();
+                    populateFilters();
+                    renderData();
+                    updateStats();
+                } catch (e) {
+                    console.error('Tier check error:', e);
+                    window.location.href = '/static/upgrade.html';
+                }
             } else {
                 localStorage.removeItem('ammonite_user_id');
-                authButtons.innerHTML = `<a href="/static/login.html" class="btn-outline">Log In</a><a href="/static/login.html" class="btn-outline">Sign Up</a>`;
-                if (mobileAuthLinks) mobileAuthLinks.innerHTML = `<a href="/static/login.html">🔑 Log In</a><a href="/static/login.html">✏️ Sign Up</a>`;
+                // Not logged in: redirect to login
+                window.location.href = '/static/login.html';
             }
         });
-        window.handleLogout = async function() { try { await signOut(auth); window.location.href='/static/home.html'; } catch(e) { alert('Error logging out.'); } };
+        window.handleLogout = async function() { try { localStorage.removeItem('admin_uid'); localStorage.removeItem('admin_token'); await signOut(auth); window.location.href='/static/home.html'; } catch (error) { alert('Error logging out.'); } };
     </script>
+
+
     <script>
         const _hBtn = document.getElementById('hamburgerBtn');
         const _hMenu = document.getElementById('mobileMenu');
@@ -784,6 +1005,108 @@
             _hMenu.querySelectorAll('a').forEach(l => l.addEventListener('click', () => { _hBtn.classList.remove('open'); _hMenu.classList.remove('open'); }));
             document.addEventListener('click', function(e) { if (!_hMenu.contains(e.target) && !_hBtn.contains(e.target)) { _hBtn.classList.remove('open'); _hMenu.classList.remove('open'); } });
         }
+    </script>
+
+    <script>
+        // ── NAV PADLOCK LOGIC ──
+        // "My Fossil Collection" shows 🔒 for FREE users
+        // "Identify" shows 🔒 for not-logged-in users
+        (function() {
+            function applyPadlocks() {
+                const tier = (localStorage.getItem('ammonite_tier') || 'FREE').toUpperCase();
+                const userId = localStorage.getItem('ammonite_user_id');
+
+                // Desktop nav links
+                document.querySelectorAll('.nav-links a, .nav-menu a').forEach(link => {
+                    const href = link.getAttribute('href') || '';
+                    // My Fossil Collection: padlock for FREE
+                    if (href.includes('mylog')) {
+                        if (tier !== 'PREMIUM') {
+                            link.innerHTML = link.innerHTML.replace(' 🔒','') + ' 🔒';
+                            link.onclick = function(e) {
+                                e.preventDefault();
+                                showUpgradeNudge();
+                            };
+                        }
+                    }
+                    // Identify: padlock if not logged in
+                    if (href.includes('test.html')) {
+                        if (!userId) {
+                            link.innerHTML = link.innerHTML.replace(' 🔒','') + ' 🔒';
+                            link.onclick = function(e) {
+                                e.preventDefault();
+                                showLoginNudge();
+                            };
+                        }
+                    }
+                });
+
+                // Mobile menu links
+                document.querySelectorAll('.mobile-menu a').forEach(link => {
+                    const href = link.getAttribute('href') || '';
+                    if (href.includes('mylog') && tier !== 'PREMIUM') {
+                        link.innerHTML = link.innerHTML.replace(' 🔒','') + ' 🔒';
+                        link.onclick = function(e) { e.preventDefault(); showUpgradeNudge(); };
+                    }
+                    if (href.includes('test.html') && !userId) {
+                        link.innerHTML = link.innerHTML.replace(' 🔒','') + ' 🔒';
+                        link.onclick = function(e) { e.preventDefault(); showLoginNudge(); };
+                    }
+                });
+            }
+
+            function showUpgradeNudge() {
+                let m = document.getElementById('_upgradeNudge');
+                if (!m) {
+                    m = document.createElement('div');
+                    m.id = '_upgradeNudge';
+                    m.style.cssText = 'display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.65);z-index:99999;align-items:center;justify-content:center;';
+                    m.innerHTML = `<div style="background:white;border-radius:20px;padding:36px;max-width:420px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+                        <div style="font-size:3rem;margin-bottom:12px;">🔒</div>
+                        <h2 style="color:#2c5f2d;margin-bottom:10px;font-size:1.4rem;">Premium Feature</h2>
+                        <p style="color:#666;margin-bottom:24px;line-height:1.6;font-family:Arial;">My Fossil Collection is a Premium feature.<br>Upgrade to save and track all your identifications.</p>
+                        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                            <button onclick="document.getElementById('_upgradeNudge').remove()" style="padding:11px 22px;background:#f0f0f0;color:#333;border:none;border-radius:10px;font-family:Arial;font-weight:bold;cursor:pointer;">✕ Close</button>
+                            <a href="/static/upgrade.html" style="padding:11px 22px;background:linear-gradient(135deg,#e67e22,#d35400);color:white;text-decoration:none;border-radius:10px;font-family:Arial;font-weight:bold;">⭐ Upgrade Now</a>
+                        </div>
+                    </div>`;
+                    m.onclick = function(e) { if(e.target===m) m.remove(); };
+                    document.body.appendChild(m);
+                }
+                m.style.display = 'flex';
+            }
+
+            function showLoginNudge() {
+                let m = document.getElementById('_loginNudge');
+                if (!m) {
+                    m = document.createElement('div');
+                    m.id = '_loginNudge';
+                    m.style.cssText = 'display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.65);z-index:99999;align-items:center;justify-content:center;';
+                    m.innerHTML = `<div style="background:white;border-radius:20px;padding:36px;max-width:420px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+                        <div style="font-size:3rem;margin-bottom:12px;">🔒</div>
+                        <h2 style="color:#2c5f2d;margin-bottom:10px;font-size:1.4rem;">Login Required</h2>
+                        <p style="color:#666;margin-bottom:24px;line-height:1.6;font-family:Arial;">Please log in or sign up to identify fossils.</p>
+                        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                            <a href="/static/home.html" style="padding:11px 22px;background:#f0f0f0;color:#333;text-decoration:none;border-radius:10px;font-family:Arial;font-weight:bold;">🏠 Home</a>
+                            <a href="/static/login.html" style="padding:11px 22px;background:linear-gradient(135deg,#2c5f2d,#1e4620);color:white;text-decoration:none;border-radius:10px;font-family:Arial;font-weight:bold;">🔑 Log In</a>
+                            <a href="/static/login.html" style="padding:11px 22px;background:#f0f0f0;color:#333;text-decoration:none;border-radius:10px;font-family:Arial;font-weight:bold;">✏️ Sign Up</a>
+                        </div>
+                    </div>`;
+                    m.onclick = function(e) { if(e.target===m) m.remove(); };
+                    document.body.appendChild(m);
+                }
+                m.style.display = 'flex';
+            }
+
+            // Run after DOM + auth state settles
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => setTimeout(applyPadlocks, 800));
+            } else {
+                setTimeout(applyPadlocks, 800);
+            }
+            // Re-run when storage changes (user logs in/out)
+            window.addEventListener('storage', () => setTimeout(applyPadlocks, 300));
+        })();
     </script>
 </body>
 </html>
