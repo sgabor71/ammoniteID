@@ -144,6 +144,18 @@ def init_db():
     if 'photo_paths' not in columns:
         c.execute("ALTER TABLE review_queue ADD COLUMN photo_paths TEXT")
 
+    # Users table for authentication
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            uid TEXT PRIMARY KEY,
+            email TEXT UNIQUE,
+            tier TEXT DEFAULT 'FREE',
+            is_admin INTEGER DEFAULT 0,
+            created_at TEXT,
+            updated_at TEXT
+        )
+    ''')
+
     conn.commit()
     conn.close()
 
