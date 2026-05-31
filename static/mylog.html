@@ -4,102 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Fossil Collection - AmmoniteID</title>
-    <link rel="stylesheet" href="/static/responsive-mobile.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Georgia', 'Merriweather', serif; background: #F5F1E8; color: #000000; line-height: 1.6; background-image: url('background.jpg'); background-size: cover; background-attachment: fixed; background-position: center; min-height: 100vh; }
-        
-        /* Navigation Header */
-        header {
-            background: rgba(255, 255, 255, 0.97);
-            backdrop-filter: blur(10px);
-            padding: 1.2rem 2rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .header-logo {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #2c5f2d;
-            text-decoration: none;
-        }
-
-        .hamburger-btn {
-            display: none;
-            flex-direction: column;
-            gap: 5px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px;
-        }
-
-        .hamburger-btn span {
-            width: 25px;
-            height: 3px;
-            background: #2c5f2d;
-            border-radius: 3px;
-            transition: all 0.3s;
-        }
-
-        header nav {
-            display: flex;
-            gap: 1.5rem;
-            align-items: center;
-        }
-
-        header nav a {
-            color: #5D4E3A;
-            text-decoration: none;
-            font-size: 1.2rem;
-            font-weight: bold;
-            font-family: 'Arial', sans-serif;
-            transition: all 0.3s;
-            padding-bottom: 3px;
-            border-bottom: 3px solid transparent;
-        }
-
-        header nav a:hover {
-            color: #2c5f2d;
-        }
-
-        header nav a.active {
-            color: #2c5f2d;
-            border-bottom: 3px solid #2c5f2d;
-        }
-
-        .auth-buttons {
-            display: flex;
-            gap: 1rem;
-        }
-        
-        .btn-outline {
-            padding: 0.6rem 1.5rem;
-            border: 2px solid #2c5f2d;
-            background: linear-gradient(135deg, #2c5f2d 0%, #1e4620 100%);
-            color: white;
-            border-radius: 8px;
-            text-decoration: none;
-            font-family: 'Arial', sans-serif;
-            font-size: 1.1rem;
-            font-weight: bold;
-            transition: all 0.3s;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(44,95,45,0.3);
-        }
-        
-        .btn-outline:hover {
-            background: linear-gradient(135deg, #1e4620 0%, #2c5f2d 100%);
-            transform: translateY(-2px);
-        }
-        
+        nav { background: rgba(255,255,255,0.97); backdrop-filter: blur(10px); padding: 1.2rem 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: sticky; top: 0; z-index: 1000; }
+        nav .container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; }
+        nav .logo { font-size: 1.8rem; font-weight: bold; color: #2c5f2d; text-decoration: none; }
+        nav .nav-links { display: flex; gap: 1.5rem; list-style: none; flex-wrap: nowrap; margin: 0; padding: 0; flex: 1; justify-content: center; }
+        nav .nav-links a { color: #5D4E3A; text-decoration: none; font-size: 1.2rem; font-weight: bold; font-family: 'Arial', sans-serif; transition: all 0.3s; padding-bottom: 3px; border-bottom: 3px solid transparent; }
+        nav .nav-links a:hover { color: #2c5f2d; }
+        nav .nav-links a.active { color: #2c5f2d; border-bottom: 3px solid #2c5f2d; }
+        .auth-buttons { display: flex; gap: 1rem; }
+        .btn-outline { padding: 0.6rem 1.5rem; border: 2px solid #2c5f2d; background: linear-gradient(135deg, #2c5f2d 0%, #1e4620 100%); color: white; border-radius: 8px; text-decoration: none; font-family: 'Arial', sans-serif; font-size: 1.1rem; font-weight: bold; transition: all 0.3s; cursor: pointer; box-shadow: 0 2px 8px rgba(44,95,45,0.3); }
+        .btn-outline:hover { background: linear-gradient(135deg, #1e4620 0%, #2c5f2d 100%); transform: translateY(-2px); }
         .main-container { max-width: 1400px; margin: 2rem auto; padding: 0 2rem; display: flex; gap: 2rem; }
         .content-area { flex: 1; min-width: 0; }
         .card { background: rgba(255,255,255,0.95); border-radius: 16px; padding: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.05); margin-bottom: 2rem; }
@@ -185,38 +102,88 @@
         .empty-state h2 { color: #1a1a1a; font-size: 1.8rem; margin-bottom: 0.5rem; }
         .empty-state a { display: inline-block; padding: 1rem 2rem; background: #2c5f2d; color: white; text-decoration: none; border-radius: 10px; font-family: 'Arial', sans-serif; font-weight: 600; }
         @media (max-width: 1024px) { .stats-sidebar { display: none; } .main-container { flex-direction: column; } }
-        @media (max-width: 768px) { 
-            .controls { flex-direction: column; }
-            .hamburger-btn { display: flex; }
-            header nav { display: none; width: 100%; flex-direction: column; gap: 1rem; padding: 1rem 0; }
-            header nav.show { display: flex; }
-            header { flex-direction: column; align-items: flex-start; }
-        }
+        @media (max-width: 768px) { .controls { flex-direction: column; } }
         .hidden { display: none !important; }
+    
+        /* ── HAMBURGER (MOBILE ONLY) ── */
+        .hamburger-btn { display: none; }
+        .mobile-menu   { display: none; }
+
+        @media (max-width: 768px) {
+            nav { padding: 0.6rem 1rem !important; position: relative; }
+            nav .container, nav .nav-container { flex-wrap: nowrap !important; gap: 0.5rem !important; }
+            nav .logo { font-size: 1.2rem !important; }
+            nav .nav-links, nav .nav-menu { display: none !important; }
+            .auth-buttons .btn-outline { padding: 0.35rem 0.7rem !important; font-size: 0.8rem !important; }
+            .auth-buttons { gap: 0.4rem !important; }
+
+            .hamburger-btn {
+                display: flex !important; flex-direction: column; justify-content: center;
+                gap: 5px; background: none; border: none; cursor: pointer;
+                padding: 6px; margin-left: 6px; flex-shrink: 0;
+            }
+            .hamburger-btn span { display: block; width: 22px; height: 2.5px; background: #2c5f2d; border-radius: 2px; transition: all 0.3s ease; }
+            .hamburger-btn.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 8px); }
+            .hamburger-btn.open span:nth-child(2) { opacity: 0; }
+            .hamburger-btn.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -8px); }
+
+            .mobile-menu {
+                display: none; flex-direction: column;
+                position: absolute; top: 100%; left: 0; right: 0;
+                background: rgba(255,255,255,0.99);
+                box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+                z-index: 1050; padding: 0.3rem 0;
+            }
+            .mobile-menu.open { display: flex !important; }
+            .mobile-menu a, .mobile-menu button {
+                padding: 0.85rem 1.5rem; color: #5D4E3A; text-decoration: none;
+                font-family: 'Arial',sans-serif; font-weight: bold; font-size: 0.95rem;
+                border: none; background: none; text-align: left; cursor: pointer;
+                border-bottom: 1px solid #f0ece4; display: block; width: 100%;
+            }
+            .mobile-menu a:hover, .mobile-menu button:hover { background: #f5f1e8; color: #2c5f2d; }
+            .mobile-menu a:last-child, .mobile-menu button:last-child { border-bottom: none; }
+        }
+
     </style>
 </head>
 <body>
 
-    <header>
-        <a href="/static/home.html" class="header-logo">AmmoniteID</a>
-        <button class="hamburger-btn">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
-        <nav>
-            <a href="/static/home.html">Home</a>
-            <a href="/static/test.html">Identify</a>
-            <a href="/static/mylog.html" class="active">My Fossil Collection</a>
-            <a href="/static/about.html">About</a>
-            <a href="/static/contact.html">Contact</a>
-            <a href="/static/partners.html">Partners</a>
-        </nav>
-        <div class="auth-buttons">
-            <a href="#login" class="btn-outline">Log In</a>
-            <a href="#signup" class="btn-outline">Sign Up</a>
+    <nav>
+        <div class="container">
+            <a href="/static/home.html" class="logo">AmmoniteID</a>
+            <ul class="nav-links">
+                <li><a href="/static/home.html">Home</a></li>
+                <li><a href="/static/test.html">Identify</a></li>
+                <li><a href="/static/mylog.html" class="active">My Fossil Collection</a></li>
+                <li><a href="/static/about.html">About</a></li>
+                <li><a href="/static/contact.html">Contact</a></li>
+                <li><a href="/static/partners.html">Partners</a></li>
+            </ul>
+            <div class="auth-buttons" id="authButtons">
+                <a href="#login" class="btn-outline">Log In</a>
+                <a href="#signup" class="btn-outline">Sign Up</a>
+            </div>
+            <!-- Hamburger (mobile only) -->
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
         </div>
-    </header>
+    
+        <!-- Mobile dropdown -->
+        <div class="mobile-menu" id="mobileMenu">
+            <a href="/static/home.html">🏠 Home</a>
+            <a href="/static/test.html">🔍 Identify</a>
+            <a href="/static/mylog.html">📚 My Fossil Collection</a>
+            <a href="/static/about.html">ℹ️ About</a>
+            <a href="/static/contact.html">📬 Contact</a>
+            <a href="/static/partners.html">🤝 Partners</a>
+            <div id="mobileAuthLinks">
+                <a href="/static/login.html">🔑 Log In</a>
+                <a href="/static/login.html">✏️ Sign Up</a>
+            </div>
+        </div>
+    </nav>
 
     <div id="partner-ad-banner"></div>
 
@@ -298,7 +265,7 @@
 
     <div class="modal-overlay" id="shareModal"><div class="modal-content"><div class="modal-header"><h3>Share Your Find</h3><button class="btn-close" onclick="closeShareModal()">✕</button></div><textarea id="shareMessage" style="width:100%;min-height:100px;padding:0.75rem;margin:1rem 0;"></textarea><div class="share-platforms"><button onclick="shareToWhatsApp()">💬 WhatsApp</button><button onclick="shareToEmail()">📧 Email</button><button onclick="copyShareLink()">🔗 Copy Link</button></div></div></div>
 
-    <style>
+        <style>
         /* ── Partner Ad Banner — HYBRID canonical block (identical on all pages) ── */
         #partner-ad-banner {
             position: sticky;
@@ -390,7 +357,7 @@
         }
     </style>
 
-    <script>
+        <script>
         let partners = [];
         let adRotationTimer = null;
         let rotationIndex = 0;
@@ -516,7 +483,6 @@
     </script>
 
     <script src="/static/ad-tracking.js"></script>
-    <script src="/static/hamburger-menu.js"></script>
 
     <script>
         let fossilData = [], filteredData = [], currentSort = 'date-desc', expandedRow = null;
@@ -641,12 +607,14 @@
             const img = modal.querySelector('#zoomImg');
             let scale = 1, tx = 0, ty = 0;
             let dragging = false, lastX = 0, lastY = 0;
+            // Pinch state
             let pinchDist = null;
 
             function applyTransform() {
                 img.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
             }
 
+            // Mouse wheel zoom
             container.addEventListener('wheel', (e) => {
                 e.preventDefault();
                 const delta = e.deltaY < 0 ? 0.15 : -0.15;
@@ -655,6 +623,7 @@
                 applyTransform();
             }, { passive: false });
 
+            // Mouse drag pan
             container.addEventListener('mousedown', (e) => {
                 if (scale === 1) return;
                 dragging = true; lastX = e.clientX; lastY = e.clientY;
@@ -668,6 +637,7 @@
             });
             window.addEventListener('mouseup', () => { dragging = false; container.classList.remove('dragging'); });
 
+            // Touch pinch + drag
             container.addEventListener('touchstart', (e) => {
                 if (e.touches.length === 2) {
                     pinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
@@ -691,6 +661,7 @@
             }, { passive: false });
             container.addEventListener('touchend', () => { dragging = false; pinchDist = null; });
 
+            // Double-tap / double-click to reset
             let lastTap = 0;
             container.addEventListener('touchend', () => {
                 const now = Date.now();
@@ -699,6 +670,7 @@
             });
             container.addEventListener('dblclick', () => { scale = 1; tx = 0; ty = 0; applyTransform(); });
 
+            // Close
             modal.querySelector('#zoomClose').onclick = () => modal.remove();
             modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
             document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { modal.remove(); document.removeEventListener('keydown', esc); } });
@@ -780,5 +752,38 @@
         window.handleLogout = async function() { try { localStorage.removeItem('admin_uid'); localStorage.removeItem('admin_token'); await signOut(auth); window.location.reload(); } catch (error) { alert('Error logging out.'); } };
     </script>
 
+
+    <!-- Firebase Auth + Mobile Header -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        const firebaseConfig = { apiKey:"AIzaSyChXqOpXgpkLrn44mfIcPoTVPBk6neicBQ", authDomain:"ammoniteid-f9d8e.firebaseapp.com", projectId:"ammoniteid-f9d8e", storageBucket:"ammoniteid-f9d8e.firebasestorage.app", messagingSenderId:"828376677091", appId:"1:828376677091:web:e302f3ff538b78bc83e3d6" };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        onAuthStateChanged(auth, (user) => {
+            const authButtons = document.getElementById('authButtons');
+            const mobileAuthLinks = document.getElementById('mobileAuthLinks');
+            if (!authButtons) return;
+            if (user) {
+                localStorage.setItem('ammonite_user_id', user.uid);
+                authButtons.innerHTML = `<a href="/static/my-account.html" class="btn-outline" style="font-size:0.95rem;padding:0.5rem 1rem;">👤 My Account</a><button class="btn-outline" style="font-size:0.9rem;padding:0.5rem 1rem;" onclick="handleLogout()">🚪 Log Out</button>`;
+                if (mobileAuthLinks) mobileAuthLinks.innerHTML = `<a href="/static/my-account.html">👤 My Account</a><button onclick="handleLogout()">🚪 Log Out</button>`;
+            } else {
+                localStorage.removeItem('ammonite_user_id');
+                authButtons.innerHTML = `<a href="/static/login.html" class="btn-outline">Log In</a><a href="/static/login.html" class="btn-outline">Sign Up</a>`;
+                if (mobileAuthLinks) mobileAuthLinks.innerHTML = `<a href="/static/login.html">🔑 Log In</a><a href="/static/login.html">✏️ Sign Up</a>`;
+            }
+        });
+        window.handleLogout = async function() { try { await signOut(auth); window.location.href='/static/home.html'; } catch(e) { alert('Error logging out.'); } };
+    </script>
+    <script>
+        const _hBtn = document.getElementById('hamburgerBtn');
+        const _hMenu = document.getElementById('mobileMenu');
+        if (_hBtn && _hMenu) {
+            _hBtn.addEventListener('click', function(e) { e.stopPropagation(); _hBtn.classList.toggle('open'); _hMenu.classList.toggle('open'); });
+            _hMenu.querySelectorAll('a').forEach(l => l.addEventListener('click', () => { _hBtn.classList.remove('open'); _hMenu.classList.remove('open'); }));
+            document.addEventListener('click', function(e) { if (!_hMenu.contains(e.target) && !_hBtn.contains(e.target)) { _hBtn.classList.remove('open'); _hMenu.classList.remove('open'); } });
+        }
+    </script>
 </body>
 </html>
