@@ -36,10 +36,25 @@ import os
 auth_router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 # DB path (mirror main.py's logic)
-if os.getenv('RENDER'):
-    DB_PATH = Path('/tmp/ammonite.db')
-else:
-    DB_PATH = Path(__file__).parent / 'ammonite.db'
+def get_db_path():
+    """Determine database path based on environment (same as main.py)."""
+    # Check for explicit DATABASE_PATH (Hostim)
+    if os.getenv('DATABASE_PATH'):
+        return Path(os.getenv('DATABASE_PATH'))
+    # Check for Render environment
+    elif os.getenv('RENDER'):
+        return Path('/tmp/ammonite.db')
+    # Check for /data mount (Hostim fallback)
+    elif os.path.exists('/data'):
+        return Path('/data/ammonite.db')
+    # Local development
+    else:
+        return Path(__file__).parent / 'ammonite.db'
+
+DB_PATH = get_db_path()
+
+# Ensure parent directory exists
+DB_PATH.parent.mkdir(exist_ok=True, parents=True)
 
 SERVICE_ACCOUNT = Path(__file__).parent / 'firebase_service_account.json'
 
