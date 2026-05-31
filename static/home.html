@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AmmoniteID - Identify Ammonites Instantly</title>
     <link rel="manifest" href="/static/manifest.json">
+    <link rel="stylesheet" href="/static/responsive-mobile.css">
     <meta name="theme-color" content="#2c5f2d">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -28,7 +29,7 @@
         }
 
         /* Navigation */
-        nav {
+        header {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             padding: 1rem 2rem;
@@ -36,34 +37,44 @@
             position: sticky;
             top: 0;
             z-index: 100;
-        }
-
-        nav .container {
-            max-width: 1200px;
-            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
         }
 
-        nav .logo {
+        .header-logo {
             font-size: 1.8rem;
             font-weight: bold;
             color: #2c5f2d;
             text-decoration: none;
         }
 
-        nav .nav-links {
-            display: flex;
-            gap: 1.2rem;
-            list-style: none;
-            flex-wrap: nowrap;
-            flex: 1;
-            justify-content: center;
+        .hamburger-btn {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
         }
 
-        nav .nav-links a {
+        .hamburger-btn span {
+            width: 25px;
+            height: 3px;
+            background: #2c5f2d;
+            border-radius: 3px;
+            transition: all 0.3s;
+        }
+
+        header nav {
+            display: flex;
+            gap: 1.2rem;
+            align-items: center;
+        }
+
+        header nav a {
             color: #5D4E3A;
             text-decoration: none;
             font-size: 1.1rem;
@@ -73,16 +84,16 @@
             border-bottom: 3px solid transparent;
         }
 
-        nav .nav-links a:hover {
+        header nav a:hover {
             color: #2c5f2d;
         }
 
-        nav .nav-links a.active {
+        header nav a.active {
             color: #2c5f2d;
             border-bottom: 3px solid #2c5f2d;
         }
 
-        nav .auth-buttons {
+        .auth-buttons {
             display: flex;
             gap: 1rem;
         }
@@ -420,11 +431,11 @@
             .hero-content h1 {
                 font-size: 2rem;
             }
-            nav .container {
+            header {
                 flex-direction: column;
                 gap: 1rem;
             }
-            nav .nav-links {
+            header nav {
                 justify-content: center;
             }
         }
@@ -432,23 +443,26 @@
 </head>
 <body>
 
-    <nav>
-        <div class="container">
-            <a href="/static/home.html" class="logo">AmmoniteID</a>
-            <ul class="nav-links">
-                <li><a href="/static/home.html" class="active">Home</a></li>
-                <li><a href="/static/test.html">Identify</a></li>
-                <li><a href="/static/mylog.html">My Fossil Collection</a></li>
-                <li><a href="/static/about.html">About</a></li>
-                <li><a href="/static/contact.html">Contact</a></li>
-                <li><a href="/static/partners.html">Partners</a></li>
-            </ul>
-            <div class="auth-buttons">
-                <a href="#login" class="btn-outline">Log In</a>
-                <a href="#signup" class="btn-outline">Sign Up</a>
-            </div>
+    <header>
+        <a href="/static/home.html" class="header-logo">AmmoniteID</a>
+        <button class="hamburger-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <nav>
+            <a href="/static/home.html" class="active">Home</a>
+            <a href="/static/test.html">Identify</a>
+            <a href="/static/mylog.html">My Fossil Collection</a>
+            <a href="/static/about.html">About</a>
+            <a href="/static/contact.html">Contact</a>
+            <a href="/static/partners.html">Partners</a>
+        </nav>
+        <div class="auth-buttons">
+            <a href="#login" class="btn-outline">Log In</a>
+            <a href="#signup" class="btn-outline">Sign Up</a>
         </div>
-    </nav>
+    </header>
 
     <div id="partner-ad-banner"></div>
 
@@ -931,5 +945,6 @@
         }
     </script>
 
+    <script src="/static/hamburger-menu.js"></script>
 </body>
 </html>
