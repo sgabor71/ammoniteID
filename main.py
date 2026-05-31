@@ -97,6 +97,21 @@ def init_db():
     conn = sqlite3.connect(str(DB_PATH))
     c    = conn.cursor()
 
+    # Users table for authentication and tier management
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            user_id TEXT PRIMARY KEY,
+            firebase_uid TEXT UNIQUE,
+            email TEXT,
+            display_name TEXT,
+            premium_status TEXT DEFAULT 'FREE',
+            premium_expires TEXT,
+            created_at TEXT,
+            last_login TEXT,
+            is_admin INTEGER DEFAULT 0
+        )
+    ''')
+
     # Every identification is logged here
     c.execute('''
         CREATE TABLE IF NOT EXISTS identifications (
@@ -143,18 +158,6 @@ def init_db():
     columns = [col[1] for col in c.fetchall()]
     if 'photo_paths' not in columns:
         c.execute("ALTER TABLE review_queue ADD COLUMN photo_paths TEXT")
-
-    # Users table for authentication
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            uid TEXT PRIMARY KEY,
-            email TEXT UNIQUE,
-            tier TEXT DEFAULT 'FREE',
-            is_admin INTEGER DEFAULT 0,
-            created_at TEXT,
-            updated_at TEXT
-        )
-    ''')
 
     conn.commit()
     conn.close()
