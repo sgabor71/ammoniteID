@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Our Partners - AmmoniteID</title>
+    <link rel="stylesheet" href="/static/responsive-mobile.css">
     <style>
         :root {
             --deep-green: #2c5f2d;
@@ -26,39 +27,52 @@
             line-height: 1.6;
         }
 
-        /* Navigation */
-        nav {
+        /* Navigation Header */
+        header {
             background: white;
-            padding: 1rem 0;
+            padding: 1rem 2rem;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             position: sticky;
             top: 0;
             z-index: 100;
-        }
-
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
         }
 
-        .logo {
+        .header-logo {
             font-size: 1.8rem;
             font-weight: bold;
             color: #2c5f2d;
             text-decoration: none;
         }
 
-        .nav-menu {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
+        .hamburger-btn {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
         }
 
-        .nav-menu a {
+        .hamburger-btn span {
+            width: 25px;
+            height: 3px;
+            background: #2c5f2d;
+            border-radius: 3px;
+            transition: all 0.3s;
+        }
+
+        header nav {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        header nav a {
             color: #5D4E3A;
             text-decoration: none;
             font-size: 1.2rem;
@@ -68,11 +82,11 @@
             padding-bottom: 5px;
         }
 
-        .nav-menu a:hover {
+        header nav a:hover {
             color: #2c5f2d;
         }
 
-        .nav-menu a.active {
+        header nav a.active {
             border-bottom: 3px solid #2c5f2d;
             color: #2c5f2d;
         }
@@ -332,11 +346,6 @@
 
         /* Responsive */
         @media (max-width: 768px) {
-            .nav-menu {
-                gap: 1rem;
-                font-size: 1rem;
-            }
-
             .page-header h1 {
                 font-size: 2rem;
             }
@@ -352,28 +361,52 @@
             .filter-btn {
                 width: 100%;
             }
+
+            .hamburger-btn {
+                display: flex;
+            }
+            
+            header nav {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem 0;
+            }
+            
+            header nav.show {
+                display: flex;
+            }
+            
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav>
-        <div class="nav-container">
-            <a href="/static/home.html" class="logo">AmmoniteID</a>
-            <ul class="nav-menu">
-                <li><a href="/static/home.html">Home</a></li>
-                <li><a href="/static/test.html">Identify</a></li>
-                <li><a href="/static/mylog.html">My Collection</a></li>
-                <li><a href="/static/about.html">About</a></li>
-                <li><a href="/static/contact.html">Contact</a></li>
-                <li><a href="/static/partners.html" class="active">Partners</a></li>
-            </ul>
-            <div class="auth-buttons">
-                <a href="#" class="btn-outline">Log In</a>
-                <a href="#" class="btn-outline">Sign Up</a>
-            </div>
+    <!-- Navigation Header -->
+    <header>
+        <a href="/static/home.html" class="header-logo">AmmoniteID</a>
+        <button class="hamburger-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <nav>
+            <a href="/static/home.html">Home</a>
+            <a href="/static/test.html">Identify</a>
+            <a href="/static/mylog.html">My Collection</a>
+            <a href="/static/about.html">About</a>
+            <a href="/static/contact.html">Contact</a>
+            <a href="/static/partners.html" class="active">Partners</a>
+        </nav>
+        <div class="auth-buttons">
+            <a href="#" class="btn-outline">Log In</a>
+            <a href="#" class="btn-outline">Sign Up</a>
         </div>
-    </nav>
+    </header>
 
     <!-- Header -->
     <div class="page-header">
@@ -414,6 +447,8 @@
     <footer>
         <p>&copy; 2025 AmmoniteID. All rights reserved.</p>
     </footer>
+
+    <script src="/static/hamburger-menu.js"></script>
 
     <script>
         let allPartners = [];
@@ -618,8 +653,8 @@
                 `;
             } else {
                 authButtons.innerHTML = `
-                    <a href="/static/home.html#login" class="btn-outline">Log In</a>
-                    <a href="/static/home.html#signup" class="btn-outline">Sign Up</a>
+                    <a href="/static/login.html" class="btn-outline">Log In</a>
+                    <a href="/static/login.html" class="btn-outline">Sign Up</a>
                 `;
             }
         });
