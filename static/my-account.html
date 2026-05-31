@@ -430,5 +430,107 @@
             document.addEventListener('click', function(e) { if (!_hMenu.contains(e.target) && !_hBtn.contains(e.target)) { _hBtn.classList.remove('open'); _hMenu.classList.remove('open'); } });
         }
     </script>
+
+    <script>
+        // ── NAV PADLOCK LOGIC ──
+        // "My Fossil Collection" shows 🔒 for FREE users
+        // "Identify" shows 🔒 for not-logged-in users
+        (function() {
+            function applyPadlocks() {
+                const tier = (localStorage.getItem('ammonite_tier') || 'FREE').toUpperCase();
+                const userId = localStorage.getItem('ammonite_user_id');
+
+                // Desktop nav links
+                document.querySelectorAll('.nav-links a, .nav-menu a').forEach(link => {
+                    const href = link.getAttribute('href') || '';
+                    // My Fossil Collection: padlock for FREE
+                    if (href.includes('mylog')) {
+                        if (tier !== 'PREMIUM') {
+                            link.innerHTML = link.innerHTML.replace(' 🔒','') + ' 🔒';
+                            link.onclick = function(e) {
+                                e.preventDefault();
+                                showUpgradeNudge();
+                            };
+                        }
+                    }
+                    // Identify: padlock if not logged in
+                    if (href.includes('test.html')) {
+                        if (!userId) {
+                            link.innerHTML = link.innerHTML.replace(' 🔒','') + ' 🔒';
+                            link.onclick = function(e) {
+                                e.preventDefault();
+                                showLoginNudge();
+                            };
+                        }
+                    }
+                });
+
+                // Mobile menu links
+                document.querySelectorAll('.mobile-menu a').forEach(link => {
+                    const href = link.getAttribute('href') || '';
+                    if (href.includes('mylog') && tier !== 'PREMIUM') {
+                        link.innerHTML = link.innerHTML.replace(' 🔒','') + ' 🔒';
+                        link.onclick = function(e) { e.preventDefault(); showUpgradeNudge(); };
+                    }
+                    if (href.includes('test.html') && !userId) {
+                        link.innerHTML = link.innerHTML.replace(' 🔒','') + ' 🔒';
+                        link.onclick = function(e) { e.preventDefault(); showLoginNudge(); };
+                    }
+                });
+            }
+
+            function showUpgradeNudge() {
+                let m = document.getElementById('_upgradeNudge');
+                if (!m) {
+                    m = document.createElement('div');
+                    m.id = '_upgradeNudge';
+                    m.style.cssText = 'display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.65);z-index:99999;align-items:center;justify-content:center;';
+                    m.innerHTML = `<div style="background:white;border-radius:20px;padding:36px;max-width:420px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+                        <div style="font-size:3rem;margin-bottom:12px;">🔒</div>
+                        <h2 style="color:#2c5f2d;margin-bottom:10px;font-size:1.4rem;">Premium Feature</h2>
+                        <p style="color:#666;margin-bottom:24px;line-height:1.6;font-family:Arial;">My Fossil Collection is a Premium feature.<br>Upgrade to save and track all your identifications.</p>
+                        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                            <button onclick="document.getElementById('_upgradeNudge').remove()" style="padding:11px 22px;background:#f0f0f0;color:#333;border:none;border-radius:10px;font-family:Arial;font-weight:bold;cursor:pointer;">✕ Close</button>
+                            <a href="/static/upgrade.html" style="padding:11px 22px;background:linear-gradient(135deg,#e67e22,#d35400);color:white;text-decoration:none;border-radius:10px;font-family:Arial;font-weight:bold;">⭐ Upgrade Now</a>
+                        </div>
+                    </div>`;
+                    m.onclick = function(e) { if(e.target===m) m.remove(); };
+                    document.body.appendChild(m);
+                }
+                m.style.display = 'flex';
+            }
+
+            function showLoginNudge() {
+                let m = document.getElementById('_loginNudge');
+                if (!m) {
+                    m = document.createElement('div');
+                    m.id = '_loginNudge';
+                    m.style.cssText = 'display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.65);z-index:99999;align-items:center;justify-content:center;';
+                    m.innerHTML = `<div style="background:white;border-radius:20px;padding:36px;max-width:420px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+                        <div style="font-size:3rem;margin-bottom:12px;">🔒</div>
+                        <h2 style="color:#2c5f2d;margin-bottom:10px;font-size:1.4rem;">Login Required</h2>
+                        <p style="color:#666;margin-bottom:24px;line-height:1.6;font-family:Arial;">Please log in or sign up to identify fossils.</p>
+                        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                            <a href="/static/home.html" style="padding:11px 22px;background:#f0f0f0;color:#333;text-decoration:none;border-radius:10px;font-family:Arial;font-weight:bold;">🏠 Home</a>
+                            <a href="/static/login.html" style="padding:11px 22px;background:linear-gradient(135deg,#2c5f2d,#1e4620);color:white;text-decoration:none;border-radius:10px;font-family:Arial;font-weight:bold;">🔑 Log In</a>
+                            <a href="/static/login.html" style="padding:11px 22px;background:#f0f0f0;color:#333;text-decoration:none;border-radius:10px;font-family:Arial;font-weight:bold;">✏️ Sign Up</a>
+                        </div>
+                    </div>`;
+                    m.onclick = function(e) { if(e.target===m) m.remove(); };
+                    document.body.appendChild(m);
+                }
+                m.style.display = 'flex';
+            }
+
+            // Run after DOM + auth state settles
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => setTimeout(applyPadlocks, 800));
+            } else {
+                setTimeout(applyPadlocks, 800);
+            }
+            // Re-run when storage changes (user logs in/out)
+            window.addEventListener('storage', () => setTimeout(applyPadlocks, 300));
+        })();
+    </script>
 </body>
 </html>
