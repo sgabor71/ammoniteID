@@ -16,98 +16,75 @@
         }
         html, body { height: 100%; font-family: 'Georgia','Merriweather',serif; color: var(--dark-text); background-image: url('background.jpg'); background-size: cover; background-attachment: fixed; background-position: center; }
 
-        /* ── NAV (DESKTOP - UNCHANGED) ── */
+        /* ══════════════════════════════════════
+           NAV — DESKTOP (unchanged)
+        ══════════════════════════════════════ */
         nav {
             position: sticky; top: 0;
             background: rgba(255,255,255,0.97); backdrop-filter: blur(10px);
             padding: 1.2rem 2rem; box-shadow: var(--shadow-sm); z-index: 1000;
         }
         .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 1.8rem; font-weight: bold; color: #2c5f2d; text-decoration: none; }
+        .logo { font-size: 1.8rem; font-weight: bold; color: #2c5f2d; text-decoration: none; flex-shrink: 0; }
         .nav-links { display: flex; gap: 2rem; list-style: none; }
         .nav-links a { color: #5D4E3A; text-decoration: none; font-size: 1.2rem; transition: all 0.3s; font-weight: bold; font-family: 'Arial',sans-serif; padding-bottom: 3px; border-bottom: 3px solid transparent; }
         .nav-links a:hover, .nav-links a.active { color: #2c5f2d; border-bottom: 3px solid #2c5f2d; }
         .auth-buttons { display: flex; gap: 1rem; align-items: center; }
-        .btn-outline {
-            padding: 0.6rem 1.5rem; border: 2px solid #2c5f2d;
-            background: linear-gradient(135deg, #2c5f2d 0%, #1e4620 100%);
-            color: white; border-radius: 8px; text-decoration: none; font-family: 'Arial',sans-serif;
-            font-size: 1.1rem; font-weight: bold; transition: all 0.3s; cursor: pointer;
-            box-shadow: 0 2px 8px rgba(44,95,45,0.3);
-        }
+        .btn-outline { padding: 0.6rem 1.5rem; border: 2px solid #2c5f2d; background: linear-gradient(135deg, #2c5f2d 0%, #1e4620 100%); color: white; border-radius: 8px; text-decoration: none; font-family: 'Arial',sans-serif; font-size: 1.1rem; font-weight: bold; transition: all 0.3s; cursor: pointer; box-shadow: 0 2px 8px rgba(44,95,45,0.3); }
         .btn-outline:hover { transform: translateY(-2px); }
 
-        /* ── HAMBURGER (MOBILE ONLY - hidden on desktop) ── */
+        /* ══════════════════════════════════════
+           MOBILE MENU — hidden on desktop
+        ══════════════════════════════════════ */
         .hamburger-btn { display: none; }
+        .mobile-menu { display: none; }
 
-        /* ── MOBILE NAV ── */
+        /* ══════════════════════════════════════
+           MOBILE NAV (max 768px only)
+        ══════════════════════════════════════ */
         @media (max-width: 768px) {
-            nav { padding: 0.6rem 1rem; }
-            .nav-container { flex-wrap: nowrap; }
-            .logo { font-size: 1.3rem; }
+            nav { padding: 0.6rem 1rem; position: relative; }
+            .nav-container { flex-wrap: nowrap; gap: 0.5rem; }
+            .logo { font-size: 1.2rem; }
+            .nav-links { display: none !important; }
 
-            /* Hide desktop nav links */
-            .nav-links { display: none; }
+            .auth-buttons .btn-outline { padding: 0.35rem 0.7rem; font-size: 0.8rem; }
+            .auth-buttons { gap: 0.4rem; }
 
-            /* Show hamburger */
             .hamburger-btn {
-                display: flex; flex-direction: column; justify-content: center;
+                display: flex !important; flex-direction: column; justify-content: center;
                 gap: 5px; background: none; border: none; cursor: pointer;
-                padding: 8px; margin-left: 8px; z-index: 1100;
+                padding: 6px; margin-left: 6px; flex-shrink: 0;
             }
-            .hamburger-btn span {
-                display: block; width: 24px; height: 3px; background: #2c5f2d;
-                border-radius: 2px; transition: all 0.3s ease;
-            }
+            .hamburger-btn span { display: block; width: 22px; height: 2.5px; background: #2c5f2d; border-radius: 2px; transition: all 0.3s ease; }
             .hamburger-btn.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 8px); }
             .hamburger-btn.open span:nth-child(2) { opacity: 0; }
             .hamburger-btn.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -8px); }
 
-            /* Mobile dropdown menu */
             .mobile-menu {
                 display: none; flex-direction: column;
                 position: absolute; top: 100%; left: 0; right: 0;
-                background: rgba(255,255,255,0.98); box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-                z-index: 1050; padding: 0.5rem 0;
+                background: rgba(255,255,255,0.99);
+                box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+                z-index: 1050; padding: 0.3rem 0;
             }
-            .mobile-menu.open { display: flex; }
+            .mobile-menu.open { display: flex !important; }
             .mobile-menu a, .mobile-menu button {
-                padding: 0.9rem 1.5rem; color: #5D4E3A; text-decoration: none;
-                font-family: 'Arial',sans-serif; font-weight: bold; font-size: 1rem;
+                padding: 0.85rem 1.5rem; color: #5D4E3A; text-decoration: none;
+                font-family: 'Arial',sans-serif; font-weight: bold; font-size: 0.95rem;
                 border: none; background: none; text-align: left; cursor: pointer;
                 border-bottom: 1px solid #f0ece4; display: block; width: 100%;
             }
             .mobile-menu a:hover, .mobile-menu button:hover { background: #f5f1e8; color: #2c5f2d; }
             .mobile-menu a:last-child, .mobile-menu button:last-child { border-bottom: none; }
-
-            /* Mobile auth buttons in header */
-            .auth-buttons .btn-outline { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
-            .auth-buttons { gap: 0.5rem; }
-
-            /* Logged-in mobile: show My Account + smaller logout */
-            .logout-icon-btn {
-                background: none; border: none; cursor: pointer;
-                font-size: 1.4rem; padding: 4px; color: #5D4E3A;
-            }
-            .my-account-btn {
-                padding: 0.4rem 0.8rem; font-size: 0.85rem;
-                background: linear-gradient(135deg, #2c5f2d 0%, #1e4620 100%);
-                color: white; border-radius: 8px; text-decoration: none;
-                font-family: 'Arial',sans-serif; font-weight: bold;
-            }
         }
 
-        /* ── MAIN CONTENT ── */
+        /* ══════════════════════════════════════
+           MAIN CONTENT
+        ══════════════════════════════════════ */
         .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
-        .upload-section {
-            background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.95) 100%);
-            border-radius: 20px; padding: 3rem; box-shadow: var(--shadow); margin-bottom: 2rem;
-            border: 2px solid rgba(44,95,45,0.1); animation: fadeInUp 0.6s ease-out 0.1s both;
-        }
-        .upload-area {
-            border: 3px dashed #2c5f2d; border-radius: 16px; padding: 3rem 2rem;
-            text-align: center; background: linear-gradient(135deg, rgba(44,95,45,0.03) 0%, rgba(255,255,255,0.95) 100%);
-        }
+        .upload-section { background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.95) 100%); border-radius: 20px; padding: 3rem; box-shadow: var(--shadow); margin-bottom: 2rem; border: 2px solid rgba(44,95,45,0.1); animation: fadeInUp 0.6s ease-out 0.1s both; }
+        .upload-area { border: 3px dashed #2c5f2d; border-radius: 16px; padding: 3rem 2rem; text-align: center; background: linear-gradient(135deg, rgba(44,95,45,0.03) 0%, rgba(255,255,255,0.95) 100%); }
         .upload-icon { font-size: 3rem; margin-bottom: 1rem; }
         .upload-area h3 { font-size: 1.5rem; color: #2c5f2d; margin-bottom: 0.5rem; font-weight: bold; }
         .upload-area p { color: #1a1a1a; font-family: 'Arial',sans-serif; font-size: 1.1rem; margin-bottom: 1.5rem; font-weight: bold; }
@@ -125,17 +102,17 @@
         .preview-item { position: relative; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-sm); animation: scaleIn 0.3s ease-out; }
         .preview-item img { width: 100%; height: 150px; object-fit: cover; display: block; }
         .preview-remove { position: absolute; top: 8px; right: 8px; background: rgba(200,85,85,0.9); color: white; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: all 0.3s; opacity: 0; }
-        .preview-item:hover .preview-remove { opacity: 1; }
+        .preview-item:hover .preview-remove, .preview-item .preview-remove { opacity: 1; }
         .action-buttons { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; }
         .action-buttons .btn { padding: 1.4rem 3rem; font-size: 1.25rem; font-weight: bold; }
         .btn-reset { background: #dc3545; color: white; border: none; margin-left: auto; }
         .btn-reset:hover:not(:disabled) { background: #c82333; }
-
-        /* ── SPINNER ── */
         .progress-indicator { text-align: center; padding: 2rem; margin: 2rem 0; }
         .spinner { width: 40px; height: 40px; margin: 0 auto 1rem; border: 3px solid rgba(139,115,85,0.2); border-top: 3px solid var(--stone); border-radius: 50%; animation: spin 1s linear infinite; }
 
-        /* ── RESULTS ── */
+        /* ══════════════════════════════════════
+           RESULTS
+        ══════════════════════════════════════ */
         .results-section { display: none; background: white; border-radius: 16px; padding: 2.5rem; box-shadow: var(--shadow); animation: fadeInUp 0.6s ease-out; }
         .results-section.show { display: block; }
         .results-header { text-align: center; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 2px solid #e8dcc8; }
@@ -149,24 +126,65 @@
         .progress-bar { height: 8px; background: #e8dcc8; border-radius: 4px; overflow: hidden; }
         .progress-fill { height: 100%; background: linear-gradient(90deg, var(--stone) 0%, var(--deep-green) 100%); transition: width 0.4s ease; border-radius: 4px; }
 
-        /* ── CAMERA MODAL ── */
-        .camera-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; justify-content: center; align-items: center; }
+        /* ══════════════════════════════════════
+           CAMERA MODAL (WebRTC - both mobile & desktop)
+        ══════════════════════════════════════ */
+        .camera-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.97); z-index: 10000; flex-direction: column; justify-content: center; align-items: center; gap: 0; }
         .camera-modal.active { display: flex; }
-        .camera-container { position: relative; max-width: 90vw; max-height: 90vh; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
-        #cameraVideo { width: 100%; max-width: 640px; border-radius: 12px; }
-        .camera-controls { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
-        .macro-toggle {
-            padding: 0.7rem 1.5rem; background: #2c5f2d; color: white; border: none;
-            border-radius: 20px; font-family: 'Arial',sans-serif; font-weight: bold;
-            cursor: pointer; font-size: 1rem; transition: all 0.3s;
+
+        .camera-header {
+            width: 100%; max-width: 640px;
+            background: rgba(255,255,255,0.08);
+            padding: 10px 16px;
+            border-radius: 12px 12px 0 0;
+            display: flex; align-items: center; justify-content: space-between;
         }
-        .macro-toggle.off { background: #888; }
-        .macro-label {
-            color: #ccc; font-family: 'Arial',sans-serif; font-size: 0.85rem;
-            text-align: center; margin-top: -0.5rem;
+        .camera-header-title { color: white; font-family: 'Arial',sans-serif; font-size: 0.9rem; font-weight: bold; }
+        .camera-tip { color: #aaa; font-family: 'Arial',sans-serif; font-size: 0.78rem; }
+
+        .camera-video-wrap { position: relative; width: 100%; max-width: 640px; background: #000; }
+        #cameraVideo { width: 100%; display: block; max-height: 55vh; object-fit: cover; }
+
+        /* Zoom overlay label on video */
+        .zoom-badge {
+            position: absolute; top: 10px; left: 10px;
+            background: rgba(0,0,0,0.55); color: white;
+            font-family: 'Arial',sans-serif; font-size: 0.85rem; font-weight: bold;
+            padding: 4px 10px; border-radius: 20px;
+            pointer-events: none;
         }
 
-        /* ── LOGIN MODAL ── */
+        /* Zoom slider panel */
+        .zoom-panel {
+            width: 100%; max-width: 640px;
+            background: rgba(255,255,255,0.06);
+            padding: 12px 20px;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .zoom-icon { font-size: 1rem; color: #aaa; flex-shrink: 0; }
+        .zoom-slider {
+            flex: 1; -webkit-appearance: none; appearance: none;
+            height: 4px; border-radius: 4px;
+            background: linear-gradient(90deg, #2c5f2d 0%, #4a7c59 100%);
+            outline: none; cursor: pointer;
+        }
+        .zoom-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 50%; background: white; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.4); }
+        .zoom-slider::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: white; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.4); border: none; }
+        .zoom-value { color: white; font-family: 'Arial',sans-serif; font-size: 0.9rem; font-weight: bold; min-width: 30px; text-align: right; flex-shrink: 0; }
+
+        /* Camera action buttons */
+        .camera-controls {
+            width: 100%; max-width: 640px;
+            background: rgba(255,255,255,0.06);
+            padding: 14px 20px;
+            border-radius: 0 0 12px 12px;
+            display: flex; gap: 12px; justify-content: center;
+        }
+        .camera-controls .btn { padding: 1rem 1.8rem; font-size: 1rem; border-radius: 20px; }
+
+        /* ══════════════════════════════════════
+           LOGIN MODAL
+        ══════════════════════════════════════ */
         .login-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; justify-content: center; align-items: center; }
         .login-modal.show { display: flex; }
         .login-modal-content { background: white; border-radius: 20px; padding: 40px; max-width: 450px; width: 90%; text-align: center; box-shadow: var(--shadow); }
@@ -182,12 +200,16 @@
         .modal-btn-outline { background: white; color: #2c5f2d; border: 2px solid #2c5f2d; }
         .modal-btn-outline:hover { background: #f0f5f0; }
 
-        /* ── ANIMATIONS ── */
+        /* ══════════════════════════════════════
+           ANIMATIONS
+        ══════════════════════════════════════ */
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
-        /* ── MOBILE LAYOUT ── */
+        /* ══════════════════════════════════════
+           MOBILE LAYOUT (max 768px)
+        ══════════════════════════════════════ */
         @media (max-width: 768px) {
             .container { padding: 1rem; }
             .upload-section { padding: 1.5rem; }
@@ -198,21 +220,20 @@
             .btn { padding: 1rem 1.5rem; font-size: 1rem; border-radius: 14px; width: 100%; justify-content: center; }
             .preview-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.8rem; }
             .preview-item img { height: 110px; }
-            .preview-remove { opacity: 1; width: 28px; height: 28px; font-size: 1rem; }
             .action-buttons { flex-direction: column; gap: 0.8rem; }
             .action-buttons .btn { padding: 1rem; font-size: 1.1rem; width: 100%; margin-left: 0; }
             .results-section { padding: 1.5rem; }
             .results-header h2 { font-size: 1.4rem; }
             .confidence-badge { font-size: 1rem; padding: 0.6rem 1.2rem; }
             .genus-label { font-size: 0.85rem; }
-            .camera-controls { flex-direction: column; align-items: center; }
-            .camera-controls .btn { width: auto; min-width: 200px; }
+            #cameraVideo { max-height: 45vh; }
+            .camera-controls .btn { padding: 0.85rem 1.2rem; font-size: 0.95rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- LOGIN REQUIRED MODAL -->
+    <!-- LOGIN MODAL -->
     <div id="loginModal" class="login-modal">
         <div class="login-modal-content">
             <div class="login-modal-icon">🔐</div>
@@ -231,7 +252,7 @@
         <div class="nav-container">
             <a href="/static/home.html" class="logo">AmmoniteID</a>
 
-            <!-- Desktop nav links -->
+            <!-- Desktop nav links (hidden on mobile) -->
             <ul class="nav-links">
                 <li><a href="/static/home.html">Home</a></li>
                 <li><a href="/static/test.html" class="active">Identify</a></li>
@@ -241,19 +262,19 @@
                 <li><a href="/static/partners.html">Partners</a></li>
             </ul>
 
-            <!-- Auth buttons (desktop: full, mobile: compact) -->
+            <!-- Auth buttons -->
             <div class="auth-buttons" id="authButtons">
                 <a href="/static/login.html" class="btn-outline">Log In</a>
                 <a href="/static/login.html" class="btn-outline">Sign Up</a>
             </div>
 
-            <!-- Hamburger button (mobile only) -->
+            <!-- Hamburger (mobile only) -->
             <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu">
                 <span></span><span></span><span></span>
             </button>
         </div>
 
-        <!-- Mobile dropdown menu -->
+        <!-- Mobile dropdown (ONLY shown on mobile when hamburger clicked) -->
         <div class="mobile-menu" id="mobileMenu">
             <a href="/static/home.html">🏠 Home</a>
             <a href="/static/test.html">🔍 Identify</a>
@@ -273,23 +294,21 @@
 
     <div class="container">
         <!-- PREMIUM WARNING -->
-        <div id="premiumWarning" style="display:none; margin-bottom:1.5rem; padding:16px 20px; border-radius:12px; background:linear-gradient(135deg,#fff3cd,#ffe8b6); border-left:5px solid #ff9800; font-family:Arial;">
+        <div id="premiumWarning" style="display:none;margin-bottom:1.5rem;padding:16px 20px;border-radius:12px;background:linear-gradient(135deg,#fff3cd,#ffe8b6);border-left:5px solid #ff9800;font-family:Arial;">
             <div style="font-size:1rem;font-weight:bold;color:#333;margin-bottom:8px;">⚠️ Premium Feature Not Activated</div>
             <p style="color:#555;margin:0 0 12px 0;font-size:0.95rem;">You have Premium access but haven't downloaded the offline model yet.</p>
             <button onclick="document.getElementById('offlineDownloadSection').scrollIntoView({behavior:'smooth'})" style="padding:8px 16px;background:#ff9800;color:white;border:none;border-radius:6px;font-weight:bold;cursor:pointer;">⬇️ Activate Now</button>
         </div>
 
-        <!-- OFFLINE STATUS BAR -->
+        <!-- OFFLINE BAR -->
         <div id="offlineBar" style="display:none;margin-bottom:1.5rem;padding:14px 18px;border-radius:12px;font-family:Arial;font-size:0.95rem;"></div>
 
         <!-- OFFLINE DOWNLOAD -->
         <div id="offlineDownloadSection" style="display:none;margin-bottom:1.5rem;text-align:center;background:white;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
             <button id="downloadModelBtn" onclick="startOfflineDownload()" style="padding:12px 24px;background:linear-gradient(135deg,#f39c12,#e67e22);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:bold;cursor:pointer;">⬇️ Enable Offline Mode</button>
-            <p style="font-size:0.85rem;color:#999;margin-top:8px;">One-time download (8.5MB) — identify fossils without signal</p>
+            <p style="font-size:0.85rem;color:#999;margin-top:8px;">One-time download (8.5MB)</p>
             <div id="downloadProgress" style="display:none;margin-top:10px;">
-                <div style="background:#e0e0e0;border-radius:8px;height:8px;overflow:hidden;">
-                    <div id="downloadBar" style="background:#e67e22;height:100%;width:0%;transition:width 0.3s;"></div>
-                </div>
+                <div style="background:#e0e0e0;border-radius:8px;height:8px;overflow:hidden;"><div id="downloadBar" style="background:#e67e22;height:100%;width:0%;transition:width 0.3s;"></div></div>
                 <p id="downloadStatus" style="font-size:0.85rem;color:#666;margin-top:5px;">Downloading...</p>
             </div>
         </div>
@@ -318,7 +337,7 @@
             <button class="btn btn-reset" id="resetBtn" disabled>🔄 Clear Photos</button>
         </div>
 
-        <!-- LOADING SPINNER -->
+        <!-- LOADING -->
         <div class="progress-indicator" id="progressIndicator" style="display:none;">
             <div class="spinner"></div>
             <p class="progress-text">Analysing your photos...</p>
@@ -338,14 +357,26 @@
 
     <!-- CAMERA MODAL -->
     <div id="cameraModal" class="camera-modal">
-        <div class="camera-container">
+        <!-- Header -->
+        <div class="camera-header">
+            <span class="camera-header-title">📷 Camera</span>
+            <span class="camera-tip">💡 Tap screen to focus</span>
+        </div>
+        <!-- Video -->
+        <div class="camera-video-wrap">
             <video id="cameraVideo" autoplay playsinline></video>
-            <div class="macro-label" id="macroLabel">🔍 Macro Mode: ON</div>
-            <div class="camera-controls">
-                <button class="btn btn-primary" onclick="capturePhoto()">📸 Capture Photo</button>
-                <button class="macro-toggle" id="macroToggleBtn" onclick="toggleMacro()">🔍 Macro OFF</button>
-                <button class="btn btn-secondary" onclick="closeCamera()">✕ Cancel</button>
-            </div>
+            <div class="zoom-badge" id="zoomBadge">1.0x</div>
+        </div>
+        <!-- Zoom slider -->
+        <div class="zoom-panel">
+            <span class="zoom-icon">🔍</span>
+            <input type="range" class="zoom-slider" id="zoomSlider" min="1" max="5" step="0.1" value="1">
+            <span class="zoom-value" id="zoomValue">1x</span>
+        </div>
+        <!-- Buttons -->
+        <div class="camera-controls">
+            <button class="btn btn-primary" onclick="capturePhoto()">📸 Capture</button>
+            <button class="btn btn-reset" onclick="closeCamera()">✕ Cancel</button>
         </div>
     </div>
     <canvas id="canvas" style="display:none;"></canvas>
@@ -358,7 +389,6 @@
         @keyframes bannerSlideIn  { from{transform:translateY(-110%);opacity:0;} to{transform:translateY(0);opacity:1;} }
         @keyframes bannerSlideOut { from{transform:translateY(0);opacity:1;} to{transform:translateY(-110%);opacity:0;} }
         .ad-content { position:relative;display:flex;justify-content:space-between;align-items:center;padding:0 2rem;height:160px;white-space:nowrap;overflow:hidden; }
-        .ad-content.active { opacity:1; }
         .ad-left { display:flex;align-items:center;gap:0;flex:1;min-width:0;overflow:hidden; }
         .ad-partner-name { font-size:1.1rem;font-weight:bold;color:#1a1a1a;text-decoration:none;cursor:pointer;flex-shrink:0;transition:all 0.2s; }
         .ad-partner-name:hover { text-decoration:underline;color:#2c5f2d; }
@@ -368,161 +398,119 @@
         .ad-offer { font-size:0.85rem;color:#2c5f2d;font-weight:bold;background:rgba(255,255,255,0.85);padding:2px 8px;border-radius:4px;white-space:nowrap;flex-shrink:0;margin-left:10px; }
         .ad-more-info { padding:0.5rem 1.2rem;background:#2c5f2d;color:white;text-decoration:none;border-radius:6px;font-family:Arial,sans-serif;font-size:0.9rem;font-weight:bold;transition:all 0.3s;white-space:nowrap;flex-shrink:0;margin-left:1rem; }
         .ad-more-info:hover { background:#1e4620; }
-        @media (max-width: 768px) {
-            #partner-ad-banner { height:120px; }
-            .ad-content { padding:0.8rem 1rem;height:120px; }
+        @media (max-width:768px) {
+            #partner-ad-banner { height:100px; top:52px; }
+            .ad-content { padding:0.6rem 1rem;height:100px; }
             .ad-detail { display:none; }
             .ad-more-info { font-size:0.8rem;padding:0.4rem 0.8rem; }
         }
     </style>
 
-    <!-- HAMBURGER MENU SCRIPT -->
+    <!-- HAMBURGER SCRIPT -->
     <script>
         const hamburgerBtn = document.getElementById('hamburgerBtn');
         const mobileMenu = document.getElementById('mobileMenu');
 
-        hamburgerBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            hamburgerBtn.classList.toggle('open');
-            mobileMenu.classList.toggle('open');
-        });
-
-        // Close menu when a link is clicked
-        mobileMenu.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                hamburgerBtn.classList.remove('open');
-                mobileMenu.classList.remove('open');
+        if (hamburgerBtn) {
+            hamburgerBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                hamburgerBtn.classList.toggle('open');
+                mobileMenu.classList.toggle('open');
             });
-        });
-
-        // Close menu when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!mobileMenu.contains(e.target) && !hamburgerBtn.contains(e.target)) {
-                hamburgerBtn.classList.remove('open');
-                mobileMenu.classList.remove('open');
-            }
-        });
+            mobileMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    hamburgerBtn.classList.remove('open');
+                    mobileMenu.classList.remove('open');
+                });
+            });
+            document.addEventListener('click', function(e) {
+                if (!mobileMenu.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+                    hamburgerBtn.classList.remove('open');
+                    mobileMenu.classList.remove('open');
+                }
+            });
+        }
     </script>
 
     <!-- FIREBASE AUTH -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        const firebaseConfig = {
-            apiKey: "AIzaSyChXqOpXgpkLrn44mfIcPoTVPBk6neicBQ",
-            authDomain: "ammoniteid-f9d8e.firebaseapp.com",
-            projectId: "ammoniteid-f9d8e",
-            storageBucket: "ammoniteid-f9d8e.firebasestorage.app",
-            messagingSenderId: "828376677091",
-            appId: "1:828376677091:web:e302f3ff538b78bc83e3d6"
-        };
+        const firebaseConfig = { apiKey:"AIzaSyChXqOpXgpkLrn44mfIcPoTVPBk6neicBQ", authDomain:"ammoniteid-f9d8e.firebaseapp.com", projectId:"ammoniteid-f9d8e", storageBucket:"ammoniteid-f9d8e.firebasestorage.app", messagingSenderId:"828376677091", appId:"1:828376677091:web:e302f3ff538b78bc83e3d6" };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-
         onAuthStateChanged(auth, (user) => {
             const authButtons = document.getElementById('authButtons');
             const mobileAuthLinks = document.getElementById('mobileAuthLinks');
             const loginModal = document.getElementById('loginModal');
             const uploadArea = document.getElementById('uploadArea');
-
             if (user) {
-                // Store user ID
                 localStorage.setItem('ammonite_user_id', user.uid);
-
-                // Desktop auth buttons: My Account + Logout
-                authButtons.innerHTML = `
-                    <a href="/static/my-account.html" class="btn-outline" style="font-size:0.95rem;padding:0.5rem 1rem;">👤 My Account</a>
-                    <button class="btn-outline" style="font-size:0.9rem;padding:0.5rem 1rem;" onclick="handleLogout()">🚪 Log Out</button>`;
-
-                // Mobile auth links
-                mobileAuthLinks.innerHTML = `
-                    <a href="/static/my-account.html">👤 My Account</a>
-                    <button onclick="handleLogout(); return false;">🚪 Log Out</button>`;
-
-                // Hide login modal
+                authButtons.innerHTML = `<a href="/static/my-account.html" class="btn-outline" style="font-size:0.95rem;padding:0.5rem 1rem;">👤 My Account</a><button class="btn-outline" style="font-size:0.9rem;padding:0.5rem 1rem;" onclick="handleLogout()">🚪 Log Out</button>`;
+                mobileAuthLinks.innerHTML = `<a href="/static/my-account.html">👤 My Account</a><button onclick="handleLogout()">🚪 Log Out</button>`;
                 loginModal.classList.remove('show');
                 uploadArea.style.pointerEvents = 'auto';
                 uploadArea.style.opacity = '1';
-
             } else {
                 localStorage.removeItem('ammonite_user_id');
-
-                // Desktop auth buttons: Log In + Sign Up
-                authButtons.innerHTML = `
-                    <a href="/static/login.html" class="btn-outline">Log In</a>
-                    <a href="/static/login.html" class="btn-outline">Sign Up</a>`;
-
-                // Mobile auth links
-                mobileAuthLinks.innerHTML = `
-                    <a href="/static/login.html">🔑 Log In</a>
-                    <a href="/static/login.html">✏️ Sign Up</a>`;
-
-                // Show login modal - block identification
+                authButtons.innerHTML = `<a href="/static/login.html" class="btn-outline">Log In</a><a href="/static/login.html" class="btn-outline">Sign Up</a>`;
+                mobileAuthLinks.innerHTML = `<a href="/static/login.html">🔑 Log In</a><a href="/static/login.html">✏️ Sign Up</a>`;
                 loginModal.classList.add('show');
                 uploadArea.style.pointerEvents = 'none';
                 uploadArea.style.opacity = '0.5';
             }
         });
-
-        window.handleLogout = async function() {
-            try { await signOut(auth); window.location.href = '/static/home.html'; }
-            catch (error) { alert('Error logging out.'); }
-        };
+        window.handleLogout = async function() { try { await signOut(auth); window.location.href='/static/home.html'; } catch(e) { alert('Error logging out.'); } };
     </script>
 
-    <!-- PHOTO / CAMERA LOGIC -->
+    <!-- CAMERA + ZOOM SCRIPT -->
     <script>
-        const fileInput = document.getElementById('fileInput');
-        const captureBtn = document.getElementById('captureBtn');
-        const uploadBtn = document.getElementById('uploadBtn');
+        const fileInput    = document.getElementById('fileInput');
+        const captureBtn   = document.getElementById('captureBtn');
+        const uploadBtn    = document.getElementById('uploadBtn');
         const previewSection = document.getElementById('previewSection');
-        const previewGrid = document.getElementById('previewGrid');
-        const photoCount = document.getElementById('photoCount');
-        const submitBtn = document.getElementById('submitBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const progressIndicator = document.getElementById('progressIndicator');
-        const resultsSection = document.getElementById('resultsSection');
+        const previewGrid  = document.getElementById('previewGrid');
+        const photoCount   = document.getElementById('photoCount');
+        const submitBtn    = document.getElementById('submitBtn');
+        const resetBtn     = document.getElementById('resetBtn');
+        const zoomSlider   = document.getElementById('zoomSlider');
+        const zoomValue    = document.getElementById('zoomValue');
+        const zoomBadge    = document.getElementById('zoomBadge');
 
-        let selectedFiles = [];
-        const MAX_PHOTOS = 3;
-        let cameraStream = null;
+        let selectedFiles  = [];
+        const MAX_PHOTOS   = 3;
+        let cameraStream   = null;
         let photosFromCamera = false;
-        let macroOn = true; // Macro mode ON by default
+        let currentZoom    = 1;   // Persists between captures
 
+        // ── Open / close camera ──
+        captureBtn.addEventListener('click', openCamera);
         uploadBtn.addEventListener('click', () => fileInput.click());
-        captureBtn.addEventListener('click', () => openCamera());
-
-        fileInput.addEventListener('change', (e) => {
-            const newFiles = Array.from(e.target.files);
-            const combined = [...selectedFiles, ...newFiles];
-            selectedFiles = combined.slice(0, MAX_PHOTOS);
-            if (combined.length > MAX_PHOTOS) alert(`Maximum ${MAX_PHOTOS} photos. Only first ${MAX_PHOTOS} kept.`);
-            photosFromCamera = false;
-            updatePreview();
-            fileInput.value = '';
-        });
 
         async function openCamera() {
             if (selectedFiles.length >= MAX_PHOTOS) return;
             try {
-                const constraints = {
-                    video: {
-                        facingMode: 'environment',
-                        width: { ideal: 1920 },
-                        height: { ideal: 1080 },
-                        ...(macroOn ? { focusMode: 'macro', focusDistance: { ideal: 0.1 } } : {})
-                    }
-                };
-                // Try with macro constraints, fall back without if unsupported
-                try {
-                    cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
-                } catch {
-                    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                }
+                const constraints = { video: { facingMode:'environment', width:{ideal:1920}, height:{ideal:1080} } };
+                cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
                 document.getElementById('cameraVideo').srcObject = cameraStream;
+
+                // Try hardware zoom first (Android Chrome supports it)
+                const track = cameraStream.getVideoTracks()[0];
+                const caps  = track.getCapabilities ? track.getCapabilities() : {};
+                if (caps.zoom) {
+                    zoomSlider.min  = caps.zoom.min;
+                    zoomSlider.max  = caps.zoom.max;
+                    zoomSlider.step = caps.zoom.step || 0.1;
+                } else {
+                    // Software zoom fallback
+                    zoomSlider.min = 1; zoomSlider.max = 5; zoomSlider.step = 0.1;
+                }
+                // Restore previous zoom
+                zoomSlider.value = currentZoom;
+                applyZoom(currentZoom);
+
                 document.getElementById('cameraModal').classList.add('active');
-                updateMacroButton();
-            } catch (error) {
+            } catch(error) {
                 alert('Camera access denied: ' + error.message);
             }
         }
@@ -533,110 +521,159 @@
             document.getElementById('cameraModal').classList.remove('active');
         }
 
-        function toggleMacro() {
-            macroOn = !macroOn;
-            // Try to apply macro mode to live stream
-            if (cameraStream) {
-                const track = cameraStream.getVideoTracks()[0];
-                if (track && track.applyConstraints) {
-                    const c = macroOn ? { focusMode: 'macro', focusDistance: { ideal: 0.1 } } : { focusMode: 'continuous' };
-                    track.applyConstraints({ advanced: [c] }).catch(() => {});
-                }
-            }
-            updateMacroButton();
-        }
+        // ── Zoom logic ──
+        zoomSlider.addEventListener('input', () => {
+            currentZoom = parseFloat(zoomSlider.value);
+            applyZoom(currentZoom);
+        });
 
-        function updateMacroButton() {
-            const btn = document.getElementById('macroToggleBtn');
-            const label = document.getElementById('macroLabel');
-            if (macroOn) {
-                btn.textContent = '🔍 Macro OFF';
-                btn.classList.remove('off');
-                label.textContent = '🔍 Macro Mode: ON';
+        function applyZoom(zoom) {
+            const label = zoom.toFixed(1) + 'x';
+            zoomValue.textContent = label;
+            zoomBadge.textContent = label;
+
+            const track = cameraStream && cameraStream.getVideoTracks()[0];
+            const caps  = track && track.getCapabilities ? track.getCapabilities() : {};
+
+            if (caps.zoom) {
+                // Hardware zoom (better quality on supported devices)
+                track.applyConstraints({ advanced: [{ zoom }] }).catch(() => {});
             } else {
-                btn.textContent = '🔍 Macro ON';
-                btn.classList.add('off');
-                label.textContent = '🔍 Macro Mode: OFF';
+                // Software zoom: scale video element (visual preview only)
+                document.getElementById('cameraVideo').style.transform = `scale(${zoom})`;
+                document.getElementById('cameraVideo').style.transformOrigin = 'center center';
             }
         }
 
+        // ── Tap to focus ──
+        document.getElementById('cameraVideo').addEventListener('click', function(e) {
+            const track = cameraStream && cameraStream.getVideoTracks()[0];
+            const caps  = track && track.getCapabilities ? track.getCapabilities() : {};
+            if (caps.focusMode && caps.focusMode.includes('manual')) {
+                const rect = this.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width;
+                const y = (e.clientY - rect.top)  / rect.height;
+                track.applyConstraints({ advanced:[{ focusMode:'manual', pointsOfInterest:[{x,y}] }] }).catch(()=>{});
+            }
+        });
+
+        // ── Capture photo (canvas crop for software zoom) ──
         function capturePhoto() {
-            const video = document.getElementById('cameraVideo');
+            const video  = document.getElementById('cameraVideo');
             const canvas = document.getElementById('canvas');
-            const context = canvas.getContext('2d');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0);
+            const ctx    = canvas.getContext('2d');
+            const vw = video.videoWidth;
+            const vh = video.videoHeight;
+
+            const track = cameraStream && cameraStream.getVideoTracks()[0];
+            const caps  = track && track.getCapabilities ? track.getCapabilities() : {};
+            const useHardwareZoom = !!caps.zoom;
+
+            if (!useHardwareZoom && currentZoom > 1) {
+                // Crop centre of full-resolution frame
+                const cropW = vw / currentZoom;
+                const cropH = vh / currentZoom;
+                const cropX = (vw - cropW) / 2;
+                const cropY = (vh - cropH) / 2;
+                canvas.width  = cropW;
+                canvas.height = cropH;
+                ctx.drawImage(video, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+            } else {
+                // Full frame (hardware zoom already applied, or zoom = 1x)
+                canvas.width  = vw;
+                canvas.height = vh;
+                ctx.drawImage(video, 0, 0);
+            }
+
             canvas.toBlob((blob) => {
-                const file = new File([blob], `camera_${Date.now()}.jpg`, { type: 'image/jpeg' });
+                const file = new File([blob], `camera_${Date.now()}.jpg`, {type:'image/jpeg'});
                 selectedFiles.push(file);
                 photosFromCamera = true;
                 updatePreview();
                 closeCamera();
+                // zoom level is kept (currentZoom unchanged)
             }, 'image/jpeg', 0.95);
         }
 
+        // ── File input ──
+        fileInput.addEventListener('change', (e) => {
+            const newFiles = Array.from(e.target.files);
+            selectedFiles = [...selectedFiles, ...newFiles].slice(0, MAX_PHOTOS);
+            if (newFiles.length + selectedFiles.length > MAX_PHOTOS) alert(`Maximum ${MAX_PHOTOS} photos. Extras removed.`);
+            photosFromCamera = false;
+            updatePreview();
+            fileInput.value = '';
+        });
+
+        // ── Drag & drop ──
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.style.borderColor='#1e4620'; });
+        uploadArea.addEventListener('dragleave', () => { uploadArea.style.borderColor='#2c5f2d'; });
+        uploadArea.addEventListener('drop', e => {
+            e.preventDefault(); uploadArea.style.borderColor='#2c5f2d';
+            const newFiles = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+            selectedFiles = [...selectedFiles, ...newFiles].slice(0, MAX_PHOTOS);
+            updatePreview();
+        });
+
+        // ── Update preview & button states ──
         function updatePreview() {
             photoCount.textContent = selectedFiles.length;
             if (selectedFiles.length === 0) {
                 previewSection.style.display = 'none';
-                submitBtn.disabled = true;
-                resetBtn.disabled = true;
+                submitBtn.disabled = true; resetBtn.disabled = true;
                 captureBtn.textContent = '📷 Take a Photo';
-                uploadBtn.textContent = '📤 Upload Photo';
-                captureBtn.disabled = false;
-                uploadBtn.disabled = false;
+                uploadBtn.textContent  = '📤 Upload Photo';
+                captureBtn.disabled = false; uploadBtn.disabled = false;
                 return;
             }
             previewSection.style.display = 'block';
-            submitBtn.disabled = false;
-            resetBtn.disabled = false;
-
+            submitBtn.disabled = false; resetBtn.disabled = false;
             if (selectedFiles.length >= MAX_PHOTOS) {
-                captureBtn.textContent = '📷 Max 3 Photos Reached';
-                uploadBtn.textContent = '📤 Max 3 Photos Reached';
-                captureBtn.disabled = true;
-                uploadBtn.disabled = true;
+                captureBtn.textContent = '📷 Max 3 Reached'; captureBtn.disabled = true;
+                uploadBtn.textContent  = '📤 Max 3 Reached'; uploadBtn.disabled = true;
             } else {
-                captureBtn.textContent = '📷 Take Another Photo';
-                uploadBtn.textContent = '📤 Upload Another Photo';
-                captureBtn.disabled = false;
-                uploadBtn.disabled = false;
+                captureBtn.textContent = '📷 Take Another Photo'; captureBtn.disabled = false;
+                uploadBtn.textContent  = '📤 Upload Another Photo'; uploadBtn.disabled = false;
             }
-
             previewGrid.innerHTML = '';
-            selectedFiles.forEach((file, index) => {
+            selectedFiles.forEach((file, idx) => {
                 const reader = new FileReader();
-                reader.onload = (e) => {
+                reader.onload = e => {
                     const div = document.createElement('div');
                     div.className = 'preview-item';
-                    div.innerHTML = `<img src="${e.target.result}" alt="Photo ${index + 1}"><button class="preview-remove" onclick="removeFile(${index})">✕</button>`;
+                    div.innerHTML = `<img src="${e.target.result}" alt="Photo ${idx+1}"><button class="preview-remove" onclick="removeFile(${idx})">✕</button>`;
                     previewGrid.appendChild(div);
                 };
                 reader.readAsDataURL(file);
             });
         }
 
-        window.removeFile = (index) => {
-            selectedFiles.splice(index, 1);
-            if (selectedFiles.length === 0) photosFromCamera = false;
+        window.removeFile = idx => {
+            selectedFiles.splice(idx, 1);
+            if (!selectedFiles.length) photosFromCamera = false;
             updatePreview();
         };
 
         resetBtn.addEventListener('click', () => {
             selectedFiles = []; photosFromCamera = false; fileInput.value = '';
             updatePreview();
-            resultsSection.classList.remove('show');
-            progressIndicator.style.display = 'none';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.getElementById('resultsSection').classList.remove('show');
+            document.getElementById('progressIndicator').style.display = 'none';
+            window.scrollTo({top:0, behavior:'smooth'});
         });
+    </script>
 
-        // ── IDENTIFY ──
-        submitBtn.addEventListener('click', async () => {
-            if (selectedFiles.length === 0) return;
+    <!-- IDENTIFY SCRIPT -->
+    <script>
+        document.getElementById('submitBtn').addEventListener('click', async () => {
+            if (!selectedFiles.length) return;
             const userId = localStorage.getItem('ammonite_user_id');
             if (!userId) { document.getElementById('loginModal').classList.add('show'); return; }
 
+            const progressIndicator = document.getElementById('progressIndicator');
+            const resultsSection    = document.getElementById('resultsSection');
+            const submitBtn         = document.getElementById('submitBtn');
             progressIndicator.style.display = 'block';
             resultsSection.classList.remove('show');
             submitBtn.disabled = true;
@@ -644,7 +681,6 @@
             try {
                 let result;
                 const isOffline = !navigator.onLine;
-
                 if (isOffline && window.offlineReady && window.offlineReady()) {
                     progressIndicator.querySelector('p').textContent = '🔍 Identifying offline...';
                     result = await window.identifyOffline(selectedFiles);
@@ -653,9 +689,9 @@
                     throw new Error('NO_SIGNAL');
                 } else {
                     const formData = new FormData();
-                    selectedFiles.forEach(file => formData.append('photos', file));
+                    selectedFiles.forEach(f => formData.append('photos', f));
                     formData.append('user_id', userId);
-                    const response = await fetch('/identify', { method: 'POST', body: formData });
+                    const response = await fetch('/identify', {method:'POST', body:formData});
                     if (!response.ok) throw new Error(`API error: ${response.status}`);
                     result = await response.json();
                 }
@@ -667,8 +703,8 @@
                 if (result.scenario === 'non_ammonite') {
                     const c = result.non_am_total || 0;
                     const lbl = c >= 75 ? 'HIGH ✅' : (c >= 55 ? 'MODERATE ⚠️' : 'LOW ❌');
-                    const prefix = c >= 75 ? 'Appears to be:' : (c >= 55 ? 'Possibly:' : 'Uncertain identification');
-                    document.getElementById('topFamily').innerHTML = `<span style="font-size:1.8rem;font-weight:bold;">${prefix} ${result.non_am_display || 'Not an ammonite'}</span><br><span style="font-size:1.1rem;">[Confidence: ${c}% — ${lbl}]</span>`;
+                    const prefix = c >= 75 ? 'Appears to be:' : (c >= 55 ? 'Possibly:' : 'Uncertain');
+                    document.getElementById('topFamily').innerHTML = `<span style="font-size:1.8rem;font-weight:bold;">${prefix} ${result.non_am_display||'Not an ammonite'}</span><br><span style="font-size:1.1rem;">[Confidence: ${c}% — ${lbl}]</span>`;
                     document.getElementById('familyConfidence').textContent = c + '%';
                     document.getElementById('familyDescription').innerHTML = feedbackMsg ? `<div style="margin-top:15px;padding:12px;background:#e3f2fd;border-left:4px solid #2196f3;border-radius:5px;font-family:Arial;">${feedbackMsg}</div>` : '';
                     document.getElementById('genusBreakdown').innerHTML = '<p style="color:var(--light-text);font-family:Arial;">No genus breakdown for non-ammonite specimens.</p>';
@@ -680,17 +716,16 @@
                     document.getElementById('genusBreakdown').innerHTML = '<p style="color:var(--light-text);font-family:Arial;">Cannot determine genus from this image.</p>';
 
                 } else {
-                    document.getElementById('topFamily').innerHTML = `<span style="font-size:1.8rem;font-weight:bold;">Family: ${result.top_family || 'Unknown'}</span><br><span style="font-size:1.1rem;">[${familyConf}% — ${familyLabel}]</span>`;
+                    document.getElementById('topFamily').innerHTML = `<span style="font-size:1.8rem;font-weight:bold;">Family: ${result.top_family||'Unknown'}</span><br><span style="font-size:1.1rem;">[${familyConf}% — ${familyLabel}]</span>`;
                     document.getElementById('familyConfidence').textContent = familyConf + '%';
                     document.getElementById('familyDescription').innerHTML = feedbackMsg ? `<div style="margin-top:15px;padding:12px;background:#e3f2fd;border-left:4px solid #2196f3;border-radius:5px;font-family:Arial;">${feedbackMsg}</div>` : '';
-
                     const gb = document.getElementById('genusBreakdown');
                     gb.innerHTML = '<h3 style="margin-bottom:1rem;color:var(--dark-brown);">Likely Genera</h3>';
                     if (result.genus_breakdown && result.genus_breakdown.length > 0) {
-                        result.genus_breakdown.forEach((genus, idx) => {
-                            const score = genus.percentage || 0;
-                            const confLbl = score >= 75 ? '<span style="color:#28a745;font-weight:bold;">HIGH ✅</span>' : (score >= 55 ? '<span style="color:#ff9800;font-weight:bold;">MODERATE ⚠️</span>' : '<span style="color:#dc3545;font-weight:bold;">LOW ❌</span>');
-                            gb.innerHTML += `<div class="genus-item ${idx === 0 ? 'best-match' : ''}"><div class="genus-label"><span style="${idx === 0 ? 'font-weight:bold;font-size:1.1rem;' : ''}">${genus.genus}</span><span style="${idx === 0 ? 'font-weight:bold;' : ''}">${score}% — ${idx === 0 ? 'Best Match' : 'Likely'} [${confLbl}]</span></div><div class="progress-bar"><div class="progress-fill" style="width:${score}%"></div></div></div>`;
+                        result.genus_breakdown.forEach((g, idx) => {
+                            const s = g.percentage || 0;
+                            const cl = s >= 75 ? '<span style="color:#28a745;font-weight:bold;">HIGH ✅</span>' : (s >= 55 ? '<span style="color:#ff9800;font-weight:bold;">MODERATE ⚠️</span>' : '<span style="color:#dc3545;font-weight:bold;">LOW ❌</span>');
+                            gb.innerHTML += `<div class="genus-item ${idx===0?'best-match':''}"><div class="genus-label"><span style="${idx===0?'font-weight:bold;font-size:1.1rem;':''}">${g.genus}</span><span style="${idx===0?'font-weight:bold;':''}">${s}% — ${idx===0?'Best Match':'Likely'} [${cl}]</span></div><div class="progress-bar"><div class="progress-fill" style="width:${s}%"></div></div></div>`;
                         });
                         gb.innerHTML += `<div style="margin-top:25px;padding-top:15px;border-top:1px solid #e0e0e0;text-align:center;"><p style="font-size:0.85rem;color:#999;margin:0;">AmmoniteID is powered by AI and can make mistakes</p></div>`;
                     }
@@ -699,162 +734,78 @@
                 progressIndicator.style.display = 'none';
                 resultsSection.classList.add('show');
                 submitBtn.disabled = false;
-                window.scrollTo({ top: Math.max(0, resultsSection.offsetTop - 240), behavior: 'smooth' });
+                window.scrollTo({top: Math.max(0, resultsSection.offsetTop - 240), behavior:'smooth'});
 
                 // Save to collection
                 try {
-                    const stored = localStorage.getItem('ammoniteMyLogs');
-                    const fossils = stored ? JSON.parse(stored) : [];
-                    const topGenus = result.genus_breakdown && result.genus_breakdown.length > 0 ? result.genus_breakdown[0].genus : 'Unknown';
+                    const fossils = JSON.parse(localStorage.getItem('ammoniteMyLogs') || '[]');
+                    const topGenus = result.genus_breakdown?.[0]?.genus || 'Unknown';
                     let photoBase64 = '';
                     if (selectedFiles.length > 0) {
-                        photoBase64 = await new Promise((resolve) => {
-                            const reader = new FileReader();
-                            reader.onload = (e) => resolve(e.target.result);
-                            reader.onerror = () => resolve('');
-                            reader.readAsDataURL(selectedFiles[0]);
-                        });
+                        photoBase64 = await new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = () => res(''); r.readAsDataURL(selectedFiles[0]); });
                     }
-                    fossils.unshift({ id: Date.now(), date: new Date().toISOString(), family: result.top_family || 'Unknown', genus: topGenus, family_label: result.family_label || '', confidence: result.family_confidence || 0, photos: photoBase64 ? [photoBase64] : [], genusBreakdown: result.genus_breakdown || [], scenario: result.scenario || '', notes: '', favorite: false, keepForever: false, source: isOffline ? 'offline' : 'online' });
+                    fossils.unshift({id:Date.now(), date:new Date().toISOString(), family:result.top_family||'Unknown', genus:topGenus, family_label:result.family_label||'', confidence:result.family_confidence||0, photos:photoBase64?[photoBase64]:[], genusBreakdown:result.genus_breakdown||[], scenario:result.scenario||'', notes:'', favorite:false, keepForever:false, source:isOffline?'offline':'online'});
                     localStorage.setItem('ammoniteMyLogs', JSON.stringify(fossils));
-                } catch (e) { console.warn('Could not save to collection:', e); }
+                } catch(e) { console.warn('Could not save to collection:', e); }
 
                 // Save to review queue
                 try {
-                    const stored = localStorage.getItem('ammoniteReviewQueue');
-                    const queue = stored ? JSON.parse(stored) : [];
-                    queue.unshift({ id: Date.now(), date: new Date().toISOString(), family: result.top_family || 'Unknown', confidence: result.family_confidence || 0, genus_breakdown: result.genus_breakdown || [], scenario: result.scenario || '', status: 'pending', autoDeleteDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] });
+                    const queue = JSON.parse(localStorage.getItem('ammoniteReviewQueue') || '[]');
+                    queue.unshift({id:Date.now(), date:new Date().toISOString(), family:result.top_family||'Unknown', confidence:result.family_confidence||0, genus_breakdown:result.genus_breakdown||[], scenario:result.scenario||'', status:'pending', autoDeleteDate:new Date(Date.now()+30*24*60*60*1000).toISOString().split('T')[0]});
                     localStorage.setItem('ammoniteReviewQueue', JSON.stringify(queue));
-                } catch (e) { console.warn('Could not save to review queue:', e); }
+                } catch(e) { console.warn('Could not save to queue:', e); }
 
-            } catch (error) {
+            } catch(error) {
                 if (error.message === 'NO_SIGNAL') {
                     alert('📵 No internet signal.\n\nTake photos now and identify when back online.\n\n⭐ Premium users can identify offline — upgrade to unlock!');
                 } else {
                     alert('Error identifying fossil. Please check your connection and try again.');
                 }
-                progressIndicator.style.display = 'none';
-                submitBtn.disabled = false;
+                document.getElementById('progressIndicator').style.display = 'none';
+                document.getElementById('submitBtn').disabled = false;
             }
         });
     </script>
 
     <!-- AD BANNER SCRIPT -->
     <script>
-        let partners = [], bannerSlid = false;
-        const adAnimations = ['fadeIn'];
+        let partners=[], bannerSlid=false;
         async function loadAdPartners() {
             try {
-                const response = await fetch('/api/admin/partners');
-                const data = await response.json();
-                partners = (data.partners || []).filter(p => p.status === 'active' && p.active).map(p => ({ name: p.name, url: p.url, email: p.email || '', phone: p.phone || '', bgColor: p.bg_color, anchor: p.anchor || p.partner_id, description: p.description || '', offer: p.offer || '', logo_emoji: p.logo_emoji || '🏪', logo_path: p.logo_path || '', display_duration: (p.display_duration || 15) * 1000, rotation_weight: p.rotation_weight || 1 }));
-                if (partners.length > 0) initializeAds();
-                else { const b = document.getElementById('partner-ad-banner'); if (b) b.style.display = 'none'; }
-            } catch { partners = [{ name: "Lyme Regis Museum", url: "https://www.lymeregismuseum.co.uk", email: "info@lymeregismuseum.co.uk", phone: "+44 1297 443370", bgColor: "rgba(255,182,193,1.0)", anchor: "lyme-regis-museum", description: "Discover millions of years of history at Lyme Regis Museum", offer: "", logo_emoji: "🏛️", logo_path: "", display_duration: 15000, rotation_weight: 1 }]; initializeAds(); }
+                const data = await (await fetch('/api/admin/partners')).json();
+                partners = (data.partners||[]).filter(p=>p.status==='active'&&p.active).map(p=>({name:p.name,url:p.url,email:p.email||'',phone:p.phone||'',bgColor:p.bg_color,anchor:p.anchor||p.partner_id,description:p.description||'',offer:p.offer||'',logo_emoji:p.logo_emoji||'🏪',logo_path:p.logo_path||'',display_duration:(p.display_duration||15)*1000,rotation_weight:p.rotation_weight||1}));
+                partners.length ? initializeAds() : (document.getElementById('partner-ad-banner').style.display='none');
+            } catch { partners=[{name:"Lyme Regis Museum",url:"https://www.lymeregismuseum.co.uk",email:"info@lymeregismuseum.co.uk",phone:"+44 1297 443370",bgColor:"rgba(255,182,193,1.0)",anchor:"lyme-regis-museum",description:"Discover millions of years of history",offer:"",logo_emoji:"🏛️",logo_path:"",display_duration:15000,rotation_weight:1}]; initializeAds(); }
         }
         function showAd(index) {
-            const banner = document.getElementById('partner-ad-banner');
-            if (!banner || !partners[index]) return;
-            const p = partners[index];
-            const existing = banner.querySelector('.ad-content');
-            if (existing) existing.remove();
-            banner.style.backgroundColor = p.bgColor;
-            localStorage.setItem('adCurrentIndex', index);
-            localStorage.setItem('adShownTime', Date.now());
-            const logo = p.logo_path ? `<img src="${p.logo_path}" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;">` : '';
-            const website = p.url ? p.url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '') : '';
-            const nameClickUrl = p.url ? p.url : `/static/partners.html#${p.anchor}`;
-            let details = [];
-            if (website) details.push(`<span class="ad-detail"><a href="${p.url}" target="_blank">${website}</a></span>`);
-            if (p.phone) details.push(`<span class="ad-detail"><a href="tel:${p.phone}">${p.phone}</a></span>`);
-            if (p.email) details.push(`<span class="ad-detail"><a href="mailto:${p.email}">${p.email}</a></span>`);
-            if (p.description) details.push(`<span class="ad-detail">${p.description.length > 60 ? p.description.slice(0,60)+'…' : p.description}</span>`);
-            const bar = '<span class="ad-bar">|</span>';
-            const adContent = document.createElement('div');
-            adContent.className = 'ad-content active';
-            adContent.style.opacity = '1';
-            adContent.innerHTML = `<div class="ad-left"><a href="${nameClickUrl}" target="_blank" class="ad-partner-name">${logo}${p.name}</a>${details.length ? bar + details.join(bar) : ''}${p.offer ? `<span class="ad-offer">🎁 ${p.offer}</span>` : ''}</div><a href="/static/partners.html#${p.anchor}" class="ad-more-info">More info →</a>`;
-            banner.appendChild(adContent);
-            if (!bannerSlid) { banner.classList.remove('banner-in','banner-out'); requestAnimationFrame(() => banner.classList.add('banner-in')); bannerSlid = true; }
+            const banner=document.getElementById('partner-ad-banner'); if(!banner||!partners[index]) return;
+            const p=partners[index]; const ex=banner.querySelector('.ad-content'); if(ex) ex.remove();
+            banner.style.backgroundColor=p.bgColor; localStorage.setItem('adCurrentIndex',index); localStorage.setItem('adShownTime',Date.now());
+            const logo=p.logo_path?`<img src="${p.logo_path}" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;">`:'';
+            const website=p.url?p.url.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,''):'';
+            let details=[]; if(website) details.push(`<span class="ad-detail"><a href="${p.url}" target="_blank">${website}</a></span>`); if(p.phone) details.push(`<span class="ad-detail"><a href="tel:${p.phone}">${p.phone}</a></span>`); if(p.email) details.push(`<span class="ad-detail"><a href="mailto:${p.email}">${p.email}</a></span>`); if(p.description) details.push(`<span class="ad-detail">${p.description.length>60?p.description.slice(0,60)+'…':p.description}</span>`);
+            const bar='<span class="ad-bar">|</span>'; const adEl=document.createElement('div'); adEl.className='ad-content active'; adEl.style.opacity='1';
+            adEl.innerHTML=`<div class="ad-left"><a href="${p.url||'/static/partners.html#'+p.anchor}" target="_blank" class="ad-partner-name">${logo}${p.name}</a>${details.length?bar+details.join(bar):''}${p.offer?`<span class="ad-offer">🎁 ${p.offer}</span>`:''}</div><a href="/static/partners.html#${p.anchor}" class="ad-more-info">More info →</a>`;
+            banner.appendChild(adEl);
+            if(!bannerSlid){banner.classList.remove('banner-in','banner-out');requestAnimationFrame(()=>banner.classList.add('banner-in'));bannerSlid=true;}
         }
-        let rotationList = [], rotationPosition = 0, adRotationInterval;
-        function buildRotationList() { let l = []; partners.forEach((p,i) => { for (let w=0;w<(p.rotation_weight||1);w++) l.push(i); }); return l; }
-        function rotateAd() {
-            if (!rotationList.length) return;
-            rotationPosition = (rotationPosition + 1) % rotationList.length;
-            const pi = rotationList[rotationPosition];
-            clearTimeout(adRotationInterval);
-            const adContent = document.getElementById('partner-ad-banner')?.querySelector('.ad-content');
-            if (adContent) { adContent.style.transition = 'opacity 0.25s'; adContent.style.opacity = '0'; }
-            setTimeout(() => showAd(pi), 260);
-            adRotationInterval = setTimeout(rotateAd, partners[pi].display_duration || 15000);
-        }
-        function initializeAds() {
-            if (!partners.length) { const b = document.getElementById('partner-ad-banner'); if (b) b.style.display='none'; return; }
-            rotationList = buildRotationList();
-            const savedIndex = parseInt(localStorage.getItem('adCurrentIndex') || '0');
-            const savedTime = parseInt(localStorage.getItem('adShownTime') || '0');
-            const elapsed = Date.now() - savedTime;
-            let startPos = rotationList.indexOf(savedIndex);
-            if (startPos === -1) startPos = 0;
-            const currentPartner = partners[rotationList[startPos]] || partners[0];
-            const remaining = Math.max((currentPartner.display_duration||15000) - elapsed, 1000);
-            rotationPosition = startPos;
-            showAd(rotationList[rotationPosition]);
-            if (partners.length > 1) adRotationInterval = setTimeout(rotateAd, remaining);
-        }
-        window.addEventListener('load', loadAdPartners);
+        let rotationList=[],rotationPosition=0,adRotationInterval;
+        function buildRotationList(){let l=[];partners.forEach((p,i)=>{for(let w=0;w<(p.rotation_weight||1);w++)l.push(i);});return l;}
+        function rotateAd(){if(!rotationList.length)return;rotationPosition=(rotationPosition+1)%rotationList.length;const pi=rotationList[rotationPosition];clearTimeout(adRotationInterval);const ac=document.getElementById('partner-ad-banner')?.querySelector('.ad-content');if(ac){ac.style.transition='opacity 0.25s';ac.style.opacity='0';}setTimeout(()=>showAd(pi),260);adRotationInterval=setTimeout(rotateAd,partners[pi].display_duration||15000);}
+        function initializeAds(){if(!partners.length){document.getElementById('partner-ad-banner').style.display='none';return;}rotationList=buildRotationList();const si=parseInt(localStorage.getItem('adCurrentIndex')||'0');const st=parseInt(localStorage.getItem('adShownTime')||'0');const elapsed=Date.now()-st;let sp=rotationList.indexOf(si);if(sp===-1)sp=0;const cp=partners[rotationList[sp]]||partners[0];const remaining=Math.max((cp.display_duration||15000)-elapsed,1000);rotationPosition=sp;showAd(rotationList[sp]);if(partners.length>1)adRotationInterval=setTimeout(rotateAd,remaining);}
+        window.addEventListener('load',loadAdPartners);
     </script>
-
     <script src="/static/ad-tracking.js"></script>
     <script src="/static/feature-gate.js"></script>
 
-    <!-- OFFLINE MODE SCRIPT -->
+    <!-- OFFLINE SCRIPT -->
     <script>
-        function updateOfflineStatus() {
-            const bar = document.getElementById('offlineBar');
-            const isOffline = !navigator.onLine;
-            const modelReady = window.offlineReady && window.offlineReady();
-            if (isOffline && modelReady) {
-                bar.style.display = 'block'; bar.style.background = '#e8f5e9'; bar.style.borderLeft = '4px solid #2c5f2d';
-                bar.innerHTML = '📡 <strong>Offline mode active</strong> — identifying using local AI model';
-            } else if (isOffline) {
-                bar.style.display = 'block'; bar.style.background = '#fff3cd'; bar.style.borderLeft = '4px solid #ff9800';
-                bar.innerHTML = '📵 <strong>No signal</strong> — take photos now, identify later when online. <a href="/static/upgrade.html" style="color:#e67e22;font-weight:bold;">Upgrade for offline mode →</a>';
-            } else if (modelReady) {
-                bar.style.display = 'block'; bar.style.background = '#e8f5e9'; bar.style.borderLeft = '4px solid #2c5f2d';
-                bar.innerHTML = '✅ <strong>Online</strong> — offline mode ready as backup';
-            } else { bar.style.display = 'none'; }
-        }
-        window.addEventListener('online', updateOfflineStatus);
-        window.addEventListener('offline', updateOfflineStatus);
-        window.addEventListener('offline-ready', updateOfflineStatus);
-        function checkOfflineDownloadVisibility() {
-            const section = document.getElementById('offlineDownloadSection');
-            const warning = document.getElementById('premiumWarning');
-            const modelReady = window.offlineReady && window.offlineReady();
-            const isPremium = document.querySelector('.account-badge.premium') !== null;
-            if (isPremium && !modelReady) { warning.style.display='block'; section.style.display='block'; }
-            else if (modelReady) { warning.style.display='none'; section.style.display='none'; }
-            else { warning.style.display='none'; section.style.display='none'; }
-        }
-        async function startOfflineDownload() {
-            const btn = document.getElementById('downloadModelBtn');
-            const progress = document.getElementById('downloadProgress');
-            const bar = document.getElementById('downloadBar');
-            const status = document.getElementById('downloadStatus');
-            btn.disabled = true; btn.textContent = '⬇️ Downloading...'; progress.style.display = 'block';
-            const success = await window.downloadOfflineModel(function(info) {
-                if (info.stage === 'downloading') { bar.style.width = info.progress + '%'; status.textContent = 'Downloading model... ' + info.progress + '%'; }
-                else if (info.stage === 'saving') { status.textContent = 'Saving to device...'; }
-                else if (info.stage === 'done') { status.textContent = '✅ Offline mode ready!'; }
-                else if (info.stage === 'error') { status.textContent = '❌ Download failed: ' + info.error; }
-            });
-            if (success) { setTimeout(() => { document.getElementById('offlineDownloadSection').style.display='none'; updateOfflineStatus(); }, 1500); }
-            else { btn.disabled = false; btn.textContent = '⬇️ Enable Offline Mode'; }
-        }
-        window.startOfflineDownload = startOfflineDownload;
-        document.addEventListener('DOMContentLoaded', () => { updateOfflineStatus(); setTimeout(checkOfflineDownloadVisibility, 1500); });
+        function updateOfflineStatus(){const bar=document.getElementById('offlineBar');const isOff=!navigator.onLine;const mr=window.offlineReady&&window.offlineReady();if(isOff&&mr){bar.style.display='block';bar.style.background='#e8f5e9';bar.style.borderLeft='4px solid #2c5f2d';bar.innerHTML='📡 <strong>Offline mode active</strong> — identifying using local AI model';}else if(isOff){bar.style.display='block';bar.style.background='#fff3cd';bar.style.borderLeft='4px solid #ff9800';bar.innerHTML='📵 <strong>No signal</strong> — <a href="/static/upgrade.html" style="color:#e67e22;font-weight:bold;">Upgrade for offline mode →</a>';}else if(mr){bar.style.display='block';bar.style.background='#e8f5e9';bar.style.borderLeft='4px solid #2c5f2d';bar.innerHTML='✅ <strong>Online</strong> — offline mode ready as backup';}else{bar.style.display='none';}}
+        window.addEventListener('online',updateOfflineStatus);window.addEventListener('offline',updateOfflineStatus);window.addEventListener('offline-ready',updateOfflineStatus);
+        function checkOfflineDownloadVisibility(){const section=document.getElementById('offlineDownloadSection');const warning=document.getElementById('premiumWarning');const mr=window.offlineReady&&window.offlineReady();const isPremium=document.querySelector('.account-badge.premium')!==null;if(isPremium&&!mr){warning.style.display='block';section.style.display='block';}else if(mr){warning.style.display='none';section.style.display='none';}else{warning.style.display='none';section.style.display='none';}}
+        async function startOfflineDownload(){const btn=document.getElementById('downloadModelBtn');const progress=document.getElementById('downloadProgress');const bar=document.getElementById('downloadBar');const status=document.getElementById('downloadStatus');btn.disabled=true;btn.textContent='⬇️ Downloading...';progress.style.display='block';const success=await window.downloadOfflineModel(function(info){if(info.stage==='downloading'){bar.style.width=info.progress+'%';status.textContent='Downloading... '+info.progress+'%';}else if(info.stage==='saving'){status.textContent='Saving to device...';}else if(info.stage==='done'){status.textContent='✅ Offline mode ready!';}else if(info.stage==='error'){status.textContent='❌ Failed: '+info.error;}});if(success){setTimeout(()=>{document.getElementById('offlineDownloadSection').style.display='none';updateOfflineStatus();},1500);}else{btn.disabled=false;btn.textContent='⬇️ Enable Offline Mode';}}
+        window.startOfflineDownload=startOfflineDownload;
+        document.addEventListener('DOMContentLoaded',()=>{updateOfflineStatus();setTimeout(checkOfflineDownloadVisibility,1500);});
     </script>
 </body>
 </html>
