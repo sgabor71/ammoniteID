@@ -3,766 +3,532 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Identify Your Ammonite - AmmoniteID</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
-    <script src="/static/offline-engine.js"></script>
+    <title>AmmoniteID - Test Identification</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --cream: #F5F1E8; --dark-brown: #5D4E3A; --stone: #8B7355;
-            --deep-green: #2c5f2d; --light-green: #4a7c59; --accent-blue: #4A90A4;
-            --dark-text: #1a1a1a; --light-text: #666; --success: #6FA876; --error: #C85555;
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.12); --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        html, body { height: 100%; font-family: 'Georgia', 'Merriweather', serif; color: var(--dark-text); background-image: url('background.jpg'); background-size: cover; background-attachment: fixed; background-position: center; }
-        nav {
-            position: sticky; top: 0; background: rgba(255, 255, 255, 0.97); backdrop-filter: blur(10px);
-            padding: 1.2rem 2rem; box-shadow: var(--shadow-sm); z-index: 1000;
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
         }
-        .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-        .logo { font-size: 1.8rem; font-weight: bold; color: #2c5f2d; text-decoration: none; }
-        .nav-links { display: flex; gap: 2rem; list-style: none; flex-wrap: wrap; }
-        .nav-links a { color: #5D4E3A; text-decoration: none; font-size: 1.2rem !important; transition: all 0.3s; font-weight: bold !important; font-family: 'Arial', sans-serif !important; padding-bottom: 3px; border-bottom: 3px solid transparent; }
-        .nav-links a:hover { color: #2c5f2d; }
-        .nav-links a.active { color: #2c5f2d; border-bottom: 3px solid #2c5f2d; }
-        .auth-buttons { display: flex; gap: 1rem; }
-        .btn-outline {
-            padding: 0.6rem 1.5rem; border: 2px solid #2c5f2d !important;
-            background: linear-gradient(135deg, #2c5f2d 0%, #1e4620 100%) !important;
-            color: white !important; border-radius: 8px; text-decoration: none; font-family: 'Arial', sans-serif;
-            font-size: 1.1rem !important; font-weight: bold !important; transition: all 0.3s; cursor: pointer;
-            box-shadow: 0 2px 8px rgba(44, 95, 45, 0.3);
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
         }
-        .btn-outline:hover { background: linear-gradient(135deg, #1e4620 0%, #2c5f2d 100%) !important; transform: translateY(-2px); }
-        .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
         .upload-section {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.95) 100%);
-            border-radius: 20px; padding: 3rem; box-shadow: var(--shadow); margin-bottom: 2rem;
-            animation: fadeInUp 0.6s ease-out 0.1s both; border: 2px solid rgba(44, 95, 45, 0.1);
+            margin: 30px 0;
         }
-        .upload-area {
-            border: 3px dashed #2c5f2d; border-radius: 16px; padding: 3rem 2rem; text-align: center; cursor: pointer;
-            transition: all 0.3s ease; background: linear-gradient(135deg, rgba(44,95,45,0.03) 0%, rgba(255,255,255,0.95) 100%);
+
+        .upload-box {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9ff;
         }
-        .upload-area:hover { border-color: #1e4620; background: rgba(44,95,45,0.08); transform: translateY(-2px); }
-        .upload-icon { font-size: 3rem; margin-bottom: 1rem; }
-        .upload-area h3 { font-size: 1.5rem; color: #2c5f2d; margin-bottom: 0.5rem; font-weight: bold; }
-        .upload-area p { color: #1a1a1a; font-family: 'Arial', sans-serif; font-size: 1.1rem; margin-bottom: 1.5rem; font-weight: bold; }
-        .upload-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-        .btn { padding: 1.2rem 2.5rem; border: none; border-radius: 25px; font-family: 'Arial', sans-serif; font-size: 1.15rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; }
-        .btn-primary { background: #2c5f2d; color: white; }
-        .btn-primary:hover { background: #1e4620; transform: translateY(-2px); }
-        .btn-secondary { background: var(--accent-blue); color: white; }
-        .btn-secondary:hover { background: #3a7a8f; transform: translateY(-2px); }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-        .file-input { display: none; }
-        .preview-section { margin-top: 2rem; }
-        .preview-section h3 { font-size: 1.2rem; color: var(--dark-brown); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
-        .preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
-        .preview-item { position: relative; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-sm); animation: scaleIn 0.3s ease-out; }
-        @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        .preview-item img { width: 100%; height: 150px; object-fit: cover; display: block; }
-        .preview-remove { position: absolute; top: 8px; right: 8px; background: rgba(200,85,85,0.9); color: white; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: all 0.3s ease; opacity: 0; }
-        .preview-item:hover .preview-remove { opacity: 1; }
-        .action-buttons { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; }
-        .action-buttons .btn { padding: 1.4rem 3rem; font-size: 1.25rem; font-weight: bold; }
-        .btn-reset { background: #dc3545; color: white; border: none; margin-left: auto; }
-        .btn-reset:hover { background: #c82333; }
-        .results-section { display: none; background: white; border-radius: 16px; padding: 2.5rem; box-shadow: var(--shadow); animation: fadeInUp 0.6s ease-out; }
-        .results-section.show { display: block; }
-        .results-header { text-align: center; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 2px solid #e8dcc8; }
-        .results-header h2 { font-size: 2rem; color: var(--dark-brown); margin-bottom: 0.5rem; }
-        .family-result { background: linear-gradient(135deg, rgba(44,95,45,0.05) 0%, rgba(139,115,85,0.05) 100%); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border-left: 4px solid var(--deep-green); }
-        .confidence-badge { display: inline-block; background: var(--success); color: white; padding: 0.8rem 1.8rem; border-radius: 25px; font-size: 1.2rem; font-weight: bold; font-family: 'Arial', sans-serif; margin-bottom: 1rem; }
-        .genus-breakdown { margin-top: 1.5rem; }
-        .genus-item { margin-bottom: 1.2rem; }
-        .genus-label { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-family: 'Arial', sans-serif; font-size: 0.95rem; }
-        .genus-item.best-match { background: linear-gradient(135deg, rgba(44,95,45,0.08) 0%, rgba(255,255,255,0.5) 100%); border-left: 4px solid #2c5f2d; padding-left: 1rem; margin-left: -1rem; }
-        .progress-bar { height: 8px; background: #e8dcc8; border-radius: 4px; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--stone) 0%, var(--deep-green) 100%); transition: width 0.4s ease; border-radius: 4px; }
-        .progress-indicator { text-align: center; padding: 2rem; margin: 2rem 0; }
-        .spinner { width: 40px; height: 40px; margin: 0 auto 1rem; border: 3px solid rgba(139,115,85,0.2); border-top: 3px solid var(--stone); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .camera-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; justify-content: center; align-items: center; }
-        .camera-modal.active { display: flex; }
-        .camera-container { position: relative; max-width: 90vw; max-height: 90vh; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
-        #cameraVideo { width: 100%; max-width: 640px; border-radius: 12px; }
-        @media (max-width: 768px) {
-            .container { padding: 1rem; }
-            .upload-section { padding: 1.5rem; }
-            .preview-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
-            .action-buttons { flex-direction: column; }
-            .action-buttons .btn { width: 100%; }
-            .nav-container { flex-wrap: wrap; gap: 1rem; }
-            .nav-links { justify-content: center; width: 100%; order: 3; }
-            .auth-buttons { order: 2; }
+
+        .upload-box:hover {
+            border-color: #764ba2;
+            background: #f0f2ff;
+        }
+
+        .upload-box.drag-over {
+            border-color: #764ba2;
+            background: #e8ebff;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            color: #333;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .upload-hint {
+            color: #999;
+            font-size: 13px;
+        }
+
+        #photoInput {
+            display: none;
+        }
+
+        .photos-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .photo-item {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            aspect-ratio: 1;
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-remove {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-identify {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-identify:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-identify:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-clear {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-clear:hover {
+            background: #e0e0e0;
+        }
+
+        .result {
+            background: #f9f9f9;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            border-left: 5px solid #667eea;
+        }
+
+        .result h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .result-item {
+            margin: 12px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .result-label {
+            color: #666;
+            font-weight: 600;
+        }
+
+        .result-value {
+            color: #333;
+            margin-left: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #c33;
+        }
+
+        /* LOGIN MODAL */
+        .login-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-modal.show {
+            display: flex;
+        }
+
+        .login-modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-modal-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .login-modal-title {
+            color: #333;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .login-modal-message {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .login-modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            flex: 1;
+            transition: all 0.3s ease;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-signup {
+            background: #f0f0f0;
+            color: #333;
+            padding: 12px 30px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            flex: 1;
+            transition: all 0.3s ease;
+        }
+
+        .btn-signup:hover {
+            background: #e0e0e0;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .upload-box {
+                padding: 25px;
+            }
+
+            .upload-icon {
+                font-size: 36px;
+            }
         }
     </style>
 </head>
 <body>
-
-    <nav>
-        <div class="nav-container">
-            <a href="/static/home.html" class="logo">AmmoniteID</a>
-            <ul class="nav-links">
-                <li><a href="/static/home.html">Home</a></li>
-                <li><a href="/static/test.html" class="active">Identify</a></li>
-                <li><a href="/static/mylog.html">My Fossil Collection</a></li>
-                <li><a href="/static/about.html">About</a></li>
-                <li><a href="/static/contact.html">Contact</a></li>
-                <li><a href="/static/partners.html">Partners</a></li>
-            </ul>
-            <div class="auth-buttons">
-                <a href="#login" class="btn-outline">Log In</a>
-                <a href="#signup" class="btn-outline">Sign Up</a>
+    <!-- LOGIN REQUIRED MODAL -->
+    <div id="loginModal" class="login-modal">
+        <div class="login-modal-content">
+            <div class="login-modal-icon">🔐</div>
+            <div class="login-modal-title">Login Required</div>
+            <div class="login-modal-message">
+                Please log in or sign up to identify fossils.
+            </div>
+            <div class="login-modal-buttons">
+                <a href="/static/login.html" class="btn-login">Log In</a>
+                <a href="/static/login.html" class="btn-signup">Sign Up</a>
             </div>
         </div>
-    </nav>
-
-    <div id="partner-ad-banner"></div>
+    </div>
 
     <div class="container">
-        <!-- PREMIUM WARNING: Download offline model required -->
-        <div id="premiumWarning" style="display:none; margin-bottom:1.5rem; padding:16px 20px; border-radius:12px; background:linear-gradient(135deg,#fff3cd,#ffe8b6); border-left:5px solid #ff9800; font-family:Arial;">
-            <div style="font-size:1rem; font-weight:bold; color:#333; margin-bottom:8px;">
-                ⚠️ Premium Feature Not Activated
-            </div>
-            <p style="color:#555; margin:0 0 12px 0; font-size:0.95rem;">
-                You have Premium access but haven't downloaded the offline model yet. <strong>You must activate offline mode to identify fossils without signal.</strong>
-            </p>
-            <button onclick="document.getElementById('offlineDownloadSection').scrollIntoView({behavior:'smooth'})" style="padding:8px 16px; background:#ff9800; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">
-                ⬇️ Activate Now
-            </button>
-        </div>
-
-        <!-- Offline Status Bar -->
-        <div id="offlineBar" style="display:none; margin-bottom:1.5rem; padding:14px 18px; border-radius:12px; font-family:Arial; font-size:0.95rem;"></div>
-
-        <!-- Premium: Download Offline Model button -->
-        <div id="offlineDownloadSection" style="display:none; margin-bottom:1.5rem; text-align:center; background:white; border-radius:12px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-            <button id="downloadModelBtn" onclick="startOfflineDownload()" style="padding:12px 24px; background:linear-gradient(135deg,#f39c12,#e67e22); color:#fff; border:none; border-radius:10px; font-size:1rem; font-weight:bold; cursor:pointer;">⬇️ Enable Offline Mode</button>
-            <p style="font-size:0.85rem; color:#999; margin-top:8px;">One-time download (8.5MB) — identify fossils without signal</p>
-            <div id="downloadProgress" style="display:none; margin-top:10px;">
-                <div style="background:#e0e0e0; border-radius:8px; height:8px; overflow:hidden;">
-                    <div id="downloadBar" style="background:#e67e22; height:100%; width:0%; transition:width 0.3s;"></div>
-                </div>
-                <p id="downloadStatus" style="font-size:0.85rem; color:#666; margin-top:5px;">Downloading...</p>
-            </div>
-        </div>
+        <h1>🦪 Identify Your Fossil</h1>
+        <p class="subtitle">Upload 1-3 photos of your ammonite specimen for instant AI identification</p>
 
         <div class="upload-section">
-            <div class="upload-area" id="uploadArea">
+            <div class="upload-box" id="uploadBox">
                 <div class="upload-icon">📸</div>
-                <h3>Upload or Capture Photos</h3>
-                <p>Drag and drop images here or click to browse (Maximum 3 photos)</p>
-                <div class="upload-buttons">
-                    <button class="btn btn-primary" id="captureBtn">📷 Take Photo</button>
-                    <button class="btn btn-secondary" id="uploadBtn">📁 Choose Files</button>
-                </div>
-                <input type="file" id="fileInput" class="file-input" accept="image/*" multiple>
+                <div class="upload-text">Click to upload or drag & drop</div>
+                <div class="upload-hint">JPG, PNG, or WebP (max 10MB each)</div>
             </div>
-            <div class="preview-section" id="previewSection" style="display: none;">
-                <h3>📷 Selected Photos (<span id="photoCount">0</span>)</h3>
-                <div class="preview-grid" id="previewGrid"></div>
-            </div>
-            <div class="action-buttons">
-                <button class="btn btn-primary" id="submitBtn" disabled>🔍 Identify Fossil</button>
-                <button class="btn btn-reset" id="resetBtn" disabled>🔄 Reset All</button>
+            <input type="file" id="photoInput" accept="image/*" multiple>
+
+            <div class="photos-preview" id="photosPreview"></div>
+
+            <div class="button-group">
+                <button class="btn-identify" id="identifyBtn" disabled>Identify Fossil</button>
+                <button class="btn-clear" id="clearBtn">Clear Photos</button>
             </div>
         </div>
-        <div class="progress-indicator" id="progressIndicator" style="display: none;">
-            <div class="spinner"></div>
-            <p class="progress-text">Analysing your photos...</p>
-        </div>
-        <div class="results-section" id="resultsSection">
-            <div class="results-header"><h2>✓ Identification Complete</h2></div>
-            <div class="family-result">
-                <h3 id="topFamily">Ammonitida</h3>
-                <div class="confidence-badge">Confidence: <span id="familyConfidence">85%</span></div>
-                <p id="familyDescription" style="color: var(--light-text); font-family: Arial; margin-top: 0.5rem;"></p>
-                <div class="genus-breakdown"><div id="genusBreakdown"></div></div>
-            </div>
-        </div>
+
+        <div id="resultContainer"></div>
     </div>
 
-    <div id="cameraModal" class="camera-modal">
-        <div class="camera-container">
-            <video id="cameraVideo" autoplay playsinline></video>
-            <div class="camera-controls">
-                <button class="btn btn-primary" onclick="capturePhoto()">📸 Capture Photo</button>
-                <button class="btn btn-secondary" onclick="closeCamera()">✕ Cancel</button>
-            </div>
-        </div>
-    </div>
-    <canvas id="canvas" style="display: none;"></canvas>
-
-    <style>
-        #partner-ad-banner {
-            position: sticky; top: 70px; z-index: 99; overflow: hidden; height: 160px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            transform: translateY(-110%); opacity: 0;
-        }
-        .banner-in  { animation: bannerSlideIn  0.6s cubic-bezier(0.22,1,0.36,1) forwards; }
-        .banner-out { animation: bannerSlideOut 0.4s ease forwards; }
-        @keyframes bannerSlideIn  { from { transform:translateY(-110%); opacity:0; } to { transform:translateY(0); opacity:1; } }
-        @keyframes bannerSlideOut { from { transform:translateY(0);     opacity:1; } to { transform:translateY(-110%); opacity:0; } }
-        .container { padding-top: 0; }
-        .ad-content {
-            position: relative; display: flex; justify-content: space-between; align-items: center;
-            padding: 0 2rem; height: 160px; white-space: nowrap; overflow: hidden;
-        }
-        .ad-content.active { opacity: 1; }
-        .ad-content.exit { position: absolute; top: 0; left: 0; right: 0; opacity: 0; pointer-events: none; }
-        .ad-left { display: flex; align-items: center; gap: 0; flex: 1; min-width: 0; overflow: hidden; }
-        .ad-partner-name { font-size: 1.1rem; font-weight: bold; color: #1a1a1a; text-decoration: none; cursor: pointer; flex-shrink: 0; transition: all 0.2s ease; }
-        .ad-partner-name:hover { text-decoration: underline; color: #2c5f2d; }
-        .ad-bar { color: #ccc; padding: 0 10px; flex-shrink: 0; }
-        .ad-detail { font-size: 0.9rem; color: #444; font-family: Arial, sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; }
-        .ad-detail a { color: #2c5f2d; text-decoration: none; }
-        .ad-offer { font-size: 0.85rem; color: #2c5f2d; font-weight: bold; background: rgba(255,255,255,0.85); padding: 2px 8px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; margin-left: 10px; }
-        .ad-more-info { padding: 0.5rem 1.2rem; background: #2c5f2d; color: white; text-decoration: none; border-radius: 6px; font-family: Arial,sans-serif; font-size: 0.9rem; font-weight: bold; transition: all 0.3s; white-space: nowrap; flex-shrink: 0; margin-left: 1rem; }
-        .ad-more-info:hover { background: #1e4620; }
-        @media (max-width: 768px) {
-            #partner-ad-banner { height: 120px; }
-            .ad-content { padding: 0.8rem 1rem; height: 120px; }
-        }
-    </style>
-
     <script>
-        let partners = [];
-        let currentAdIndex = 0;
-        let adRotationInterval;
-
-        async function loadAdPartners() {
-            try {
-                const response = await fetch('/api/admin/partners');
-                const data = await response.json();
-                partners = (data.partners || [])
-                    .filter(p => p.status === 'active' && p.active)
-                    .map(p => ({
-                        name: p.name, url: p.url, email: p.email || '', phone: p.phone || '',
-                        bgColor: p.bg_color, anchor: p.anchor || p.partner_id,
-                        description: p.description || '', offer: p.offer || '',
-                        logo_emoji: p.logo_emoji || '🏪', logo_path: p.logo_path || '',
-                        display_duration: (p.display_duration || 15) * 1000,
-                        rotation_weight: p.rotation_weight || 1
-                    }));
-                if (partners.length > 0) initializeAds();
-                else { const banner = document.getElementById('partner-ad-banner'); if (banner) banner.style.display = 'none'; }
-            } catch (error) {
-                console.error('Error loading ad partners:', error);
-                partners = [{ name: "Lyme Regis Museum", url: "https://www.lymeregismuseum.co.uk", email: "info@lymeregismuseum.co.uk", phone: "+44 1297 443370", bgColor: "rgba(255,182,193,1.0)", anchor: "lyme-regis-museum", description: "Discover millions of years of history at Lyme Regis Museum", offer: "", logo_emoji: "🏛️", logo_path: "", display_duration: 15000, rotation_weight: 1 }];
-                initializeAds();
+        // ===== LOGIN CHECK =====
+        function checkLoginStatus() {
+            const userId = localStorage.getItem('ammonite_user_id');
+            const loginModal = document.getElementById('loginModal');
+            const uploadBox = document.getElementById('uploadBox');
+            const identifyBtn = document.getElementById('identifyBtn');
+            
+            if (!userId) {
+                // NOT LOGGED IN - Show modal and disable upload
+                loginModal.classList.add('show');
+                uploadBox.style.pointerEvents = 'none';
+                uploadBox.style.opacity = '0.5';
+                identifyBtn.disabled = true;
+            } else {
+                // LOGGED IN - Hide modal and enable upload
+                loginModal.classList.remove('show');
+                uploadBox.style.pointerEvents = 'auto';
+                uploadBox.style.opacity = '1';
+                identifyBtn.disabled = true; // Still disabled until photos selected
             }
         }
 
-        const adAnimations = ['adFromLeft', 'adFromRight', 'adFromTop', 'adFadeIn'];
-        let bannerSlid = false;
+        // Check login status on page load
+        window.addEventListener('load', checkLoginStatus);
+        // Also check when storage changes (user logs in/out)
+        window.addEventListener('storage', checkLoginStatus);
 
-        function showAd(index) {
-            const banner = document.getElementById('partner-ad-banner');
-            if (!banner || !partners[index]) return;
-            const partner = partners[index];
-            const existingAd = banner.querySelector('.ad-content');
-            if (existingAd) existingAd.remove();
-            banner.style.backgroundColor = partner.bgColor;
-
-            // Persist across pages
-            localStorage.setItem('adCurrentIndex', index);
-            localStorage.setItem('adShownTime', Date.now());
-
-            const logo = partner.logo_path
-                ? `<img src="${partner.logo_path}" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;">`
-                : '';
-            const website = partner.url ? partner.url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '') : '';
-            const nameClickUrl = partner.url ? partner.url : `/static/partners.html#${partner.anchor}`;
-            const nameTarget = partner.url ? '_blank' : '_self';
-
-            let details = [];
-            if (website)              details.push(`<span class="ad-detail"><a href="${partner.url}" target="_blank" onclick="event.stopPropagation()">${website}</a></span>`);
-            if (partner.phone)        details.push(`<span class="ad-detail"><a href="tel:${partner.phone}" onclick="event.stopPropagation()">${partner.phone}</a></span>`);
-            if (partner.email)        details.push(`<span class="ad-detail"><a href="mailto:${partner.email}" onclick="event.stopPropagation()">${partner.email}</a></span>`);
-            if (partner.description)  details.push(`<span class="ad-detail">${partner.description.length > 60 ? partner.description.slice(0,60)+'…' : partner.description}</span>`);
-
-            const bar = '<span class="ad-bar">|</span>';
-            const detailsHtml = details.length ? bar + details.join(bar) : '';
-            const offerHtml = partner.offer ? `<span class="ad-offer">🎁 ${partner.offer}</span>` : '';
-
-            const anim = adAnimations[Math.floor(Math.random() * adAnimations.length)];
-            const adContent = document.createElement('div');
-            adContent.className = 'ad-content active';
-            adContent.style.animation = `${anim} 1.2s ease forwards`;
-            adContent.style.opacity = '1';
-            adContent.innerHTML =
-                `<div class="ad-left">` +
-                    `<a href="${nameClickUrl}" target="${nameTarget}" class="ad-partner-name">${logo}${partner.name}</a>` +
-                    detailsHtml +
-                    offerHtml +
-                `</div>` +
-                `<a href="/static/partners.html#${partner.anchor}" class="ad-more-info">More info →</a>`;
-            banner.appendChild(adContent);
-
-            // Slide whole banner in ONCE only — never re-trigger on rotation
-            if (!bannerSlid) {
-                banner.classList.remove('banner-in', 'banner-out');
-                requestAnimationFrame(() => banner.classList.add('banner-in'));
-                bannerSlid = true;
-            }
-        }
-
-        function buildRotationList() {
-            let list = [];
-            partners.forEach((p, i) => { const weight = p.rotation_weight || 1; for (let w = 0; w < weight; w++) list.push(i); });
-            return list;
-        }
-
-        let rotationList = [], rotationPosition = 0;
-
-        function rotateAd() {
-            if (rotationList.length === 0) return;
-            rotationPosition = (rotationPosition + 1) % rotationList.length;
-            const partnerIndex = rotationList[rotationPosition];
-            currentAdIndex = partnerIndex;
-            const banner = document.getElementById('partner-ad-banner');
-            const duration = partners[partnerIndex].display_duration || 15000;
-            clearTimeout(adRotationInterval);
-            // Fade content only — never roll banner out
-            const adContent = banner ? banner.querySelector('.ad-content') : null;
-            if (adContent) {
-                adContent.style.transition = 'opacity 0.25s';
-                adContent.style.opacity = '0';
-            }
-            setTimeout(() => {
-                if (typeof showAdWithTracking === 'function') showAdWithTracking(partnerIndex);
-                else showAd(partnerIndex);
-            }, 260);
-            adRotationInterval = setTimeout(rotateAd, duration);
-        }
-
-        function initializeAds() {
-            const banner = document.getElementById('partner-ad-banner');
-            if (partners.length === 0) { if (banner) banner.style.display = 'none'; return; }
-
-            rotationList = buildRotationList();
-
-            // Resume from localStorage
-            const savedIndex = parseInt(localStorage.getItem('adCurrentIndex') || '0');
-            const savedTime = parseInt(localStorage.getItem('adShownTime') || '0');
-            const elapsed = Date.now() - savedTime;
-
-            let startPos = rotationList.indexOf(savedIndex);
-            if (startPos === -1) startPos = 0;
-
-            const currentPartner = partners[rotationList[startPos]] || partners[0];
-            const duration = currentPartner.display_duration || 15000;
-            const remaining = Math.max(duration - elapsed, 1000);
-
-            rotationPosition = startPos;
-            showAd(rotationList[rotationPosition]);
-
-            if (partners.length > 1) {
-                adRotationInterval = setTimeout(rotateAd, remaining);
-            }
-        }
-
-        window.addEventListener('load', loadAdPartners);
-    </script>
-
-    <script src="/static/ad-tracking.js"></script>
-
-    <script>
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('fileInput');
-        const captureBtn = document.getElementById('captureBtn');
-        const uploadBtn = document.getElementById('uploadBtn');
-        const previewSection = document.getElementById('previewSection');
-        const previewGrid = document.getElementById('previewGrid');
-        const photoCount = document.getElementById('photoCount');
-        const submitBtn = document.getElementById('submitBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const progressIndicator = document.getElementById('progressIndicator');
-        const resultsSection = document.getElementById('resultsSection');
+        // ===== FILE UPLOAD HANDLING =====
+        const uploadBox = document.getElementById('uploadBox');
+        const photoInput = document.getElementById('photoInput');
+        const photosPreview = document.getElementById('photosPreview');
+        const identifyBtn = document.getElementById('identifyBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const resultContainer = document.getElementById('resultContainer');
 
         let selectedFiles = [];
-        const MAX_PHOTOS = 3;
-        let cameraStream = null;
-        let photosFromCamera = false;
 
-        uploadBtn.addEventListener('click', () => fileInput.click());
-        captureBtn.addEventListener('click', () => openCamera());
+        uploadBox.addEventListener('click', () => photoInput.click());
 
-        fileInput.addEventListener('change', (e) => {
-            const newFiles = Array.from(e.target.files);
-            selectedFiles = [...selectedFiles, ...newFiles];
-            if (selectedFiles.length > MAX_PHOTOS) {
-                alert(`Maximum ${MAX_PHOTOS} photos allowed. Only keeping the first ${MAX_PHOTOS}.`);
-                selectedFiles = selectedFiles.slice(0, MAX_PHOTOS);
-            }
-            photosFromCamera = false;
-            updatePreview();
-            fileInput.value = '';
-        });
-
-        async function openCamera() {
-            if (selectedFiles.length >= MAX_PHOTOS) { alert(`Maximum ${MAX_PHOTOS} photos already selected.`); return; }
-            try {
-                const modal = document.getElementById('cameraModal');
-                const video = document.getElementById('cameraVideo');
-                cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } } });
-                video.srcObject = cameraStream;
-                modal.classList.add('active');
-            } catch (error) { alert('Camera access denied: ' + error.message); }
-        }
-
-        function closeCamera() {
-            const modal = document.getElementById('cameraModal');
-            const video = document.getElementById('cameraVideo');
-            if (cameraStream) { cameraStream.getTracks().forEach(track => track.stop()); cameraStream = null; }
-            video.srcObject = null;
-            modal.classList.remove('active');
-        }
-
-        function capturePhoto() {
-            const video = document.getElementById('cameraVideo');
-            const canvas = document.getElementById('canvas');
-            const context = canvas.getContext('2d');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0);
-            canvas.toBlob((blob) => {
-                const file = new File([blob], `camera_${Date.now()}.jpg`, { type: 'image/jpeg' });
-                selectedFiles.push(file);
-                photosFromCamera = true;
-                updatePreview();
-                closeCamera();
-            }, 'image/jpeg', 0.95);
-        }
-
-        uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); });
-        uploadArea.addEventListener('dragleave', () => { uploadArea.classList.remove('dragover'); });
-        uploadArea.addEventListener('drop', (e) => {
+        uploadBox.addEventListener('dragover', (e) => {
             e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            const newFiles = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
-            selectedFiles = [...selectedFiles, ...newFiles];
-            if (selectedFiles.length > MAX_PHOTOS) {
-                alert(`Maximum ${MAX_PHOTOS} photos allowed. Only keeping the first ${MAX_PHOTOS}.`);
-                selectedFiles = selectedFiles.slice(0, MAX_PHOTOS);
-            }
-            updatePreview();
+            uploadBox.classList.add('drag-over');
         });
 
-        function updatePreview() {
-            if (selectedFiles.length === 0) {
-                previewSection.style.display = 'none';
-                submitBtn.disabled = true;
-                resetBtn.disabled = true;
-                captureBtn.textContent = '📷 Take Photo';
-                uploadBtn.textContent = '📁 Choose Files';
-                captureBtn.disabled = false;
-                uploadBtn.disabled = false;
-                return;
-            }
-            previewSection.style.display = 'block';
-            submitBtn.disabled = false;
-            resetBtn.disabled = false;
-            photoCount.textContent = selectedFiles.length;
-            if (selectedFiles.length >= MAX_PHOTOS) {
-                captureBtn.textContent = '📷 Take Photo (Max 3)';
-                uploadBtn.textContent = '📁 Choose Files (Max 3)';
-                captureBtn.disabled = true;
-                uploadBtn.disabled = true;
-            } else {
-                captureBtn.textContent = '📷 Take Another Photo';
-                uploadBtn.textContent = '📁 Upload Another File';
-                captureBtn.disabled = false;
-                uploadBtn.disabled = false;
-            }
-            previewGrid.innerHTML = '';
+        uploadBox.addEventListener('dragleave', () => {
+            uploadBox.classList.remove('drag-over');
+        });
+
+        uploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadBox.classList.remove('drag-over');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        photoInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            selectedFiles = Array.from(files).slice(0, 3);
+            displayPhotos();
+        }
+
+        function displayPhotos() {
+            photosPreview.innerHTML = '';
             selectedFiles.forEach((file, index) => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const div = document.createElement('div');
-                    div.className = 'preview-item';
-                    div.innerHTML = `<img src="${e.target.result}" alt="Preview ${index + 1}"><button class="preview-remove" onclick="removeFile(${index})">✕</button>`;
-                    previewGrid.appendChild(div);
+                    div.className = 'photo-item';
+                    div.innerHTML = `
+                        <img src="${e.target.result}" alt="Photo ${index + 1}">
+                        <button class="photo-remove" onclick="removePhoto(${index})">✕</button>
+                    `;
+                    photosPreview.appendChild(div);
                 };
                 reader.readAsDataURL(file);
             });
+            identifyBtn.disabled = selectedFiles.length === 0;
         }
 
-        window.removeFile = (index) => { selectedFiles.splice(index, 1); if (selectedFiles.length === 0) photosFromCamera = false; updatePreview(); };
-        resetBtn.addEventListener('click', () => { selectedFiles = []; photosFromCamera = false; fileInput.value = ''; updatePreview(); resultsSection.classList.remove('show'); progressIndicator.style.display = 'none'; window.scrollTo({ top: 0, behavior: 'smooth' }); });
+        function removePhoto(index) {
+            selectedFiles.splice(index, 1);
+            displayPhotos();
+        }
 
-        submitBtn.addEventListener('click', async () => {
+        clearBtn.addEventListener('click', () => {
+            selectedFiles = [];
+            photoInput.value = '';
+            displayPhotos();
+            resultContainer.innerHTML = '';
+        });
+
+        identifyBtn.addEventListener('click', async () => {
             if (selectedFiles.length === 0) return;
-            progressIndicator.style.display = 'block';
-            resultsSection.classList.remove('show');
-            submitBtn.disabled = true;
+
+            const userId = localStorage.getItem('ammonite_user_id');
+            
+            // Double-check user is logged in
+            if (!userId) {
+                document.getElementById('loginModal').classList.add('show');
+                return;
+            }
+
+            identifyBtn.disabled = true;
+            resultContainer.innerHTML = '<div class="loading"><div class="spinner"></div><p>Identifying your fossil...</p></div>';
+
             try {
-                let result;
-                const isOffline = !navigator.onLine;
+                const formData = new FormData();
+                selectedFiles.forEach(file => {
+                    formData.append('photos', file);
+                });
+                formData.append('user_id', userId);
 
-                if (isOffline && window.offlineReady && window.offlineReady()) {
-                    // ── OFFLINE MODE: run model locally ──
-                    progressIndicator.querySelector('p').textContent = '🔍 Identifying offline...';
-                    result = await window.identifyOffline(selectedFiles);
-                    // Map offline result fields to match API response
-                    result.family_confidence = result.top_family_score;
-                } else if (isOffline) {
-                    // ── OFFLINE but no model downloaded ──
-                    throw new Error('NO_SIGNAL');
-                } else {
-                    // ── ONLINE MODE: use server API ──
-                    const formData = new FormData();
-                    selectedFiles.forEach((file) => { formData.append('photos', file); });
-                    const response = await fetch('/identify', { method: 'POST', body: formData });
-                    if (!response.ok) throw new Error(`API error: ${response.status}`);
-                    result = await response.json();
+                const response = await fetch('/identify', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
                 }
 
-                console.log('=== Result ===', result);
-                const familyLabel = result.family_label || '';
-                const feedbackMsg = photosFromCamera ? (result.feedback_message || '') : '';
-                if (result.scenario === 'non_ammonite') {
-                    const nonAmConfidence = result.non_am_total || 0;
-                    let nonAmLabel = nonAmConfidence >= 75 ? 'HIGH ✅' : (nonAmConfidence >= 55 ? 'MODERATE ⚠️' : 'LOW ❌');
-                    const prefix = nonAmConfidence >= 75 ? 'Appears to be:' : (nonAmConfidence >= 55 ? 'Possibly:' : 'Uncertain identification');
-                    document.getElementById('topFamily').innerHTML = `<span style="font-size:2rem;font-weight:bold;">${prefix} ${result.non_am_display || 'Not an ammonite'}</span><br><span style="font-size:1.2rem;">[Confidence: ${result.non_am_total}% - ${nonAmLabel}]</span>`;
-                    document.getElementById('familyConfidence').textContent = result.non_am_total + '%';
-                    document.getElementById('familyDescription').innerHTML = feedbackMsg ? `<div style="margin-top:15px;padding:12px;background:#e3f2fd;border-left:4px solid #2196f3;border-radius:5px;font-family:Arial;">${feedbackMsg}</div>` : '';
-                    document.getElementById('genusBreakdown').innerHTML = '<p style="color:var(--light-text);font-family:Arial;">No genus breakdown available for non-ammonite specimens.</p><div style="margin-top:25px;padding-top:15px;border-top:1px solid #e0e0e0;text-align:center;"><p style="font-size:0.85rem;color:#999;margin:0;">AmmoniteID is powered by AI and can make mistakes</p></div>';
-                } else if (result.scenario === 'uncertain') {
-                    document.getElementById('topFamily').innerHTML = '<span style="font-size:2rem;font-weight:bold;">Uncertain</span><br><span style="font-size:1.2rem;">[LOW ❌]</span>';
-                    document.getElementById('familyConfidence').textContent = '—';
-                    document.getElementById('familyDescription').innerHTML = feedbackMsg ? `<div style="margin-top:15px;padding:12px;background:#fff3cd;border-left:4px solid #ff9800;border-radius:5px;font-family:Arial;">${feedbackMsg}</div>` : '';
-                    document.getElementById('genusBreakdown').innerHTML = '<p style="color:var(--light-text);font-family:Arial;">Cannot determine genus from this image.</p><div style="margin-top:25px;padding-top:15px;border-top:1px solid #e0e0e0;text-align:center;"><p style="font-size:0.85rem;color:#999;margin:0;">AmmoniteID is powered by AI and can make mistakes</p></div>';
-                } else {
-                    document.getElementById('topFamily').innerHTML = `<span style="font-size:2rem;font-weight:bold;">Family: ${result.top_family || 'Unknown'}</span><br><span style="font-size:1.2rem;">[${result.family_confidence}% - ${familyLabel}]</span>`;
-                    document.getElementById('familyConfidence').textContent = result.family_confidence + '%';
-                    let feedbackHTML = '';
-                    if (feedbackMsg) { feedbackHTML = `<div style="margin-top:15px;padding:12px;background:#e3f2fd;border-left:4px solid #2196f3;border-radius:5px;font-family:Arial;">${feedbackMsg}</div>`; }
-                    document.getElementById('familyDescription').innerHTML = feedbackHTML;
-                    const genusBreakdown = document.getElementById('genusBreakdown');
-                    genusBreakdown.innerHTML = '<h3 style="margin-bottom:1rem;color:var(--dark-brown);">Likely Genera</h3>';
-                    if (result.genus_breakdown && result.genus_breakdown.length > 0) {
-                        result.genus_breakdown.forEach((genus, index) => {
-                            const score = genus.percentage || 0;
-                            let genusConfLabel = score >= 75 ? '<span style="color:#28a745;font-weight:bold;">HIGH ✅</span>' : (score >= 55 ? '<span style="color:#ff9800;font-weight:bold;">MODERATE ⚠️</span>' : '<span style="color:#dc3545;font-weight:bold;">LOW ❌</span>');
-                            const matchLabel = index === 0 ? 'Best Match' : 'Likely';
-                            genusBreakdown.innerHTML += `<div class="genus-item ${index === 0 ? 'best-match' : ''}"><div class="genus-label"><span style="${index === 0 ? 'font-weight:bold;font-size:1.15rem;' : ''}">${genus.genus}</span><span style="${index === 0 ? 'font-weight:bold;' : ''}">${score}% — ${matchLabel} [${genusConfLabel}]</span></div><div class="progress-bar"><div class="progress-fill" style="width:${score}%"></div></div></div>`;
-                        });
-                        genusBreakdown.innerHTML += `<div style="margin-top:25px;padding-top:15px;border-top:1px solid #e0e0e0;text-align:center;"><p style="font-size:0.85rem;color:#999;margin:0;">AmmoniteID is powered by AI and can make mistakes</p></div>`;
-                    } else {
-                        genusBreakdown.innerHTML += '<p style="color:var(--light-text);font-family:Arial;">No genus data available.</p>';
-                    }
-                }
-                progressIndicator.style.display = 'none';
-                resultsSection.classList.add('show');
-                submitBtn.disabled = false;
-                window.scrollTo({ top: Math.max(0, resultsSection.offsetTop - 240), behavior: 'smooth' });
+                const result = await response.json();
 
-                // ── Save to My Fossil Collection ──────────────
-                try {
-                    const stored = localStorage.getItem('ammoniteMyLogs');
-                    const fossils = stored ? JSON.parse(stored) : [];
-                    const topGenus = (result.genus_breakdown && result.genus_breakdown.length > 0)
-                        ? result.genus_breakdown[0].genus : 'Unknown';
-
-                    // Convert photo to base64 so it survives page reload
-                    // (blob URLs expire when the tab closes)
-                    let photoBase64 = '';
-                    if (selectedFiles.length > 0) {
-                        photoBase64 = await new Promise((resolve) => {
-                            const reader = new FileReader();
-                            reader.onload = (e) => resolve(e.target.result);
-                            reader.onerror = () => resolve('');
-                            reader.readAsDataURL(selectedFiles[0]);
-                        });
-                    }
-
-                    const newEntry = {
-                        id: Date.now(),
-                        date: new Date().toISOString(),
-                        family: result.top_family || 'Unknown',
-                        genus: topGenus,
-                        family_label: result.family_label || '',
-                        confidence: result.family_confidence || 0,
-                        photos: photoBase64 ? [photoBase64] : [],
-                        genusBreakdown: result.genus_breakdown || [],
-                        scenario: result.scenario || '',
-                        notes: '',
-                        favorite: false,
-                        keepForever: false,
-                        source: isOffline ? 'offline' : 'online'
-                    };
-                    fossils.unshift(newEntry);
-                    localStorage.setItem('ammoniteMyLogs', JSON.stringify(fossils));
-                } catch (e) {
-                    console.warn('Could not save to collection:', e);
+                // Display result
+                let html = '<div class="result">';
+                html += '<h2>Identification Result</h2>';
+                html += `<div class="result-item"><span class="result-label">Scenario:</span><span class="result-value">${result.scenario}</span></div>`;
+                
+                if (result.top_family) {
+                    html += `<div class="result-item"><span class="result-label">Family:</span><span class="result-value">${result.top_family}</span></div>`;
+                    html += `<div class="result-item"><span class="result-label">Confidence:</span><span class="result-value">${result.family_confidence}%</span></div>`;
                 }
 
-                // ── Save to Review Queue ──────────────────────
-                try {
-                    const stored = localStorage.getItem('ammoniteReviewQueue');
-                    const queue = stored ? JSON.parse(stored) : [];
-                    queue.unshift({
-                        id: Date.now(),
-                        date: new Date().toISOString(),
-                        family: result.top_family || 'Unknown',
-                        confidence: result.family_confidence || 0,
-                        genus_breakdown: result.genus_breakdown || [],
-                        scenario: result.scenario || '',
-                        status: 'pending',
-                        autoDeleteDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+                if (result.genus_breakdown && result.genus_breakdown.length > 0) {
+                    html += '<div class="result-item"><span class="result-label">Genus Breakdown:</span>';
+                    result.genus_breakdown.forEach(g => {
+                        html += `<div style="margin-left: 10px; margin-top: 5px;">${g.genus}: ${g.percentage}%</div>`;
                     });
-                    localStorage.setItem('ammoniteReviewQueue', JSON.stringify(queue));
-                } catch (e) {
-                    console.warn('Could not save to review queue:', e);
+                    html += '</div>';
                 }
+
+                html += `<div class="result-item"><span class="result-label">Details:</span><span class="result-value">${result.formatted_output}</span></div>`;
+                html += '</div>';
+
+                resultContainer.innerHTML = html;
+
             } catch (error) {
-                console.error('Identification error:', error);
-                if (error.message === 'NO_SIGNAL') {
-                    alert('📵 No internet signal.\n\nTake photos now and identify them later when you\'re back online.\n\n⭐ Premium users can identify offline — upgrade to unlock!');
-                } else {
-                    alert('Error identifying fossil. Please check your connection and try again.');
-                }
-                progressIndicator.style.display = 'none';
-                submitBtn.disabled = false;
+                resultContainer.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            } finally {
+                identifyBtn.disabled = false;
             }
         });
     </script>
-
-    <!-- Offline Mode Logic -->
-    <script>
-        // ── Offline status bar ──────────────────────────────
-        function updateOfflineStatus() {
-            const bar = document.getElementById('offlineBar');
-            const isOffline = !navigator.onLine;
-            const modelReady = window.offlineReady && window.offlineReady();
-
-            if (isOffline && modelReady) {
-                bar.style.display = 'block';
-                bar.style.background = '#e8f5e9';
-                bar.style.borderLeft = '4px solid #2c5f2d';
-                bar.innerHTML = '📡 <strong>Offline mode active</strong> — identifying using local AI model';
-            } else if (isOffline) {
-                bar.style.display = 'block';
-                bar.style.background = '#fff3cd';
-                bar.style.borderLeft = '4px solid #ff9800';
-                bar.innerHTML = '📵 <strong>No signal</strong> — take photos now, identify later when online. <a href="/static/upgrade.html" style="color:#e67e22;font-weight:bold;">Upgrade for offline mode →</a>';
-            } else if (modelReady) {
-                bar.style.display = 'block';
-                bar.style.background = '#e8f5e9';
-                bar.style.borderLeft = '4px solid #2c5f2d';
-                bar.innerHTML = '✅ <strong>Online</strong> — offline mode ready as backup';
-            } else {
-                bar.style.display = 'none';
-            }
-        }
-
-        // Listen for online/offline changes
-        window.addEventListener('online', updateOfflineStatus);
-        window.addEventListener('offline', updateOfflineStatus);
-        window.addEventListener('offline-ready', updateOfflineStatus);
-
-        // ── Show download button for Premium users ──────────
-        function checkOfflineDownloadVisibility() {
-            const section = document.getElementById('offlineDownloadSection');
-            const warning = document.getElementById('premiumWarning');
-            const modelReady = window.offlineReady && window.offlineReady();
-
-            // Check if user is Premium
-            const isPremium = document.querySelector('.account-badge.premium') !== null;
-
-            if (isPremium && !modelReady) {
-                // Premium but no model — show both warning AND download section
-                warning.style.display = 'block';
-                section.style.display = 'block';
-            } else if (modelReady) {
-                // Model ready — hide warning
-                warning.style.display = 'none';
-                section.style.display = 'none';
-            } else {
-                // Free user — hide both
-                warning.style.display = 'none';
-                section.style.display = 'none';
-            }
-        }
-
-        // ── Download offline model ──────────────────────────
-        async function startOfflineDownload() {
-            const btn = document.getElementById('downloadModelBtn');
-            const progress = document.getElementById('downloadProgress');
-            const bar = document.getElementById('downloadBar');
-            const status = document.getElementById('downloadStatus');
-
-            btn.disabled = true;
-            btn.textContent = '⬇️ Downloading...';
-            progress.style.display = 'block';
-
-            const success = await window.downloadOfflineModel(function(info) {
-                if (info.stage === 'downloading') {
-                    bar.style.width = info.progress + '%';
-                    status.textContent = 'Downloading model... ' + info.progress + '%';
-                } else if (info.stage === 'saving') {
-                    status.textContent = 'Saving to device...';
-                } else if (info.stage === 'done') {
-                    status.textContent = '✅ Offline mode ready!';
-                } else if (info.stage === 'error') {
-                    status.textContent = '❌ Download failed: ' + info.error;
-                }
-            });
-
-            if (success) {
-                setTimeout(() => {
-                    document.getElementById('offlineDownloadSection').style.display = 'none';
-                    updateOfflineStatus();
-                }, 1500);
-            } else {
-                btn.disabled = false;
-                btn.textContent = '⬇️ Enable Offline Mode';
-            }
-        }
-        window.startOfflineDownload = startOfflineDownload;
-
-        // ── Init on page load ───────────────────────────────
-        document.addEventListener('DOMContentLoaded', () => {
-            updateOfflineStatus();
-            // Delay check for Premium badge (loaded by feature-gate.js)
-            setTimeout(checkOfflineDownloadVisibility, 1500);
-        });
-    </script>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        const firebaseConfig = {
-            apiKey: "AIzaSyChXqOpXgpkLrn44mfIcPoTVPBk6neicBQ",
-            authDomain: "ammoniteid-f9d8e.firebaseapp.com",
-            projectId: "ammoniteid-f9d8e",
-            storageBucket: "ammoniteid-f9d8e.firebasestorage.app",
-            messagingSenderId: "828376677091",
-            appId: "1:828376677091:web:e302f3ff538b78bc83e3d6"
-        };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        onAuthStateChanged(auth, (user) => {
-            const authButtons = document.querySelector('.auth-buttons');
-            if (user) {
-                const displayName = user.displayName || user.email.split('@')[0];
-                authButtons.innerHTML = `<a href="/static/my-account.html" style="color:var(--dark-brown);margin-right:1rem;font-weight:bold;text-decoration:none;">👤 ${displayName}</a><button class="btn-outline" onclick="handleLogout()">Log Out</button>`;
-            } else {
-                authButtons.innerHTML = `<a href="#" class="btn-outline" onclick="showLoginModal(); return false;">Log In</a><a href="#" class="btn-outline" onclick="showSignupModal(); return false;">Sign Up</a>`;
-                showLoginRequired();
-            }
-        });
-        window.handleLogout = async function() { try { await signOut(auth); window.location.reload(); } catch (error) { alert('Error logging out.'); } };
-        function showLoginRequired() { /* login overlay logic */ }
-        window.showLoginModal = function() { alert('Login modal would open here'); };
-        window.showSignupModal = function() { alert('Signup modal would open here'); };
-    </script>
-
 </body>
 </html>
