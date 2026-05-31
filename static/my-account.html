@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Account — AmmoniteID</title>
-    <link rel="stylesheet" href="/static/responsive-mobile.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -14,51 +13,16 @@
             --shadow: 0 8px 32px rgba(0,0,0,0.12);
         }
         body { font-family: 'Georgia', serif; background: var(--cream); color: var(--dark-text); min-height: 100vh; }
-        
-        /* Navigation Header */
-        header {
+        nav {
             background: rgba(255,255,255,0.98); backdrop-filter: blur(20px);
             padding: 1.25rem 2rem; box-shadow: 0 4px 16px rgba(0,0,0,0.1);
             position: sticky; top: 0; z-index: 100;
             display: flex; justify-content: space-between; align-items: center;
-            flex-wrap: wrap;
         }
-        
-        .header-logo { font-size: 1.6rem; font-weight: bold; color: var(--deep-green); text-decoration: none; }
-        
-        .hamburger-btn {
-            display: none;
-            flex-direction: column;
-            gap: 5px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px;
-        }
-        
-        .hamburger-btn span {
-            width: 25px;
-            height: 3px;
-            background: var(--deep-green);
-            border-radius: 3px;
-            transition: all 0.3s;
-        }
-        
-        header nav {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-        }
-        
-        header nav a {
-            text-decoration: none;
-            color: var(--dark-text);
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-        
-        header nav a:hover { color: var(--deep-green); }
-        
+        .logo { font-size: 1.6rem; font-weight: bold; color: var(--deep-green); text-decoration: none; }
+        .nav-links { display: flex; gap: 2rem; list-style: none; }
+        .nav-links a { text-decoration: none; color: var(--dark-text); font-weight: 500; }
+        .nav-links a:hover { color: var(--deep-green); }
         .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
         .card {
             background: white; border-radius: 16px;
@@ -130,84 +94,76 @@
             cursor: pointer; font-size: 1rem; color: #999;
         }
         #msgBox { display: none; margin-top: 12px; padding: 12px; border-radius: 6px; font-size: 0.9rem; }
-        
-        #navAuth {
-            display: flex;
-            align-items: center;
-        }
-        
-        #navAuth button {
-            padding: 8px 16px;
-            background: none;
-            border: 2px solid var(--deep-green);
-            border-radius: 6px;
-            color: var(--deep-green);
-            font-weight: bold;
-            cursor: pointer;
-        }
-        
+    
+        /* ── HAMBURGER (MOBILE ONLY) ── */
+        .hamburger-btn { display: none; }
+        .mobile-menu   { display: none; }
+
         @media (max-width: 768px) {
+            nav { padding: 0.6rem 1rem !important; position: relative; flex-wrap: nowrap !important; gap: 0.4rem !important; }
+            .logo { font-size: 1.2rem !important; }
+            .nav-links { display: none !important; }
+            #navAuth .btn-outline, #navAuth button { padding: 0.35rem 0.7rem !important; font-size: 0.8rem !important; }
+
             .hamburger-btn {
-                display: flex;
+                display: flex !important; flex-direction: column; justify-content: center;
+                gap: 5px; background: none; border: none; cursor: pointer;
+                padding: 6px; margin-left: 6px; flex-shrink: 0;
             }
-            header nav {
-                display: none;
-                width: 100%;
-                flex-direction: column;
-                gap: 1rem;
-                padding: 1rem 0;
+            .hamburger-btn span { display: block; width: 22px; height: 2.5px; background: #2c5f2d; border-radius: 2px; transition: all 0.3s ease; }
+            .hamburger-btn.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 8px); }
+            .hamburger-btn.open span:nth-child(2) { opacity: 0; }
+            .hamburger-btn.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -8px); }
+
+            .mobile-menu {
+                display: none; flex-direction: column;
+                position: absolute; top: 100%; left: 0; right: 0;
+                background: rgba(255,255,255,0.99);
+                box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+                z-index: 1050; padding: 0.3rem 0;
             }
-            header nav.show {
-                display: flex;
+            .mobile-menu.open { display: flex !important; }
+            .mobile-menu a, .mobile-menu button {
+                padding: 0.85rem 1.5rem; color: #5D4E3A; text-decoration: none;
+                font-family: 'Arial',sans-serif; font-weight: bold; font-size: 0.95rem;
+                border: none; background: none; text-align: left; cursor: pointer;
+                border-bottom: 1px solid #f0ece4; display: block; width: 100%;
             }
-            header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .container {
-                padding: 20px 15px;
-            }
-            .card {
-                padding: 20px;
-            }
-            .account-header {
-                flex-direction: column;
-                text-align: center;
-            }
-            .info-row {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 5px;
-            }
-            .btn-row {
-                flex-direction: column;
-            }
-            .btn-row button, .btn-row a {
-                width: 100%;
-                text-align: center;
-            }
+            .mobile-menu a:hover, .mobile-menu button:hover { background: #f5f1e8; color: #2c5f2d; }
+            .mobile-menu a:last-child, .mobile-menu button:last-child { border-bottom: none; }
         }
+
     </style>
 </head>
 <body>
 
-<header>
-    <a href="/static/home.html" class="header-logo">🐚 AmmoniteID</a>
-    <button class="hamburger-btn">
-        <span></span>
-        <span></span>
-        <span></span>
-    </button>
-    <nav>
-        <a href="/static/home.html">Home</a>
-        <a href="/static/test.html">Identify</a>
-        <a href="/static/mylog.html">My Collection</a>
-        <a href="/static/about.html">About</a>
-        <a href="/static/contact.html">Contact</a>
-        <a href="/static/partners.html">Partners</a>
-    </nav>
+<nav>
+    <a href="/static/home.html" class="logo">🐚 AmmoniteID</a>
+    <ul class="nav-links">
+        <li><a href="/static/home.html">Home</a></li>
+        <li><a href="/static/test.html">Identify</a></li>
+        <li><a href="/static/mylog.html">My Collection</a></li>
+    </ul>
     <div id="navAuth"></div>
-</header>
+            <!-- Hamburger (mobile only) -->
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+
+        <!-- Mobile dropdown -->
+        <div class="mobile-menu" id="mobileMenu">
+            <a href="/static/home.html">🏠 Home</a>
+            <a href="/static/test.html">🔍 Identify</a>
+            <a href="/static/mylog.html">📚 My Fossil Collection</a>
+            <a href="/static/about.html">ℹ️ About</a>
+            <a href="/static/contact.html">📬 Contact</a>
+            <a href="/static/partners.html">🤝 Partners</a>
+            <div id="mobileAuthLinks">
+                <a href="/static/login.html">🔑 Log In</a>
+                <a href="/static/login.html">✏️ Sign Up</a>
+            </div>
+        </div>
+</nav>
 
 <div class="container">
 
@@ -329,8 +285,6 @@
     </div>
 </div>
 
-<script src="/static/hamburger-menu.js"></script>
-
 <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
     import { getAuth, onAuthStateChanged, signOut, updatePassword } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
@@ -357,6 +311,9 @@
         // Nav
         document.getElementById('navAuth').innerHTML =
             `<button onclick="handleLogout()" style="padding:8px 16px;background:none;border:2px solid var(--deep-green);border-radius:6px;color:var(--deep-green);font-weight:bold;cursor:pointer;">Log Out</button>`;
+        // Update mobile menu auth links
+        const mobileAuth = document.getElementById('mobileAuthLinks');
+        if (mobileAuth) mobileAuth.innerHTML = `<button onclick="handleLogout()" style="width:100%;padding:0.85rem 1.5rem;color:#5D4E3A;background:none;border:none;text-align:left;font-family:Arial,sans-serif;font-weight:bold;font-size:0.95rem;cursor:pointer;border-bottom:1px solid #f0ece4;">🚪 Log Out</button>`;
 
         // Fill profile
         const name = user.displayName || user.email.split('@')[0];
@@ -463,5 +420,15 @@
     window.togglePwd            = togglePwd;
 </script>
 
+
+    <script>
+        const _hBtn = document.getElementById('hamburgerBtn');
+        const _hMenu = document.getElementById('mobileMenu');
+        if (_hBtn && _hMenu) {
+            _hBtn.addEventListener('click', function(e) { e.stopPropagation(); _hBtn.classList.toggle('open'); _hMenu.classList.toggle('open'); });
+            _hMenu.querySelectorAll('a').forEach(l => l.addEventListener('click', () => { _hBtn.classList.remove('open'); _hMenu.classList.remove('open'); }));
+            document.addEventListener('click', function(e) { if (!_hMenu.contains(e.target) && !_hBtn.contains(e.target)) { _hBtn.classList.remove('open'); _hMenu.classList.remove('open'); } });
+        }
+    </script>
 </body>
 </html>
