@@ -4,19 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upgrade to Premium — AmmoniteID</title>
+    <link rel="stylesheet" href="/static/responsive-mobile.css">
     <style>
         :root { --deep-green: #2c5f2d; --light-green: #4a8c5c; --gold: #e67e22; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Georgia', serif; color: #333; background: #f9f9f4; min-height: 100vh; }
-        nav {
+        
+        /* Navigation Header */
+        header {
             position: sticky; top: 0; background: rgba(255,255,255,0.97); backdrop-filter: blur(10px);
             padding: 1.2rem 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); z-index: 1000;
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
         }
-        .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 1.5rem; font-weight: bold; color: var(--deep-green); text-decoration: none; }
-        .logo span { color: var(--gold); }
-        nav a.back { color: #666; text-decoration: none; font-size: 0.95rem; }
-        nav a.back:hover { text-decoration: underline; }
+        
+        .header-logo { font-size: 1.5rem; font-weight: bold; color: var(--deep-green); text-decoration: none; }
+        .header-logo span { color: var(--gold); }
+        
+        .hamburger-btn {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+        }
+        
+        .hamburger-btn span {
+            width: 25px;
+            height: 3px;
+            background: var(--deep-green);
+            border-radius: 3px;
+            transition: all 0.3s;
+        }
+        
+        header nav {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        
+        header nav a {
+            color: #666;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        header nav a:hover { color: var(--deep-green); text-decoration: none; }
+        header nav a.back { font-weight: normal; }
 
         .hero {
             text-align: center; padding: 60px 20px 30px; max-width: 700px; margin: 0 auto;
@@ -84,16 +121,25 @@
             .plans { flex-direction: column; align-items: center; }
             .plan { width: 100%; max-width: 380px; }
             .hero h1 { font-size: 1.8rem; }
+            .hamburger-btn { display: flex; }
+            header nav { display: none; width: 100%; flex-direction: column; gap: 1rem; padding: 1rem 0; }
+            header nav.show { display: flex; }
+            header { flex-direction: column; align-items: flex-start; }
         }
     </style>
 </head>
 <body>
-    <nav>
-        <div class="nav-container">
-            <a href="/static/home.html" class="logo">🐚 Ammonite<span>ID</span></a>
-            <a href="/static/home.html" class="back">← Back to AmmoniteID</a>
-        </div>
-    </nav>
+    <header>
+        <a href="/static/home.html" class="header-logo">🐚 Ammonite<span>ID</span></a>
+        <button class="hamburger-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <nav>
+            <a href="/static/home.html" class="back">← Back to Home</a>
+        </nav>
+    </header>
 
     <div class="hero">
         <h1>Upgrade to <span>Premium</span></h1>
@@ -169,6 +215,8 @@
     <div class="note">
         Payments are processed securely by Stripe. Cancel anytime from My Account. Your collection is stored on your device — export regularly to back up your fossils.
     </div>
+
+    <script src="/static/hamburger-menu.js"></script>
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
