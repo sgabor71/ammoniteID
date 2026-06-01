@@ -826,26 +826,102 @@
     </div>
 
     <script src="/static/hamburger-menu.js"></script>
+    <script src="/static/tier-gates.js"></script>
 
     <script>
-        // Load from LocalStorage
-        let identifications = loadFromLocalStorage();
+        // ── Auth gate: EXPERT+ only ───────────────────────────
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        const _app = initializeApp({
+            apiKey: "AIzaSyChXqOpXgpkLrn44mfIcPoTVPBk6neicBQ",
+            authDomain: "ammoniteid-f9d8e.firebaseapp.com",
+            projectId: "ammoniteid-f9d8e",
+            appId: "1:828376677091:web:e302f3ff538b78bc83e3d6"
+        });
+        const _auth = getAuth(_app);
+
+        onAuthStateChanged(_auth, async (user) => {
+            if (!user) { window.location.href = '/static/login.html'; return; }
+            const res = await fetch(`/api/auth/me/${user.uid}`);
+            if (!res.ok) { window.location.href = '/static/login.html'; return; }
+            const data = await res.json();
+            const tier = (data.tier || 'FREE').toUpperCase();
+            localStorage.setItem('ammonite_tier', tier);
+            if (!tierAtLeast(tier, 'EXPERT')) {
+                alert('Access denied. Expert or Admin access required.');
+                window.location.href = '/static/home.html';
+                return;
+            }
+            // Authorised — load identifications from DB
+            await loadFromDB();
+        });
+        // ─────────────────────────────────────────────────────
+
+        let identifications = [];
         let currentTab = 'pending';
         let expandedRow = null;
-        
-        function loadFromLocalStorage() {
-            const stored = localStorage.getItem('ammoniteReviewQueue');
-            if (stored) {
-                return JSON.parse(stored);
+
+        async function loadFromDB() {
+            try {
+                const res = await fetch('/queue?status=pending');
+                const data = await res.json();
+                const pending = (data.items || []).map(item => ({
+                    id: item.id,
+                    identification_id: item.identification_id,
+                    date: item.timestamp,
+                    family: item.ai_family || 'Unknown',
+                    genus: item.ai_genus || 'Unknown',
+                    confidence: item.ai_confidence || 0,
+                    status: item.status || 'pending',
+                    expert_family: item.expert_family || '',
+                    expert_genus: item.expert_genus || '',
+                    expert_notes: item.expert_notes || '',
+                    photo: item.photo_paths ? JSON.parse(item.photo_paths)[0]?.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2') : '',
+                    photos: item.photo_paths ? JSON.parse(item.photo_paths).map(p => p.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2')) : [],
+                }));
+
+                // Also load reviewed/ambiguous
+                const [rRes, aRes] = await Promise.all([
+                    fetch('/queue?status=reviewed'),
+                    fetch('/queue?status=ambiguous')
+                ]);
+                const reviewed = rRes.ok ? (await rRes.json()).items || [] : [];
+                const ambiguous = aRes.ok ? (await aRes.json()).items || [] : [];
+
+                identifications = [
+                    ...pending,
+                    ...reviewed.map(i => ({...i, status:'reviewed', photo: i.photo_paths ? JSON.parse(i.photo_paths)[0]?.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2') : ''})),
+                    ...ambiguous.map(i => ({...i, status:'ambiguous', photo: i.photo_paths ? JSON.parse(i.photo_paths)[0]?.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2') : ''})),
+                ];
+
+                updateCounts();
+                filterByStatus('pending');
+            } catch(e) {
+                console.error('Failed to load from DB:', e);
+                identifications = [];
+                updateCounts();
+                filterByStatus('pending');
             }
-            return [];
         }
-        
-        function saveToLocalStorage() {
-            localStorage.setItem('ammoniteReviewQueue', JSON.stringify(identifications));
-            console.log('✓ Saved to localStorage');
+
+        async function saveReviewToDB(item) {
+            try {
+                await fetch(`/queue/${item.id}/update`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        status: item.status,
+                        expert_family: item.expert_family || '',
+                        expert_genus: item.expert_genus || '',
+                        expert_notes: item.expert_notes || '',
+                        reviewed_by: 'expert'
+                    })
+                });
+            } catch(e) {
+                console.warn('Could not save review to DB:', e.message);
+            }
         }
-        
+
         function calculateAutoDeleteDate(days) {
             const date = new Date();
             date.setDate(date.getDate() + days);
@@ -858,9 +934,8 @@
         let isDragging = false;
         let startX, startY, translateX = 0, translateY = 0;
 
-        // Initialize
+        // Initialize — auth guard handles load now
         window.onload = function() {
-            identifications = loadFromLocalStorage();
             updateCounts();
             filterByStatus('pending');
         };
@@ -1085,7 +1160,7 @@
                 item.status = 'reviewed';
                 item.reviewedAt = new Date().toISOString();
                 item.autoDeleteDate = calculateAutoDeleteDate(30);
-                saveToLocalStorage();
+                saveReviewToDB(item);
                 
                 expandedRow = null;
                 
@@ -1102,7 +1177,7 @@
                 item.status = 'ambiguous';
                 item.markedAmbiguousAt = new Date().toISOString();
                 item.autoDeleteDate = calculateAutoDeleteDate(90);
-                saveToLocalStorage();
+                saveReviewToDB(item);
                 
                 expandedRow = null;
                 
@@ -1119,7 +1194,7 @@
                 
                 if (index > -1) {
                     identifications.splice(index, 1);
-                    saveToLocalStorage();
+                    saveReviewToDB(item);
                     
                     // Also remove from My Log
                     let myLogs = JSON.parse(localStorage.getItem('ammoniteMyLogs') || '[]');
@@ -1144,7 +1219,7 @@
             if (item) {
                 item.keepForever = !item.keepForever;
                 item.autoDeleteDate = item.keepForever ? null : calculateAutoDeleteFromStatus(item);
-                saveToLocalStorage();
+                saveReviewToDB(item);
                 filterByStatus(currentTab);
             }
         }
@@ -1267,7 +1342,7 @@
                 item.autoDeleteDate = calculateAutoDeleteDate(30);
                 item.mlTrainingFlag = true;
 
-                saveToLocalStorage();
+                saveReviewToDB(item);
 
                 closeCorrectionModal();
                 expandedRow = null;
