@@ -22,7 +22,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse, RedirectResponse
 from typing import List
 import uuid
-import os
 import json
 import sqlite3
 from datetime import datetime
@@ -91,28 +90,71 @@ DB_PATH.parent.mkdir(exist_ok=True, parents=True)
 
 def init_db():
     """
-    Creates the SQLite database and tables
-    if they do not already exist.
+    Creates DB tables. Safe to run repeatedly — uses CREATE IF NOT EXISTS.
+    Includes migration from old premium_status/is_admin to unified tier column.
+    Permanent admin UID always gets ADMIN tier.
     """
-    conn = sqlite3.connect(str(DB_PATH))
-    c    = conn.cursor()
+    PERMANENT_ADMIN_UID = "16fjKKd4XPOD8PMZhGQSHmSAdPO2"
 
-    # Users table for authentication and tier management
+    conn = sqlite3.connect(str(DB_PATH))
+    c = conn.cursor()
+
+    # ── Users table ──────────────────────────────────────────
     c.execute('''
         CREATE TABLE IF NOT EXISTS users (
             user_id TEXT PRIMARY KEY,
             firebase_uid TEXT UNIQUE,
             email TEXT,
             display_name TEXT,
+            tier TEXT DEFAULT 'FREE',
             premium_status TEXT DEFAULT 'FREE',
             premium_expires TEXT,
+            stripe_customer_id TEXT,
             created_at TEXT,
             last_login TEXT,
             is_admin INTEGER DEFAULT 0
         )
     ''')
 
-    # Every identification is logged here
+    # ── Migration: add columns if they don't exist ───────────
+    c.execute("PRAGMA table_info(users)")
+    existing_cols = [row[1] for row in c.fetchall()]
+
+    if 'tier' not in existing_cols:
+        c.execute("ALTER TABLE users ADD COLUMN tier TEXT DEFAULT 'FREE'")
+
+    if 'stripe_customer_id' not in existing_cols:
+        c.execute("ALTER TABLE users ADD COLUMN stripe_customer_id TEXT")
+
+    if 'is_admin' not in existing_cols:
+        c.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0")
+
+    # ── Migration: copy old data into tier column ─────────────
+    # Only update rows where tier is NULL or still 'FREE' from default
+    # Admins first (highest priority)
+    c.execute("""
+        UPDATE users SET tier = 'ADMIN'
+        WHERE (tier IS NULL OR tier = 'FREE')
+        AND is_admin = 1
+    """)
+    # Then PREMIUM users
+    c.execute("""
+        UPDATE users SET tier = 'PREMIUM'
+        WHERE (tier IS NULL OR tier = 'FREE')
+        AND premium_status = 'PREMIUM'
+        AND is_admin = 0
+    """)
+
+    # ── Ensure permanent admin always has ADMIN tier ──────────
+    c.execute("SELECT 1 FROM users WHERE firebase_uid = ?", (PERMANENT_ADMIN_UID,))
+    if c.fetchone():
+        c.execute(
+            "UPDATE users SET tier = 'ADMIN', is_admin = 1 WHERE firebase_uid = ?",
+            (PERMANENT_ADMIN_UID,)
+        )
+    # (If not in DB yet, they'll get ADMIN when they first log in via sync)
+
+    # ── Identifications table ─────────────────────────────────
     c.execute('''
         CREATE TABLE IF NOT EXISTS identifications (
             id               TEXT PRIMARY KEY,
@@ -128,13 +170,12 @@ def init_db():
         )
     ''')
 
-    # Safety: if an older DB exists without user_id, add it.
     c.execute("PRAGMA table_info(identifications)")
-    _id_cols = [row[1] for row in c.fetchall()]
-    if 'user_id' not in _id_cols:
+    id_cols = [row[1] for row in c.fetchall()]
+    if 'user_id' not in id_cols:
         c.execute("ALTER TABLE identifications ADD COLUMN user_id TEXT")
 
-    # Images awaiting expert review
+    # ── Review queue table ────────────────────────────────────
     c.execute('''
         CREATE TABLE IF NOT EXISTS review_queue (
             id                TEXT PRIMARY KEY,
@@ -153,13 +194,12 @@ def init_db():
         )
     ''')
 
-    # Ensure photo_paths column exists
     c.execute("PRAGMA table_info(review_queue)")
-    columns = [col[1] for col in c.fetchall()]
-    if 'photo_paths' not in columns:
+    rq_cols = [col[1] for col in c.fetchall()]
+    if 'photo_paths' not in rq_cols:
         c.execute("ALTER TABLE review_queue ADD COLUMN photo_paths TEXT")
 
-    # Partners table for ad banner
+    # ── Partners table ────────────────────────────────────────
     c.execute('''
         CREATE TABLE IF NOT EXISTS partners (
             id            INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -183,7 +223,7 @@ def init_db():
         )
     ''')
 
-    # Content table for dynamic page content
+    # ── Content table ─────────────────────────────────────────
     c.execute('''
         CREATE TABLE IF NOT EXISTS content (
             key     TEXT PRIMARY KEY,
@@ -194,6 +234,7 @@ def init_db():
 
     conn.commit()
     conn.close()
+    print(f"✅ DB initialised at {DB_PATH} — 4-tier system active")
 
 # Initialize database when server starts
 init_db()
