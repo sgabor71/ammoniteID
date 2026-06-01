@@ -18,6 +18,7 @@ from admin_content_api import content_router
 from auth_api import auth_router, get_user_tier
 from features_api import features_router
 from stripe_api import stripe_router
+from collection_api import collection_router
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse, RedirectResponse
 from typing import List
@@ -56,6 +57,7 @@ app.include_router(content_router)
 app.include_router(auth_router)
 app.include_router(features_router)
 app.include_router(stripe_router)
+app.include_router(collection_router)
 
 # ── Add CORS middleware ──────────────────────────────────────
 app.add_middleware(
@@ -229,6 +231,25 @@ def init_db():
             key     TEXT PRIMARY KEY,
             value   TEXT,
             updated_at TEXT
+        )
+    ''')
+
+    # ── Fossil collection table ───────────────────────────────
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS fossil_collection (
+            id                TEXT PRIMARY KEY,
+            user_id           TEXT NOT NULL,
+            identification_id TEXT,
+            family            TEXT,
+            genus             TEXT,
+            family_label      TEXT,
+            confidence        INTEGER,
+            scenario          TEXT,
+            formatted_output  TEXT,
+            genus_breakdown   TEXT,
+            photo_paths       TEXT,
+            notes             TEXT,
+            created_at        TEXT
         )
     ''')
 
