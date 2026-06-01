@@ -159,6 +159,39 @@ def init_db():
     if 'photo_paths' not in columns:
         c.execute("ALTER TABLE review_queue ADD COLUMN photo_paths TEXT")
 
+    # Partners table for ad banner
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS partners (
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            partner_id    TEXT UNIQUE,
+            name          TEXT NOT NULL,
+            status        TEXT DEFAULT 'active',
+            active        INTEGER DEFAULT 1,
+            url           TEXT,
+            email         TEXT,
+            phone         TEXT,
+            description   TEXT,
+            offer         TEXT,
+            logo_emoji    TEXT DEFAULT '🏪',
+            logo_path     TEXT,
+            bg_color      TEXT DEFAULT 'rgba(255,255,255,1.0)',
+            anchor        TEXT,
+            display_duration INTEGER DEFAULT 15,
+            rotation_weight  INTEGER DEFAULT 1,
+            created_at    TEXT,
+            updated_at    TEXT
+        )
+    ''')
+
+    # Content table for dynamic page content
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS content (
+            key     TEXT PRIMARY KEY,
+            value   TEXT,
+            updated_at TEXT
+        )
+    ''')
+
     conn.commit()
     conn.close()
 
