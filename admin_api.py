@@ -228,19 +228,27 @@ async def get_dashboard_stats():
         cursor.execute("SELECT COUNT(*) FROM identifications WHERE DATE(timestamp) = ?", (today,))
         ids_today = cursor.fetchone()[0]
         
-        # FREE vs PREMIUM
-        cursor.execute("SELECT COUNT(*) FROM users WHERE premium_status = 'FREE'")
+        # TIER stats (FREE, PREMIUM, EXPERT, ADMIN)
+        cursor.execute("SELECT COUNT(*) FROM users WHERE tier = 'FREE' OR tier IS NULL")
         free_users = cursor.fetchone()[0]
-        
-        cursor.execute("SELECT COUNT(*) FROM users WHERE premium_status = 'PREMIUM'")
+
+        cursor.execute("SELECT COUNT(*) FROM users WHERE tier = 'PREMIUM'")
         premium_users = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM users WHERE tier = 'EXPERT'")
+        expert_users = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM users WHERE tier = 'ADMIN'")
+        admin_users = cursor.fetchone()[0]
         
         # Ad impressions and clicks
         cursor.execute("SELECT COUNT(*) FROM ad_impressions")
-        total_impressions = cursor.fetchone()[0] if cursor.fetchone() else 0
+        total_impressions_row = cursor.fetchone()
+        total_impressions = total_impressions_row[0] if total_impressions_row else 0
         
         cursor.execute("SELECT COUNT(*) FROM ad_clicks")
-        total_clicks = cursor.fetchone()[0] if cursor.fetchone() else 0
+        total_clicks_row = cursor.fetchone()
+        total_clicks = total_clicks_row[0] if total_clicks_row else 0
         
         # New users this week
         week_ago = (datetime.now() - timedelta(days=7)).isoformat()
@@ -267,6 +275,8 @@ async def get_dashboard_stats():
             "ids_today": ids_today,
             "free_users": free_users,
             "premium_users": premium_users,
+            "expert_users": expert_users,
+            "admin_users": admin_users,
             "total_impressions": total_impressions,
             "total_clicks": total_clicks,
             "new_users_week": new_users_week,
@@ -600,10 +610,51 @@ async def resume_partner(partner_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 # ============================================
-# ADD TO main.py:
+# TIER MANAGEMENT ENDPOINT (ADDED)
 # ============================================
-"""
-from admin_api import router as admin_router
 
-app.include_router(admin_router)
-"""
+class TierUpdate(BaseModel):
+    tier: str  # FREE, PREMIUM, EXPERT, ADMIN
+
+VALID_TIERS = ("FREE", "PREMIUM", "EXPERT", "ADMIN")
+PERMANENT_ADMIN_UID = "16fjKKd4XPOD8PMZhGQSHmSAdPO2"
+
+@router.put("/api/admin/users/{uid}/tier")
+async def update_user_tier(uid: str, body: TierUpdate):
+    """
+    Admin sets user tier permanently.
+    Called from admin.html Users tab dropdown.
+    Saves to DB — survives all rebuilds.
+    """
+    tier = body.tier.upper()
+    if tier not in VALID_TIERS:
+        raise HTTPException(status_code=400, detail=f"tier must be one of: {VALID_TIERS}")
+
+    # Prevent demoting permanent admin
+    if uid == PERMANENT_ADMIN_UID and tier != "ADMIN":
+        raise HTTPException(status_code=403, detail="Cannot change permanent admin tier.")
+
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT 1 FROM users WHERE firebase_uid = ?", (uid,))
+    if not c.fetchone():
+        conn.close()
+        raise HTTPException(status_code=404, detail="User not found.")
+
+    c.execute("""
+        UPDATE users
+        SET tier = ?,
+            premium_status = ?,
+            is_admin = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE firebase_uid = ?
+    """, (
+        tier,
+        tier,  # keep premium_status in sync for backward compat
+        1 if tier == "ADMIN" else 0,
+        uid
+    ))
+    conn.commit()
+    conn.close()
+
+    return {"status": "ok", "uid": uid, "tier": tier}
