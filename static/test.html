@@ -738,7 +738,7 @@
 
                 // Save to collection — PREMIUM only
                 const userTier = (localStorage.getItem('ammonite_tier') || 'FREE').toUpperCase();
-                if (userTier === 'PREMIUM') try {
+                if (tierAtLeast(userTier, 'PREMIUM')) try {
                     const fossils = JSON.parse(localStorage.getItem('ammoniteMyLogs') || '[]');
                     const topGenus = result.genus_breakdown?.[0]?.genus || 'Unknown';
                     let photoBase64 = '';
@@ -825,7 +825,7 @@
                     const href = link.getAttribute('href') || '';
                     // My Fossil Collection: padlock for FREE
                     if (href.includes('mylog')) {
-                        if (tier !== 'PREMIUM') {
+                        if (!tierAtLeast(tier, 'PREMIUM')) {
                             link.innerHTML = link.innerHTML.replace(' 🔒','') + ' 🔒';
                             link.onclick = function(e) {
                                 e.preventDefault();
@@ -848,7 +848,7 @@
                 // Mobile menu links
                 document.querySelectorAll('.mobile-menu a').forEach(link => {
                     const href = link.getAttribute('href') || '';
-                    if (href.includes('mylog') && tier !== 'PREMIUM') {
+                    if (href.includes('mylog') && !tierAtLeast(tier, 'PREMIUM')) {
                         link.innerHTML = link.innerHTML.replace(' 🔒','') + ' 🔒';
                         link.onclick = function(e) { e.preventDefault(); showUpgradeNudge(); };
                     }
@@ -912,5 +912,6 @@
             window.addEventListener('storage', () => setTimeout(applyPadlocks, 300));
         })();
     </script>
+<script src="/static/tier-gates.js"></script>
 </body>
 </html>
