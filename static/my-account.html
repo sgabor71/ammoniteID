@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Account — AmmoniteID</title>
+    <script src="/static/tier-gates.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -46,6 +47,8 @@
         }
         .tier-free { background: #fff3e0; color: #e67e22; }
         .tier-premium { background: #e8f5e9; color: var(--deep-green); }
+        .tier-expert  { background: #e3f2fd; color: #1565c0; }
+        .tier-admin   { background: #fce4ec; color: #c62828; }
         .info-row {
             display: flex; justify-content: space-between; align-items: center;
             padding: 12px 0; border-bottom: 1px solid #f0f0f0;
@@ -329,8 +332,10 @@
                 const tier = (data.tier || 'FREE').toUpperCase();
                 localStorage.setItem('ammonite_tier', tier);
                 const badge = document.getElementById('tierBadge');
-                badge.textContent = tier === 'PREMIUM' ? '⭐ Premium' : '👤 Free';
-                badge.className = 'tier-badge ' + (tier === 'PREMIUM' ? 'tier-premium' : 'tier-free');
+                const tierLabels = {'FREE':'👤 Free','PREMIUM':'⭐ Premium','EXPERT':'🔬 Expert','ADMIN':'🛡️ Admin'};
+                badge.textContent = tierLabels[tier] || '👤 Free';
+                const tierClasses = {'FREE':'tier-free','PREMIUM':'tier-premium','EXPERT':'tier-expert','ADMIN':'tier-admin'};
+                badge.className = 'tier-badge ' + (tierClasses[tier] || 'tier-free');
                 if (tier === 'PREMIUM') {
                     document.getElementById('premiumInfo').style.display = 'block';
                     document.getElementById('premiumExpiry').textContent =
@@ -396,8 +401,6 @@
     }
 
     async function handleLogout() {
-        localStorage.removeItem('admin_uid');
-        localStorage.removeItem('admin_token');
         localStorage.removeItem('ammonite_user_id');
         localStorage.removeItem('ammonite_tier');
         await signOut(auth);
@@ -445,7 +448,7 @@
                     const href = link.getAttribute('href') || '';
                     // My Fossil Collection: padlock for FREE
                     if (href.includes('mylog')) {
-                        if (tier !== 'PREMIUM') {
+                        if (!tierAtLeast(tier, 'PREMIUM')) {
                             link.innerHTML = link.innerHTML.replace(' 🔒','') + ' 🔒';
                             link.onclick = function(e) {
                                 e.preventDefault();
@@ -468,7 +471,7 @@
                 // Mobile menu links
                 document.querySelectorAll('.mobile-menu a').forEach(link => {
                     const href = link.getAttribute('href') || '';
-                    if (href.includes('mylog') && tier !== 'PREMIUM') {
+                    if (href.includes('mylog') && !tierAtLeast(tier, 'PREMIUM')) {
                         link.innerHTML = link.innerHTML.replace(' 🔒','') + ' 🔒';
                         link.onclick = function(e) { e.preventDefault(); showUpgradeNudge(); };
                     }
