@@ -1410,6 +1410,14 @@
                     container.innerHTML = '<p style="color:#999;text-align:center;padding:20px;">No users yet</p>';
                     return;
                 }
+                const TIER_COLORS = {
+                    'FREE':    { bg:'#fff3e0', color:'#e67e22' },
+                    'PREMIUM': { bg:'#e8f5e9', color:'#2c5f2d' },
+                    'EXPERT':  { bg:'#e3f2fd', color:'#1565c0' },
+                    'ADMIN':   { bg:'#fce4ec', color:'#c62828' },
+                };
+                const PERMANENT_ADMIN = '16fjKKd4XPOD8PMZhGQSHmSAdPO2';
+
                 container.innerHTML = `
                     <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
                         <thead>
@@ -1418,27 +1426,38 @@
                                 <th style="padding:10px;">Display Name</th>
                                 <th style="padding:10px;">Tier</th>
                                 <th style="padding:10px;">Created</th>
-                                <th style="padding:10px;">Actions</th>
+                                <th style="padding:10px;">Change Tier</th>
                             </tr>
                         </thead>
                         <tbody>
-                            ${users.map(u => `
-                            <tr style="border-bottom:1px solid #eee;" id="userrow-${u.uid}">
-                                <td style="padding:10px;">${u.email || '—'}</td>
-                                <td style="padding:10px;">${u.display_name || '—'}</td>
-                                <td style="padding:10px;">
-                                    <span id="tier-${u.uid}" style="padding:4px 10px;border-radius:20px;font-size:0.8rem;font-weight:bold;background:${u.tier === 'PREMIUM' ? '#e8f5e9' : '#fff3e0'};color:${u.tier === 'PREMIUM' ? '#2c5f2d' : '#e67e22'};">
-                                        ${u.tier || 'FREE'}
-                                    </span>
-                                </td>
-                                <td style="padding:10px;color:#999;font-size:0.85rem;">${u.created_at ? u.created_at.split('T')[0] : '—'}</td>
-                                <td style="padding:10px;">
-                                    ${u.tier === 'PREMIUM'
-                                        ? `<button onclick="changeUserTier('${u.uid}', 'FREE')" style="padding:5px 12px;background:#ffebee;color:#c62828;border:none;border-radius:4px;cursor:pointer;font-size:0.85rem;">↓ Set FREE</button>`
-                                        : `<button onclick="changeUserTier('${u.uid}', 'PREMIUM')" style="padding:5px 12px;background:#e8f5e9;color:#2c5f2d;border:none;border-radius:4px;cursor:pointer;font-size:0.85rem;">⭐ Set PREMIUM</button>`
-                                    }
-                                </td>
-                            </tr>`).join('')}
+                            ${users.map(u => {
+                                const t = u.tier || 'FREE';
+                                const style = TIER_COLORS[t] || TIER_COLORS['FREE'];
+                                const isPermanentAdmin = u.uid === PERMANENT_ADMIN;
+                                return `
+                                <tr style="border-bottom:1px solid #eee;" id="userrow-${u.uid}">
+                                    <td style="padding:10px;">${u.email || '—'}</td>
+                                    <td style="padding:10px;">${u.display_name || '—'}</td>
+                                    <td style="padding:10px;">
+                                        <span id="tier-${u.uid}" style="padding:4px 10px;border-radius:20px;font-size:0.8rem;font-weight:bold;background:${style.bg};color:${style.color};">
+                                            ${t}
+                                        </span>
+                                    </td>
+                                    <td style="padding:10px;color:#999;font-size:0.85rem;">${u.created_at ? u.created_at.split('T')[0] : '—'}</td>
+                                    <td style="padding:10px;">
+                                        ${isPermanentAdmin
+                                            ? `<span style="color:#999;font-size:0.8rem;">🔒 Permanent Admin</span>`
+                                            : `<select onchange="changeUserTier('${u.uid}', this.value)" style="padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:0.85rem;cursor:pointer;">
+                                                <option value="" disabled selected>Change tier...</option>
+                                                <option value="FREE"    ${t==='FREE'    ? 'disabled' : ''}>→ FREE</option>
+                                                <option value="PREMIUM" ${t==='PREMIUM' ? 'disabled' : ''}>→ PREMIUM</option>
+                                                <option value="EXPERT"  ${t==='EXPERT'  ? 'disabled' : ''}>→ EXPERT</option>
+                                                <option value="ADMIN"   ${t==='ADMIN'   ? 'disabled' : ''}>→ ADMIN</option>
+                                               </select>`
+                                        }
+                                    </td>
+                                </tr>`;
+                            }).join('')}
                         </tbody>
                     </table>`;
             } catch (e) {
@@ -1447,19 +1466,31 @@
         }
 
         async function changeUserTier(uid, newTier) {
+            if (!newTier) return;
+            const TIER_COLORS = {
+                'FREE':    { bg:'#fff3e0', color:'#e67e22' },
+                'PREMIUM': { bg:'#e8f5e9', color:'#2c5f2d' },
+                'EXPERT':  { bg:'#e3f2fd', color:'#1565c0' },
+                'ADMIN':   { bg:'#fce4ec', color:'#c62828' },
+            };
             try {
-                const res = await fetch(`/api/auth/set-tier/${uid}?tier=${newTier}`, { method: 'POST' });
-                if (!res.ok) throw new Error('Failed');
-                // Update row visually
-                const tierBadge = document.getElementById(`tier-${uid}`);
-                const row = document.getElementById(`userrow-${uid}`);
-                if (tierBadge) {
-                    tierBadge.textContent = newTier;
-                    tierBadge.style.background = newTier === 'PREMIUM' ? '#e8f5e9' : '#fff3e0';
-                    tierBadge.style.color = newTier === 'PREMIUM' ? '#2c5f2d' : '#e67e22';
+                const res = await fetch(`/api/admin/users/${uid}/tier`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tier: newTier })
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.detail || 'Failed');
                 }
-                // Reload to refresh action buttons
-                setTimeout(loadUserList, 500);
+                const tierBadge = document.getElementById(`tier-${uid}`);
+                if (tierBadge) {
+                    const style = TIER_COLORS[newTier] || TIER_COLORS['FREE'];
+                    tierBadge.textContent = newTier;
+                    tierBadge.style.background = style.bg;
+                    tierBadge.style.color = style.color;
+                }
+                setTimeout(loadUserList, 800);
             } catch (e) {
                 alert('Error changing tier: ' + e.message);
             }
