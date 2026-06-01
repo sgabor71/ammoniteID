@@ -664,16 +664,22 @@
         function deleteSelected() {
             if (selectedIds.size === 0) return;
             if (!confirm('Delete ' + selectedIds.size + ' selected fossil' + (selectedIds.size>1?'s':'') + '? This cannot be undone.')) return;
+            const toDelete = [...selectedIds];
             fossilData = fossilData.filter(f => !selectedIds.has(f.id));
             filteredData = filteredData.filter(f => !selectedIds.has(f.id));
             selectedIds.clear(); expandedRow = null;
             saveFossilsToStorage(); updateBulkBar(); renderData(); updateStats();
+            // Delete from DB
+            toDelete.forEach(id => fetch(`/api/collection/${id}`, {method:'DELETE'}).catch(()=>{}));
         }
         function deleteAll() {
             if (fossilData.length === 0) return;
             if (!confirm('Delete ALL ' + fossilData.length + ' fossils? This cannot be undone.')) return;
+            const uid = localStorage.getItem('ammonite_user_id');
             fossilData = []; filteredData = []; selectedIds.clear(); expandedRow = null;
             saveFossilsToStorage(); updateBulkBar(); renderData(); updateStats();
+            // Delete all from DB
+            if (uid) fetch(`/api/collection/${uid}/all`, {method:'DELETE'}).catch(()=>{});
         }
         function toggleCardExpand(id, btn) {
             expandedRow = expandedRow === id ? null : id;
@@ -683,6 +689,45 @@
         }
         function loadFossilsFromStorage() { const stored = localStorage.getItem('ammoniteMyLogs'); fossilData = stored ? JSON.parse(stored) : []; filteredData = [...fossilData]; }
         function saveFossilsToStorage() { localStorage.setItem('ammoniteMyLogs', JSON.stringify(fossilData)); }
+
+        // Load from DB and merge with localStorage (no duplicates)
+        async function loadAndMergeFossils(uid) {
+            loadFossilsFromStorage(); // load local first for instant display
+            try {
+                const res = await fetch(`/api/collection/${uid}`);
+                if (!res.ok) return;
+                const data = await res.json();
+                const dbFossils = data.fossils || [];
+
+                // Merge: DB is source of truth, add any local-only entries
+                const dbIds = new Set(dbFossils.map(f => f.id));
+                const localOnly = fossilData.filter(f => !dbIds.has(String(f.id)));
+
+                // Convert DB format to match local format
+                const converted = dbFossils.map(f => ({
+                    id: f.id,
+                    date: f.date,
+                    family: f.family,
+                    genus: f.genus,
+                    family_label: f.family_label || '',
+                    confidence: f.confidence || 0,
+                    photos: f.photos || [],
+                    genusBreakdown: f.genus_breakdown || [],
+                    scenario: f.scenario || '',
+                    notes: f.notes || '',
+                    favorite: false,
+                    source: 'db'
+                }));
+
+                fossilData = [...converted, ...localOnly];
+                filteredData = [...fossilData];
+                saveFossilsToStorage();
+                renderData();
+                updateStats();
+            } catch(e) {
+                console.warn('DB load failed, using localStorage:', e.message);
+            }
+        }
         function populateFilters() {
             const families = [...new Set(fossilData.map(f => f.family))].sort();
             const genera = [...new Set(fossilData.map(f => f.genus))].sort();
@@ -964,7 +1009,7 @@
                 if (authButtons) authButtons.innerHTML = `<a href="/static/my-account.html" class="btn-outline" style="font-size:0.95rem;padding:0.5rem 1rem;">👤 My Account</a><button class="btn-outline" style="font-size:0.9rem;padding:0.5rem 1rem;" onclick="handleLogout()">🚪 Log Out</button>`;
                 if (mobileAuthLinks) mobileAuthLinks.innerHTML = `<a href="/static/my-account.html">👤 My Account</a><button onclick="handleLogout()">🚪 Log Out</button>`;
 
-                // Check tier — redirect FREE users to upgrade page
+                // Check tier — PREMIUM+ required (PREMIUM, EXPERT, ADMIN)
                 try {
                     let res = await fetch(`/api/auth/me/${user.uid}`);
                     if (res.status === 404) {
@@ -975,22 +1020,34 @@
                     const data = await res.json();
                     const tier = (data.tier || 'FREE').toUpperCase();
                     localStorage.setItem('ammonite_tier', tier);
+
+                    // Redirect FREE users to upgrade
                     if (!tierAtLeast(tier, 'PREMIUM')) {
                         window.location.href = '/static/upgrade.html';
                         return;
                     }
-                    // PREMIUM: load collection
+
+                    // PREMIUM+: load collection from DB first, merge with localStorage
+                    await loadAndMergeFossils(user.uid);
+                    populateFilters();
+                    renderData();
+                    updateStats();
+
+                } catch (e) {
+                    console.error('Tier check error:', e);
+                    // Fallback to localStorage if API fails
+                    const cachedTier = (localStorage.getItem('ammonite_tier') || 'FREE').toUpperCase();
+                    if (!tierAtLeast(cachedTier, 'PREMIUM')) {
+                        window.location.href = '/static/upgrade.html';
+                        return;
+                    }
                     loadFossilsFromStorage();
                     populateFilters();
                     renderData();
                     updateStats();
-                } catch (e) {
-                    console.error('Tier check error:', e);
-                    window.location.href = '/static/upgrade.html';
                 }
             } else {
                 localStorage.removeItem('ammonite_user_id');
-                // Not logged in: redirect to login
                 window.location.href = '/static/login.html';
             }
         });
@@ -1022,7 +1079,7 @@
                     const href = link.getAttribute('href') || '';
                     // My Fossil Collection: padlock for FREE
                     if (href.includes('mylog')) {
-                        if (!tierAtLeast(tier, 'PREMIUM')) {
+                        if (tier !== 'PREMIUM') {
                             link.innerHTML = link.innerHTML.replace(' 🔒','') + ' 🔒';
                             link.onclick = function(e) {
                                 e.preventDefault();
@@ -1045,7 +1102,7 @@
                 // Mobile menu links
                 document.querySelectorAll('.mobile-menu a').forEach(link => {
                     const href = link.getAttribute('href') || '';
-                    if (href.includes('mylog') && !tierAtLeast(tier, 'PREMIUM')) {
+                    if (href.includes('mylog') && tier !== 'PREMIUM') {
                         link.innerHTML = link.innerHTML.replace(' 🔒','') + ' 🔒';
                         link.onclick = function(e) { e.preventDefault(); showUpgradeNudge(); };
                     }
@@ -1109,6 +1166,5 @@
             window.addEventListener('storage', () => setTimeout(applyPadlocks, 300));
         })();
     </script>
-
 </body>
 </html>
