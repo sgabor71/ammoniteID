@@ -934,7 +934,7 @@
             }
         });
 
-        window.handleLogout = async function() { try { localStorage.removeItem('admin_uid'); localStorage.removeItem('admin_token'); await signOut(auth); window.location.reload(); } catch (error) { alert('Error logging out.'); } };
+        window.handleLogout = async function() { try { await signOut(auth); window.location.reload(); } catch (error) { alert('Error logging out.'); } };
     </script>
 
     <script async>
@@ -1048,7 +1048,7 @@
                     const href = link.getAttribute('href') || '';
                     // My Fossil Collection: padlock for FREE
                     if (href.includes('mylog')) {
-                        if (tier !== 'PREMIUM') {
+                        if (!tierAtLeast(tier, 'PREMIUM')) {
                             link.innerHTML = link.innerHTML.replace(' 🔒','') + ' 🔒';
                             link.onclick = function(e) {
                                 e.preventDefault();
@@ -1071,7 +1071,7 @@
                 // Mobile menu links
                 document.querySelectorAll('.mobile-menu a').forEach(link => {
                     const href = link.getAttribute('href') || '';
-                    if (href.includes('mylog') && tier !== 'PREMIUM') {
+                    if (href.includes('mylog') && !tierAtLeast(tier, 'PREMIUM')) {
                         link.innerHTML = link.innerHTML.replace(' 🔒','') + ' 🔒';
                         link.onclick = function(e) { e.preventDefault(); showUpgradeNudge(); };
                     }
@@ -1135,5 +1135,6 @@
             window.addEventListener('storage', () => setTimeout(applyPadlocks, 300));
         })();
     </script>
+<script src="/static/tier-gates.js"></script>
 </body>
 </html>
