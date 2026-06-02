@@ -470,9 +470,7 @@
                 console.warn('Sync failed (non-fatal):', e.message);
             }
             localStorage.setItem('ammonite_user_id', uid);
-            // Fetch real tier from DB (ensures admin/expert gets correct tier)
-            await refreshTierAndApplyNav(uid);
-        }
+           
 
         // ── Login ─────────────────────────────────────────────
         async function handleLogin() {
