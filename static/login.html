@@ -135,6 +135,9 @@
         }
         .password-wrapper input {
             padding-right: 44px;
+            font-size: 16px !important;
+            -webkit-user-select: text !important;
+            user-select: text !important;
         }
         input:focus {
             outline: none;
@@ -364,7 +367,7 @@
             <div class="form-group">
                 <label for="loginPassword">Password</label>
                 <div class="password-wrapper">
-                    <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+                    <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" style="font-size:16px;" onclick="this.focus()">
                     <button type="button" class="toggle-pwd" id="toggleLoginPwd">👁️</button>
                 </div>
             </div>
@@ -382,7 +385,7 @@
             <div class="form-group">
                 <label for="signupPassword">Password</label>
                 <div class="password-wrapper">
-                    <input type="password" id="signupPassword" placeholder="••••••••" autocomplete="new-password">
+                    <input type="password" id="signupPassword" placeholder="••••••••" autocomplete="new-password" style="font-size:16px;" onclick="this.focus()">
                     <button type="button" class="toggle-pwd" id="toggleSignupPwd">👁️</button>
                 </div>
             </div>
@@ -390,7 +393,7 @@
             <div class="form-group">
                 <label for="signupConfirm">Confirm Password</label>
                 <div class="password-wrapper">
-                    <input type="password" id="signupConfirm" placeholder="••••••••" autocomplete="new-password">
+                    <input type="password" id="signupConfirm" placeholder="••••••••" autocomplete="new-password" style="font-size:16px;" onclick="this.focus()">
                     <button type="button" class="toggle-pwd" id="toggleConfirmPwd">👁️</button>
                 </div>
             </div>
@@ -467,7 +470,8 @@
                 console.warn('Sync failed (non-fatal):', e.message);
             }
             localStorage.setItem('ammonite_user_id', uid);
- 
+            // Fetch real tier from DB (ensures admin/expert gets correct tier)
+            await refreshTierAndApplyNav(uid);
         }
 
         // ── Login ─────────────────────────────────────────────
