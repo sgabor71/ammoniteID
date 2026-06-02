@@ -1,23 +1,37 @@
 // ============================================================
 // service-worker.js — AmmoniteID PWA Service Worker
-// Caches app pages and assets for offline use
+// v2 — forces mobile to re-cache all updated files
 // ============================================================
 
-const CACHE_NAME = 'ammoniteid-v1';
+const CACHE_NAME = 'ammoniteid-v2';   // ← bumped to force fresh cache on all devices
+
 const CORE_ASSETS = [
+    // ── Pages ──────────────────────────────────────────────
     '/static/home.html',
     '/static/test.html',
+    '/static/mylog.html',
+    '/static/upgrade.html',
+    '/static/upgrade-success.html',
+    '/static/login.html',
+    '/static/my-account.html',
+    '/static/admin.html',
+    '/static/review.html',
     '/static/about.html',
     '/static/contact.html',
     '/static/partners.html',
-    '/static/mylog.html',
-    '/static/upgrade.html',
     '/static/terms.html',
     '/static/privacy.html',
     '/static/disclaimer.html',
+
+    // ── Shared JS ──────────────────────────────────────────
+    '/static/tier-gates.js',          // ← NEW: must be cached for offline nav to work
+    '/static/hamburger-menu.js',
+    '/static/responsive-mobile.css',
     '/static/auth-sync.js',
     '/static/feature-gate.js',
     '/static/offline-engine.js',
+
+    // ── Data ───────────────────────────────────────────────
     '/static/class_info.json',
 ];
 
@@ -25,41 +39,50 @@ const CORE_ASSETS = [
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
-            console.log('SW: caching core assets');
+            console.log('SW v2: caching core assets');
             return cache.addAll(CORE_ASSETS).catch(err => {
-                console.warn('SW: some assets failed to cache', err);
+                console.warn('SW v2: some assets failed to cache', err);
             });
         })
     );
+    // Take over immediately — don't wait for old tabs to close
     self.skipWaiting();
 });
 
-// ── Activate: clean old caches ──────────────────────────────
+// ── Activate: delete old caches (v1 and any others) ─────────
 self.addEventListener('activate', event => {
     event.waitUntil(
         caches.keys().then(keys =>
             Promise.all(
-                keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+                keys
+                    .filter(k => k !== CACHE_NAME)
+                    .map(k => {
+                        console.log('SW v2: deleting old cache', k);
+                        return caches.delete(k);
+                    })
             )
         )
     );
+    // Take control of all open pages immediately
     self.clients.claim();
 });
 
-// ── Fetch: serve from cache when offline ────────────────────
+// ── Fetch: network first, fall back to cache ─────────────────
 self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
 
-    // Don't cache API calls or POST requests
+    // Never intercept API calls or POST requests
     if (event.request.method !== 'GET') return;
     if (url.pathname.startsWith('/api/')) return;
     if (url.pathname.startsWith('/identify')) return;
+    if (url.pathname.startsWith('/photo/')) return;
+    if (url.pathname.startsWith('/queue')) return;
 
     event.respondWith(
-        // Try network first, fall back to cache
+        // Always try network first — gets latest deployed files
         fetch(event.request)
             .then(response => {
-                // Cache successful responses
+                // Cache fresh responses
                 if (response.ok) {
                     const clone = response.clone();
                     caches.open(CACHE_NAME).then(cache => {
@@ -73,7 +96,7 @@ self.addEventListener('fetch', event => {
                 return caches.match(event.request).then(cached => {
                     if (cached) return cached;
 
-                    // If requesting a page and it's not cached, show offline page
+                    // Offline HTML fallback → home page
                     if (event.request.headers.get('accept') &&
                         event.request.headers.get('accept').includes('text/html')) {
                         return caches.match('/static/home.html');
