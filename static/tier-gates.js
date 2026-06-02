@@ -1,6 +1,6 @@
 // ============================================================
 // tier-gates.js — Shared tier logic for AmmoniteID
-// Include on every page: <script src="/static/tier-gates.js"></script>
+// Include in <head> on EVERY page
 // ============================================================
 
 const TIER_LEVELS = { 'FREE': 0, 'PREMIUM': 1, 'EXPERT': 2, 'ADMIN': 3 };
@@ -21,88 +21,92 @@ function getTierBadgeStyle(tier) {
 }
 
 /**
- * Fetch tier from DB and cache in localStorage.
- * DB is always the source of truth.
- * Returns tier string: FREE, PREMIUM, EXPERT, ADMIN
+ * Fetch tier from DB, cache in localStorage, then apply nav.
+ * Call this from EVERY page's onAuthStateChanged when user is logged in.
+ * This is the single source of truth for tier on all pages.
  */
-async function fetchAndCacheTier(uid) {
-    if (!uid) return 'FREE';
-    // Permanent admin shortcut
+async function refreshTierAndApplyNav(uid) {
+    if (!uid) {
+        applyNavForTier('FREE');
+        return 'FREE';
+    }
+
+    let tier = 'FREE';
+
+    // Permanent admin always ADMIN — no API call needed
     if (uid === PERMANENT_ADMIN_UID) {
+        tier = 'ADMIN';
         localStorage.setItem('ammonite_tier', 'ADMIN');
+        localStorage.setItem('ammonite_user_id', uid);
+        applyNavForTier('ADMIN');
         return 'ADMIN';
     }
+
     try {
         const res = await fetch(`/api/auth/me/${uid}`);
         if (res.ok) {
             const data = await res.json();
-            const tier = (data.tier || 'FREE').toUpperCase();
+            tier = (data.tier || 'FREE').toUpperCase();
             localStorage.setItem('ammonite_tier', tier);
             localStorage.setItem('ammonite_user_id', uid);
-            return tier;
+        } else {
+            // Fallback to cache
+            tier = (localStorage.getItem('ammonite_tier') || 'FREE').toUpperCase();
         }
     } catch (e) {
+        // Fallback to cache if offline/error
+        tier = (localStorage.getItem('ammonite_tier') || 'FREE').toUpperCase();
         console.warn('Tier fetch failed, using cache:', e.message);
     }
-    // Fallback to localStorage cache
-    return (localStorage.getItem('ammonite_tier') || 'FREE').toUpperCase();
+
+    applyNavForTier(tier);
+    return tier;
 }
 
 /**
- * Apply nav padlocks and show/hide nav links based on tier.
- * Call after tier is known.
+ * Apply nav padlocks based on tier.
+ * Removes stale padlocks before applying fresh ones.
  */
 function applyNavForTier(tier) {
-    const links = document.querySelectorAll('header nav a, .mobile-menu a');
+    const links = document.querySelectorAll('header nav a, .mobile-menu a, nav a');
 
     links.forEach(a => {
         const href = a.getAttribute('href') || '';
 
-        // My Fossil Collection — PREMIUM+
+        // ── My Fossil Collection — PREMIUM+ ──────────────────
         if (href.includes('mylog')) {
+            // Remove any existing padlock first
+            const existing = a.querySelector('.padlock');
+            if (existing) existing.remove();
+
             if (!tierAtLeast(tier, 'PREMIUM')) {
-                if (!a.querySelector('.padlock')) {
-                    a.insertAdjacentHTML('beforeend', ' <span class="padlock">🔒</span>');
-                }
-                a.addEventListener('click', e => {
-                    e.preventDefault();
-                    showUpgradeModal('upgrade');
-                }, { once: false });
-            } else {
-                const p = a.querySelector('.padlock');
-                if (p) p.remove();
-            }
-        }
-
-        // Identify — requires login
-        if (href.includes('test.html') && !localStorage.getItem('ammonite_user_id')) {
-            if (!a.querySelector('.padlock')) {
                 a.insertAdjacentHTML('beforeend', ' <span class="padlock">🔒</span>');
+                // Replace link with upgrade redirect
+                const clone = a.cloneNode(true);
+                clone.addEventListener('click', e => {
+                    e.preventDefault();
+                    if (confirm('This feature requires Premium. Upgrade now?')) {
+                        window.location.href = '/static/upgrade.html';
+                    }
+                });
+                a.parentNode.replaceChild(clone, a);
             }
         }
 
-        // Review — EXPERT+
+        // ── Review — EXPERT+ ──────────────────────────────────
         if (href.includes('review')) {
-            if (!tierAtLeast(tier, 'EXPERT')) {
-                a.style.display = 'none';
-            } else {
-                a.style.display = '';
-            }
+            a.style.display = tierAtLeast(tier, 'EXPERT') ? '' : 'none';
         }
 
-        // Admin — ADMIN only
+        // ── Admin — ADMIN only ────────────────────────────────
         if (href.includes('admin.html')) {
-            if (tier !== 'ADMIN') {
-                a.style.display = 'none';
-            } else {
-                a.style.display = '';
-            }
+            a.style.display = (tier === 'ADMIN') ? '' : 'none';
         }
     });
 }
 
 /**
- * Show upgrade or login modal.
+ * Show upgrade modal.
  */
 function showUpgradeModal(type) {
     if (type === 'upgrade') {
@@ -118,7 +122,6 @@ function showUpgradeModal(type) {
 
 /**
  * Redirect if tier is insufficient.
- * Call on protected pages after auth check.
  */
 function requireTier(currentTier, minTier, redirectTo) {
     if (!tierAtLeast(currentTier, minTier)) {
@@ -126,4 +129,12 @@ function requireTier(currentTier, minTier, redirectTo) {
         return false;
     }
     return true;
+}
+
+/**
+ * Legacy alias — keep backward compat with pages
+ * that call fetchAndCacheTier directly.
+ */
+async function fetchAndCacheTier(uid) {
+    return await refreshTierAndApplyNav(uid);
 }
