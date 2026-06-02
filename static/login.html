@@ -361,14 +361,14 @@
         <div id="login" class="tab-content active">
             <div class="form-group">
                 <label for="loginEmail">Email</label>
-                <input type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email">
+                <input type="email" id="loginEmail" name="loginEmail" placeholder="your@email.com" autocomplete="email">
             </div>
 
             <div class="form-group">
                 <label for="loginPassword">Password</label>
                 <div class="password-wrapper">
-                    <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
-                    <button type="button" class="toggle-pwd" id="toggleLoginPwd">👁️</button>
+                    <input type="password" id="loginPassword" name="loginPassword" placeholder="••••••••" autocomplete="current-password">
+                    <button type="button" class="toggle-pwd" id="toggleLoginPwd" tabindex="-1" onmousedown="event.preventDefault()">👁️</button>
                 </div>
             </div>
 
@@ -379,22 +379,22 @@
         <div id="signup" class="tab-content">
             <div class="form-group">
                 <label for="signupEmail">Email</label>
-                <input type="email" id="signupEmail" placeholder="your@email.com" autocomplete="email">
+                <input type="email" id="signupEmail" name="signupEmail" placeholder="your@email.com" autocomplete="email">
             </div>
 
             <div class="form-group">
                 <label for="signupPassword">Password</label>
                 <div class="password-wrapper">
-                    <input type="password" id="signupPassword" placeholder="••••••••" autocomplete="new-password">
-                    <button type="button" class="toggle-pwd" id="toggleSignupPwd">👁️</button>
+                    <input type="password" id="signupPassword" name="signupPassword" placeholder="••••••••" autocomplete="new-password">
+                    <button type="button" class="toggle-pwd" id="toggleSignupPwd" tabindex="-1" onmousedown="event.preventDefault()">👁️</button>
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="signupConfirm">Confirm Password</label>
                 <div class="password-wrapper">
-                    <input type="password" id="signupConfirm" placeholder="••••••••" autocomplete="new-password">
-                    <button type="button" class="toggle-pwd" id="toggleConfirmPwd">👁️</button>
+                    <input type="password" id="signupConfirm" name="signupConfirm" placeholder="••••••••" autocomplete="new-password">
+                    <button type="button" class="toggle-pwd" id="toggleConfirmPwd" tabindex="-1" onmousedown="event.preventDefault()">👁️</button>
                 </div>
             </div>
 
