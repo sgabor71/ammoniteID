@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Log In / Sign Up — AmmoniteID</title>
     <link rel="stylesheet" href="/static/responsive-mobile.css">
     <style>
@@ -156,6 +156,7 @@
             color: #999;
             padding: 0;
             width: auto;
+            z-index: 2;
         }
         .toggle-pwd:hover { color: #333; }
         .btn {
@@ -238,7 +239,6 @@
         .back-link a:hover {
             text-decoration: underline;
         }
-
 
         /* Mobile keyboard fix */
         input[type="email"],
@@ -368,7 +368,7 @@
                 <label for="loginPassword">Password</label>
                 <div class="password-wrapper">
                     <input type="password" id="loginPassword" name="loginPassword" placeholder="••••••••" autocomplete="current-password">
-                    <button type="button" class="toggle-pwd" id="toggleLoginPwd" tabindex="-1" onmousedown="event.preventDefault()">👁️</button>
+                    <button type="button" class="toggle-pwd" id="toggleLoginPwd" tabindex="-1">👁️</button>
                 </div>
             </div>
 
@@ -386,7 +386,7 @@
                 <label for="signupPassword">Password</label>
                 <div class="password-wrapper">
                     <input type="password" id="signupPassword" name="signupPassword" placeholder="••••••••" autocomplete="new-password">
-                    <button type="button" class="toggle-pwd" id="toggleSignupPwd" tabindex="-1" onmousedown="event.preventDefault()">👁️</button>
+                    <button type="button" class="toggle-pwd" id="toggleSignupPwd" tabindex="-1">👁️</button>
                 </div>
             </div>
 
@@ -394,7 +394,7 @@
                 <label for="signupConfirm">Confirm Password</label>
                 <div class="password-wrapper">
                     <input type="password" id="signupConfirm" name="signupConfirm" placeholder="••••••••" autocomplete="new-password">
-                    <button type="button" class="toggle-pwd" id="toggleConfirmPwd" tabindex="-1" onmousedown="event.preventDefault()">👁️</button>
+                    <button type="button" class="toggle-pwd" id="toggleConfirmPwd" tabindex="-1">👁️</button>
                 </div>
             </div>
 
@@ -470,7 +470,6 @@
                 console.warn('Sync failed (non-fatal):', e.message);
             }
             localStorage.setItem('ammonite_user_id', uid);
-           
         }
 
         // ── Login ─────────────────────────────────────────────
