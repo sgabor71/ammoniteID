@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Login</title>
+</head>
+<body style="padding: 40px; font-family: Arial;">
+    <h2>Test Password Field</h2>
+    
+    <div>
+        <label>Email:</label><br>
+        <input type="email" id="email" style="width: 100%; padding: 12px; font-size: 16px;">
+    </div>
+    
+    <div style="margin-top: 20px;">
+        <label>Password:</label><br>
+        <input type="password" id="password" style="width: 100%; padding: 12px; font-size: 16px;">
+    </div>
+    
+    <button id="loginBtn" style="margin-top: 20px; padding: 12px 24px;">Log In</button>
+    
+    <script>
+        document.getElementById('loginBtn').onclick = function() {
+            alert('Email: ' + document.getElementById('email').value);
+        };
+    </script>
+</body>
+</html>
