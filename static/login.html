@@ -132,6 +132,7 @@
             font-size: 1rem;
             font-family: Arial, sans-serif;
             transition: border-color 0.3s;
+            -webkit-appearance: none;
         }
         .password-wrapper input {
             padding-right: 44px;
@@ -244,12 +245,13 @@
         input[type="email"],
         input[type="password"],
         input[type="text"] {
-            font-size: 16px !important;      /* prevents iOS zoom */
+            font-size: 16px !important;
             touch-action: manipulation;
             -webkit-user-select: text;
             user-select: text;
             cursor: text;
             -webkit-tap-highlight-color: rgba(44,95,45,0.1);
+            -webkit-appearance: none;
         }
 
         /* Google button */
@@ -361,14 +363,14 @@
         <div id="login" class="tab-content active">
             <div class="form-group">
                 <label for="loginEmail">Email</label>
-                <input type="email" id="loginEmail" name="loginEmail" placeholder="your@email.com" autocomplete="email">
+                <input type="email" id="loginEmail" name="loginEmail" placeholder="your@email.com" autocomplete="email" inputmode="email" enterkeyhint="next">
             </div>
 
             <div class="form-group">
                 <label for="loginPassword">Password</label>
                 <div class="password-wrapper">
-                    <input type="password" id="loginPassword" name="loginPassword" placeholder="••••••••" autocomplete="current-password">
-                    <button type="button" class="toggle-pwd" id="toggleLoginPwd" tabindex="-1">👁️</button>
+                    <input type="password" id="loginPassword" name="loginPassword" placeholder="••••••••" autocomplete="current-password" inputmode="text" enterkeyhint="done">
+                    <button type="button" class="toggle-pwd" id="toggleLoginPwd" tabindex="-1" onclick="togglePwd('loginPassword', this)">👁️</button>
                 </div>
             </div>
 
@@ -379,22 +381,22 @@
         <div id="signup" class="tab-content">
             <div class="form-group">
                 <label for="signupEmail">Email</label>
-                <input type="email" id="signupEmail" name="signupEmail" placeholder="your@email.com" autocomplete="email">
+                <input type="email" id="signupEmail" name="signupEmail" placeholder="your@email.com" autocomplete="email" inputmode="email" enterkeyhint="next">
             </div>
 
             <div class="form-group">
                 <label for="signupPassword">Password</label>
                 <div class="password-wrapper">
-                    <input type="password" id="signupPassword" name="signupPassword" placeholder="••••••••" autocomplete="new-password">
-                    <button type="button" class="toggle-pwd" id="toggleSignupPwd" tabindex="-1">👁️</button>
+                    <input type="password" id="signupPassword" name="signupPassword" placeholder="••••••••" autocomplete="new-password" inputmode="text" enterkeyhint="next">
+                    <button type="button" class="toggle-pwd" id="toggleSignupPwd" tabindex="-1" onclick="togglePwd('signupPassword', this)">👁️</button>
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="signupConfirm">Confirm Password</label>
                 <div class="password-wrapper">
-                    <input type="password" id="signupConfirm" name="signupConfirm" placeholder="••••••••" autocomplete="new-password">
-                    <button type="button" class="toggle-pwd" id="toggleConfirmPwd" tabindex="-1">👁️</button>
+                    <input type="password" id="signupConfirm" name="signupConfirm" placeholder="••••••••" autocomplete="new-password" inputmode="text" enterkeyhint="done">
+                    <button type="button" class="toggle-pwd" id="toggleConfirmPwd" tabindex="-1" onclick="togglePwd('signupConfirm', this)">👁️</button>
                 </div>
             </div>
 
@@ -447,6 +449,18 @@
             if (code.includes('user-disabled'))        return 'This account has been disabled.';
             if (code.includes('network-request-failed')) return 'Network error. Check your connection.';
             return 'Error: ' + code;
+        }
+
+        // ── Toggle password visibility (inline onclick) ──────
+        window.togglePwd = function(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                btn.textContent = '👁️';
+            }
         }
 
         // ── Sync user to backend (non-fatal, 5s timeout) ─────
@@ -521,13 +535,17 @@
             document.getElementById(tabName).classList.add('active');
             document.querySelector(`.tab-btn[data-tab="${tabName}"]`).classList.add('active');
             clearError();
-        }
-
-        // ── Toggle password visibility ────────────────────────
-        function togglePwd(inputId, btn) {
-            const input = document.getElementById(inputId);
-            input.type = input.type === 'password' ? 'text' : 'password';
-            btn.textContent = input.type === 'password' ? '👁️' : '🙈';
+            
+            // Focus helper for mobile - ensures keyboard opens
+            setTimeout(() => {
+                if (tabName === 'login') {
+                    const el = document.getElementById('loginEmail');
+                    if (el) el.focus();
+                } else if (tabName === 'signup') {
+                    const el = document.getElementById('signupEmail');
+                    if (el) el.focus();
+                }
+            }, 100);
         }
 
         // ── Wire up events ────────────────────────────────────
@@ -558,16 +576,19 @@
             btn.addEventListener('click', () => switchTab(btn.dataset.tab));
         });
 
-        document.getElementById('toggleLoginPwd').addEventListener('click',  e => togglePwd('loginPassword', e.currentTarget));
-        document.getElementById('toggleSignupPwd').addEventListener('click', e => togglePwd('signupPassword', e.currentTarget));
-        document.getElementById('toggleConfirmPwd').addEventListener('click',e => togglePwd('signupConfirm',  e.currentTarget));
-
+        // Enter key handlers
         ['loginEmail','loginPassword'].forEach(id =>
             document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); })
         );
         ['signupEmail','signupPassword','signupConfirm'].forEach(id =>
             document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') handleSignup(); })
         );
+        
+        // Initial focus helper for login email
+        setTimeout(() => {
+            const el = document.getElementById('loginEmail');
+            if (el) el.focus();
+        }, 200);
     </script>
 </body>
 </html>
