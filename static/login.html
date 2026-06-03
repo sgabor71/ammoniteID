@@ -283,6 +283,23 @@
             text-decoration: underline;
         }
 
+        /* Show/Hide Password Button */
+        .show-pwd-btn {
+            background: none;
+            border: none;
+            color: var(--deep-green);
+            font-size: 0.85rem;
+            margin-top: 6px;
+            cursor: pointer;
+            text-align: right;
+            width: 100%;
+            font-family: Arial, sans-serif;
+        }
+
+        .show-pwd-btn:hover {
+            text-decoration: underline;
+        }
+
         @media (max-width: 768px) {
             .container {
                 margin-top: 100px;
@@ -364,6 +381,7 @@
             <div class="form-group">
                 <label for="loginPassword">Password</label>
                 <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+                <button type="button" class="show-pwd-btn" onclick="togglePasswordVisibility('loginPassword', this)">👁️ Show</button>
             </div>
 
             <button class="btn" id="loginBtn">Log In</button>
@@ -379,11 +397,13 @@
             <div class="form-group">
                 <label for="signupPassword">Password</label>
                 <input type="password" id="signupPassword" placeholder="••••••••" autocomplete="new-password">
+                <button type="button" class="show-pwd-btn" onclick="togglePasswordVisibility('signupPassword', this)">👁️ Show</button>
             </div>
 
             <div class="form-group">
                 <label for="signupConfirm">Confirm Password</label>
                 <input type="password" id="signupConfirm" placeholder="••••••••" autocomplete="new-password">
+                <button type="button" class="show-pwd-btn" onclick="togglePasswordVisibility('signupConfirm', this)">👁️ Show</button>
             </div>
 
             <button class="btn" id="signupBtn">Create Account</button>
@@ -410,6 +430,18 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+
+        // Toggle password visibility (global function for inline onclick)
+        window.togglePasswordVisibility = function(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.innerHTML = '🙈 Hide';
+            } else {
+                input.type = 'password';
+                btn.innerHTML = '👁️ Show';
+            }
+        }
 
         // UI helpers
         function showError(msg) {
