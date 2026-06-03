@@ -4,10 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Log In / Sign Up — AmmoniteID</title>
-    <link rel="stylesheet" href="/static/responsive-mobile.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root { --deep-green: #2c5f2d; --accent: #e67e22; --light-bg: #f9f9f4; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --deep-green: #2c5f2d;
+            --accent: #e67e22;
+        }
+
         body {
             font-family: 'Georgia', serif;
             background: linear-gradient(135deg, var(--deep-green) 0%, #1e4620 100%);
@@ -17,7 +25,7 @@
             justify-content: center;
             padding: 20px;
         }
-        
+
         /* Navigation Header */
         header {
             position: fixed;
@@ -94,26 +102,25 @@
             width: 100%;
             margin-top: 80px;
         }
-        .logo {
-            text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-        }
+
         h1 {
             text-align: center;
             color: var(--deep-green);
             font-size: 1.8rem;
             margin-bottom: 10px;
         }
+
         .subtitle {
             text-align: center;
             color: #999;
             font-size: 0.9rem;
             margin-bottom: 30px;
         }
+
         .form-group {
             margin-bottom: 20px;
         }
+
         label {
             display: block;
             margin-bottom: 6px;
@@ -121,45 +128,25 @@
             font-weight: bold;
             font-size: 0.95rem;
         }
-        .password-wrapper {
-            position: relative;
-        }
+
         input {
             width: 100%;
-            padding: 12px 14px;
+            padding: 14px;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
-            font-size: 1rem;
+            font-size: 16px;
             font-family: Arial, sans-serif;
             transition: border-color 0.3s;
             -webkit-appearance: none;
+            appearance: none;
         }
-        .password-wrapper input {
-            padding-right: 44px;
-            font-size: 16px !important;
-            -webkit-user-select: text !important;
-            user-select: text !important;
-        }
+
         input:focus {
             outline: none;
             border-color: var(--deep-green);
             box-shadow: 0 0 0 3px rgba(44, 95, 45, 0.1);
         }
-        .toggle-pwd {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1.1rem;
-            color: #999;
-            padding: 0;
-            width: auto;
-            z-index: 2;
-        }
-        .toggle-pwd:hover { color: #333; }
+
         .btn {
             width: 100%;
             padding: 14px;
@@ -172,89 +159,16 @@
             cursor: pointer;
             transition: background 0.3s;
         }
+
         .btn:hover {
             background: #1e4620;
         }
+
         .btn:disabled {
             background: #ccc;
             cursor: not-allowed;
         }
-        .error {
-            background: #ffebee;
-            color: #c62828;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            display: none;
-        }
-        .spinner {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 0.8s linear infinite;
-            margin-right: 8px;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
-            border-bottom: 2px solid #e0e0e0;
-        }
-        .tab-btn {
-            flex: 1;
-            padding: 12px;
-            background: none;
-            border: none;
-            border-bottom: 3px solid transparent;
-            font-size: 1rem;
-            font-weight: bold;
-            color: #999;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .tab-btn.active {
-            color: var(--deep-green);
-            border-bottom-color: var(--deep-green);
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .back-link {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .back-link a {
-            color: var(--deep-green);
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .back-link a:hover {
-            text-decoration: underline;
-        }
 
-        /* Mobile keyboard fix */
-        input[type="email"],
-        input[type="password"],
-        input[type="text"] {
-            font-size: 16px !important;
-            touch-action: manipulation;
-            -webkit-user-select: text;
-            user-select: text;
-            cursor: text;
-            -webkit-tap-highlight-color: rgba(44,95,45,0.1);
-            -webkit-appearance: none;
-        }
-
-        /* Google button */
         .btn-google {
             width: 100%;
             padding: 12px;
@@ -273,11 +187,13 @@
             transition: all 0.3s;
             font-family: Arial, sans-serif;
         }
+
         .btn-google:hover {
             border-color: #4285F4;
-            box-shadow: 0 2px 8px rgba(66,133,244,0.2);
+            box-shadow: 0 2px 8px rgba(66, 133, 244, 0.2);
             background: #f8f9ff;
         }
+
         .divider {
             display: flex;
             align-items: center;
@@ -286,20 +202,97 @@
             color: #ccc;
             font-size: 0.9rem;
         }
-        .divider::before, .divider::after {
+
+        .divider::before,
+        .divider::after {
             content: '';
             flex: 1;
             height: 1px;
             background: #e0e0e0;
         }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            color: var(--deep-green);
+            border-bottom-color: var(--deep-green);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: var(--deep-green);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
         @media (max-width: 768px) {
             .container {
                 margin-top: 100px;
                 padding: 30px 20px;
             }
+
             .hamburger-btn {
                 display: flex;
             }
+
             header nav {
                 display: none;
                 width: 100%;
@@ -307,9 +300,11 @@
                 gap: 1rem;
                 padding: 1rem 0;
             }
+
             header nav.show {
                 display: flex;
             }
+
             header {
                 flex-direction: column;
                 align-items: flex-start;
@@ -353,7 +348,7 @@
         </button>
         <div class="divider">or</div>
 
-        <!-- Tabs: Login / Sign Up -->
+        <!-- Tabs -->
         <div class="tabs">
             <button class="tab-btn active" data-tab="login">Log In</button>
             <button class="tab-btn" data-tab="signup">Sign Up</button>
@@ -363,15 +358,12 @@
         <div id="login" class="tab-content active">
             <div class="form-group">
                 <label for="loginEmail">Email</label>
-                <input type="email" id="loginEmail" name="loginEmail" placeholder="your@email.com" autocomplete="email" inputmode="email" enterkeyhint="next">
+                <input type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email">
             </div>
 
             <div class="form-group">
                 <label for="loginPassword">Password</label>
-                <div class="password-wrapper">
-                    <input type="password" id="loginPassword" name="loginPassword" placeholder="••••••••" autocomplete="current-password" inputmode="text" enterkeyhint="done">
-                    <button type="button" class="toggle-pwd" id="toggleLoginPwd" tabindex="-1" onclick="togglePwd('loginPassword', this)">👁️</button>
-                </div>
+                <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
             </div>
 
             <button class="btn" id="loginBtn">Log In</button>
@@ -381,23 +373,17 @@
         <div id="signup" class="tab-content">
             <div class="form-group">
                 <label for="signupEmail">Email</label>
-                <input type="email" id="signupEmail" name="signupEmail" placeholder="your@email.com" autocomplete="email" inputmode="email" enterkeyhint="next">
+                <input type="email" id="signupEmail" placeholder="your@email.com" autocomplete="email">
             </div>
 
             <div class="form-group">
                 <label for="signupPassword">Password</label>
-                <div class="password-wrapper">
-                    <input type="password" id="signupPassword" name="signupPassword" placeholder="••••••••" autocomplete="new-password" inputmode="text" enterkeyhint="next">
-                    <button type="button" class="toggle-pwd" id="toggleSignupPwd" tabindex="-1" onclick="togglePwd('signupPassword', this)">👁️</button>
-                </div>
+                <input type="password" id="signupPassword" placeholder="••••••••" autocomplete="new-password">
             </div>
 
             <div class="form-group">
                 <label for="signupConfirm">Confirm Password</label>
-                <div class="password-wrapper">
-                    <input type="password" id="signupConfirm" name="signupConfirm" placeholder="••••••••" autocomplete="new-password" inputmode="text" enterkeyhint="done">
-                    <button type="button" class="toggle-pwd" id="toggleConfirmPwd" tabindex="-1" onclick="togglePwd('signupConfirm', this)">👁️</button>
-                </div>
+                <input type="password" id="signupConfirm" placeholder="••••••••" autocomplete="new-password">
             </div>
 
             <button class="btn" id="signupBtn">Create Account</button>
@@ -415,55 +401,49 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
                  GoogleAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
-        const app  = initializeApp({
-            apiKey:    "AIzaSyChXqOpXgpkLrn44mfIcPoTVPBk6neicBQ",
-            authDomain:"ammoniteid-f9d8e.firebaseapp.com",
+        const firebaseConfig = {
+            apiKey: "AIzaSyChXqOpXgpkLrn44mfIcPoTVPBk6neicBQ",
+            authDomain: "ammoniteid-f9d8e.firebaseapp.com",
             projectId: "ammoniteid-f9d8e",
-            appId:     "1:828376677091:web:e302f3ff538b78bc83e3d6"
-        });
+            appId: "1:828376677091:web:e302f3ff538b78bc83e3d6"
+        };
+
+        const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // ── UI helpers ───────────────────────────────────────
+        // UI helpers
         function showError(msg) {
             const el = document.getElementById('errorMsg');
             el.textContent = msg;
             el.style.display = 'block';
         }
+
         function clearError() {
             document.getElementById('errorMsg').style.display = 'none';
         }
+
         function setLoading(btnId, loading, label) {
             const btn = document.getElementById(btnId);
             btn.disabled = loading;
             btn.innerHTML = loading ? '<span class="spinner"></span>' + label : label;
         }
+
         function firebaseMsg(code) {
             if (!code) return 'Something went wrong. Try again.';
             if (code.includes('invalid-credential') || code.includes('invalid-login-credentials') ||
-                code.includes('user-not-found')     || code.includes('wrong-password'))
+                code.includes('user-not-found') || code.includes('wrong-password')) {
                 return 'Incorrect email or password.';
-            if (code.includes('invalid-email'))        return 'Invalid email address.';
+            }
+            if (code.includes('invalid-email')) return 'Invalid email address.';
             if (code.includes('email-already-in-use')) return 'Email already registered. Try logging in.';
-            if (code.includes('weak-password'))        return 'Password too weak (min 6 characters).';
-            if (code.includes('too-many-requests'))    return 'Too many attempts. Try again later.';
-            if (code.includes('user-disabled'))        return 'This account has been disabled.';
+            if (code.includes('weak-password')) return 'Password too weak (min 6 characters).';
+            if (code.includes('too-many-requests')) return 'Too many attempts. Try again later.';
+            if (code.includes('user-disabled')) return 'This account has been disabled.';
             if (code.includes('network-request-failed')) return 'Network error. Check your connection.';
             return 'Error: ' + code;
         }
 
-        // ── Toggle password visibility (inline onclick) ──────
-        window.togglePwd = function(inputId, btn) {
-            const input = document.getElementById(inputId);
-            if (input.type === 'password') {
-                input.type = 'text';
-                btn.textContent = '🙈';
-            } else {
-                input.type = 'password';
-                btn.textContent = '👁️';
-            }
-        }
-
-        // ── Sync user to backend (non-fatal, 5s timeout) ─────
+        // Sync user to backend
         async function syncUser(uid, email, displayName) {
             try {
                 const controller = new AbortController();
@@ -481,43 +461,58 @@
                     localStorage.setItem('ammonite_tier', tier);
                 }
             } catch (e) {
-                console.warn('Sync failed (non-fatal):', e.message);
+                console.warn('Sync failed:', e.message);
             }
             localStorage.setItem('ammonite_user_id', uid);
         }
 
-        // ── Login ─────────────────────────────────────────────
+        // Handle Login
         async function handleLogin() {
             const email = document.getElementById('loginEmail').value.trim();
-            const pwd   = document.getElementById('loginPassword').value;
-            if (!email || !pwd) { showError('Email and password required'); return; }
+            const pwd = document.getElementById('loginPassword').value;
+
+            if (!email || !pwd) {
+                showError('Email and password required');
+                return;
+            }
+
             clearError();
             setLoading('loginBtn', true, 'Logging in...');
-            console.log('Login attempt:', email);
+
             try {
-                console.log('Calling Firebase signInWithEmailAndPassword...');
                 const cred = await signInWithEmailAndPassword(auth, email, pwd);
-                console.log('Firebase auth success, uid:', cred.user.uid);
                 await syncUser(cred.user.uid, cred.user.email, cred.user.displayName || email.split('@')[0]);
-                console.log('Sync complete, redirecting...');
                 window.location.href = '/static/test.html';
             } catch (err) {
-                console.error('Login error:', err.code, err.message);
-                showError(firebaseMsg(err.code) + ' [' + (err.code || 'unknown') + ']');
+                showError(firebaseMsg(err.code));
                 setLoading('loginBtn', false, 'Log In');
             }
         }
 
-        // ── Signup ────────────────────────────────────────────
+        // Handle Signup
         async function handleSignup() {
-            const email   = document.getElementById('signupEmail').value.trim();
-            const pwd     = document.getElementById('signupPassword').value;
+            const email = document.getElementById('signupEmail').value.trim();
+            const pwd = document.getElementById('signupPassword').value;
             const confirm = document.getElementById('signupConfirm').value;
-            if (!email || !pwd || !confirm) { showError('All fields required'); return; }
-            if (pwd !== confirm)            { showError('Passwords do not match'); return; }
-            if (pwd.length < 6)             { showError('Password must be at least 6 characters'); return; }
+
+            if (!email || !pwd || !confirm) {
+                showError('All fields required');
+                return;
+            }
+
+            if (pwd !== confirm) {
+                showError('Passwords do not match');
+                return;
+            }
+
+            if (pwd.length < 6) {
+                showError('Password must be at least 6 characters');
+                return;
+            }
+
             clearError();
             setLoading('signupBtn', true, 'Creating account...');
+
             try {
                 const cred = await createUserWithEmailAndPassword(auth, email, pwd);
                 await syncUser(cred.user.uid, email, email.split('@')[0]);
@@ -528,36 +523,22 @@
             }
         }
 
-        // ── Tab switching ─────────────────────────────────────
+        // Tab switching
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(tabName).classList.add('active');
             document.querySelector(`.tab-btn[data-tab="${tabName}"]`).classList.add('active');
             clearError();
-            
-            // Focus helper for mobile - ensures keyboard opens
-            setTimeout(() => {
-                if (tabName === 'login') {
-                    const el = document.getElementById('loginEmail');
-                    if (el) el.focus();
-                } else if (tabName === 'signup') {
-                    const el = document.getElementById('signupEmail');
-                    if (el) el.focus();
-                }
-            }, 100);
         }
 
-        // ── Wire up events ────────────────────────────────────
-        document.getElementById('loginBtn').addEventListener('click', handleLogin);
-        document.getElementById('signupBtn').addEventListener('click', handleSignup);
-
-        // ── Google Sign In ────────────────────────────────────
+        // Google Sign In
         document.getElementById('googleBtn').addEventListener('click', async () => {
             clearError();
             const btn = document.getElementById('googleBtn');
             btn.disabled = true;
-            btn.innerHTML = '<span class="spinner" style="border-top-color:#4285F4;border-color:rgba(0,0,0,0.1);"></span> Signing in with Google...';
+            btn.innerHTML = '<span class="spinner"></span> Signing in with Google...';
+
             try {
                 const provider = new GoogleAuthProvider();
                 const cred = await signInWithPopup(auth, provider);
@@ -568,27 +549,35 @@
                     showError(firebaseMsg(err.code));
                 }
                 btn.disabled = false;
-                btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Continue with Google`;
+                btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Continue with Google';
             }
         });
+
+        // Event listeners
+        document.getElementById('loginBtn').addEventListener('click', handleLogin);
+        document.getElementById('signupBtn').addEventListener('click', handleSignup);
 
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => switchTab(btn.dataset.tab));
         });
 
         // Enter key handlers
-        ['loginEmail','loginPassword'].forEach(id =>
-            document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); })
-        );
-        ['signupEmail','signupPassword','signupConfirm'].forEach(id =>
-            document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') handleSignup(); })
-        );
-        
-        // Initial focus helper for login email
-        setTimeout(() => {
-            const el = document.getElementById('loginEmail');
-            if (el) el.focus();
-        }, 200);
+        document.getElementById('loginEmail').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleLogin();
+        });
+        document.getElementById('loginPassword').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleLogin();
+        });
+
+        document.getElementById('signupEmail').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSignup();
+        });
+        document.getElementById('signupPassword').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSignup();
+        });
+        document.getElementById('signupConfirm').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSignup();
+        });
     </script>
 </body>
 </html>
