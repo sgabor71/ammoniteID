@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>My Account — AmmoniteID</title>
     <script src="/static/tier-gates.js"></script>
+    <script src="/static/cloudinary-backup.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -97,6 +98,21 @@
             cursor: pointer; font-size: 1rem; color: #999;
         }
         #msgBox { display: none; margin-top: 12px; padding: 12px; border-radius: 6px; font-size: 0.9rem; }
+        
+        /* Cloudinary Backup Section */
+        .premium-card {
+            border: 1px solid #e8f5e9;
+            background: linear-gradient(135deg, #ffffff, #f9fff9);
+        }
+        .backup-status {
+            margin: 1rem 0; padding: 0.75rem; background: #f5f5f5;
+            border-radius: 8px; font-size: 0.9rem;
+        }
+        progress {
+            width: 100%; height: 8px; border-radius: 4px;
+        }
+        progress::-webkit-progress-bar { background: #e0e0e0; border-radius: 4px; }
+        progress::-webkit-progress-value { background: #2c5f2d; border-radius: 4px; }
     
         /* ── HAMBURGER (MOBILE ONLY) ── */
         .hamburger-btn { display: none; }
@@ -146,26 +162,29 @@
         <li><a href="/static/home.html">Home</a></li>
         <li><a href="/static/test.html">Identify</a></li>
         <li><a href="/static/mylog.html">My Collection</a></li>
+        <li><a href="/static/about.html">About</a></li>
+        <li><a href="/static/contact.html">Contact</a></li>
+        <li><a href="/static/partners.html">Partners</a></li>
     </ul>
     <div id="navAuth"></div>
-            <!-- Hamburger (mobile only) -->
-            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu">
-                <span></span><span></span><span></span>
-            </button>
+    <!-- Hamburger (mobile only) -->
+    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu">
+        <span></span><span></span><span></span>
+    </button>
 
-        <!-- Mobile dropdown -->
-        <div class="mobile-menu" id="mobileMenu">
-            <a href="/static/home.html">🏠 Home</a>
-            <a href="/static/test.html">🔍 Identify</a>
-            <a href="/static/mylog.html">📚 My Fossil Collection</a>
-            <a href="/static/about.html">ℹ️ About</a>
-            <a href="/static/contact.html">📬 Contact</a>
-            <a href="/static/partners.html">🤝 Partners</a>
-            <div id="mobileAuthLinks">
-                <a href="/static/login.html">🔑 Log In</a>
-                <a href="/static/login.html">✏️ Sign Up</a>
-            </div>
+    <!-- Mobile dropdown -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="/static/home.html">🏠 Home</a>
+        <a href="/static/test.html">🔍 Identify</a>
+        <a href="/static/mylog.html">📚 My Fossil Collection</a>
+        <a href="/static/about.html">ℹ️ About</a>
+        <a href="/static/contact.html">📬 Contact</a>
+        <a href="/static/partners.html">🤝 Partners</a>
+        <div id="mobileAuthLinks">
+            <a href="/static/login.html">🔑 Log In</a>
+            <a href="/static/login.html">✏️ Sign Up</a>
         </div>
+    </div>
 </nav>
 
 <div class="container">
@@ -250,6 +269,32 @@
             </div>
         </div>
 
+        <!-- Cloudinary Backup Card (Premium only) -->
+        <div class="card premium-card" id="cloudinaryBackupCard" style="display: none;">
+            <h2>☁️ Cloud Backup</h2>
+            <p style="color: var(--light-text); margin-bottom: 16px;">Your fossil collection is backed up to Cloudinary cloud storage. Never lose your finds!</p>
+            
+            <div class="backup-status">
+                📦 Last backup: <strong id="lastBackupDate">Never</strong>
+                <span id="backupFossilCount"></span>
+            </div>
+            
+            <div class="btn-row">
+                <button id="manualBackupBtn" class="btn btn-green">☁️ Backup Now</button>
+                <button id="restoreBackupBtn" class="btn btn-orange">🔄 Restore from Backup</button>
+                <button id="exportLocalBtn" class="btn btn-outline">💾 Export Local JSON</button>
+            </div>
+            
+            <div id="backupProgress" style="display: none; margin-top: 16px;">
+                <progress id="backupProgressBar" value="0" max="100"></progress>
+                <span id="backupProgressText" style="font-size: 0.8rem; color: #666; display: block; margin-top: 6px;">Backing up...</span>
+            </div>
+            
+            <div class="warning-box" style="margin-top: 16px; font-size: 0.8rem;">
+                💡 <strong>How it works:</strong> Your fossil data (not images) is saved as a JSON file to Cloudinary's free cloud storage. You can restore anytime. Images remain on your device for privacy.
+            </div>
+        </div>
+
         <!-- Change Password Card -->
         <div class="card">
             <h2>🔑 Change Password</h2>
@@ -301,6 +346,7 @@
         appId:         "1:828376677091:web:e302f3ff538b78bc83e3d6"
     }));
     let currentUser = null;
+    let currentTier = 'FREE';
 
     onAuthStateChanged(auth, async (user) => {
         document.getElementById('loading').style.display = 'none';
@@ -330,18 +376,28 @@
             if (res.ok) {
                 const data = await res.json();
                 const tier = (data.tier || 'FREE').toUpperCase();
+                currentTier = tier;
                 localStorage.setItem('ammonite_tier', tier);
                 // Apply nav correctly for this tier
-                applyNavForTier(tier);
+                if (window.applyNavForTier) window.applyNavForTier(tier);
                 const badge = document.getElementById('tierBadge');
                 const tierLabels = {'FREE':'👤 Free','PREMIUM':'⭐ Premium','EXPERT':'🔬 Expert','ADMIN':'🛡️ Admin'};
                 badge.textContent = tierLabels[tier] || '👤 Free';
                 const tierClasses = {'FREE':'tier-free','PREMIUM':'tier-premium','EXPERT':'tier-expert','ADMIN':'tier-admin'};
                 badge.className = 'tier-badge ' + (tierClasses[tier] || 'tier-free');
-                if (tier === 'PREMIUM') {
+                
+                if (tier === 'PREMIUM' || tier === 'EXPERT' || tier === 'ADMIN') {
                     document.getElementById('premiumInfo').style.display = 'block';
                     document.getElementById('premiumExpiry').textContent =
                         data.premium_expires ? data.premium_expires.split('T')[0] : 'No expiry set';
+                    // Show Cloudinary backup section for Premium+
+                    document.getElementById('cloudinaryBackupCard').style.display = 'block';
+                    // Load last backup info
+                    const lastBackup = window.getLastBackupInfo ? window.getLastBackupInfo() : null;
+                    if (lastBackup) {
+                        document.getElementById('lastBackupDate').textContent = new Date(lastBackup.date).toLocaleString();
+                        document.getElementById('backupFossilCount').innerHTML = `(${lastBackup.fossil_count} fossils)`;
+                    }
                 } else {
                     document.getElementById('freeInfo').style.display = 'block';
                 }
@@ -417,27 +473,120 @@
         alert('Account deletion request received. Please contact us to complete this process.\n\nThis will be automated in a future update.');
     }
 
+    // Cloudinary Backup Functions
+    async function performBackup() {
+        const userId = localStorage.getItem('ammonite_user_id');
+        const fossilData = JSON.parse(localStorage.getItem('ammoniteMyLogs') || '[]');
+        
+        if (!userId || fossilData.length === 0) {
+            alert('No fossils to backup or user not logged in.');
+            return;
+        }
+        
+        const progressDiv = document.getElementById('backupProgress');
+        const progressBar = document.getElementById('backupProgressBar');
+        const progressText = document.getElementById('backupProgressText');
+        
+        progressDiv.style.display = 'block';
+        progressBar.value = 30;
+        progressText.textContent = 'Preparing backup...';
+        
+        // Simulate progress
+        const interval = setInterval(() => {
+            if (progressBar.value < 90) {
+                progressBar.value += 10;
+            }
+        }, 200);
+        
+        const result = await window.backupToCloudinary(userId, fossilData);
+        clearInterval(interval);
+        
+        if (result && result.success) {
+            progressBar.value = 100;
+            progressText.textContent = 'Backup complete!';
+            document.getElementById('lastBackupDate').textContent = new Date(result.backup_date).toLocaleString();
+            document.getElementById('backupFossilCount').innerHTML = `(${fossilData.length} fossils)`;
+            setTimeout(() => {
+                progressDiv.style.display = 'none';
+            }, 2000);
+            alert(`✅ Backup successful!\n\n${fossilData.length} fossils backed up.\nBackup URL saved locally.`);
+        } else {
+            progressDiv.style.display = 'none';
+            const errorMsg = result && result.error ? result.error : 'Unknown error';
+            alert(`❌ Backup failed: ${errorMsg}\n\nCheck Cloudinary credentials in cloudinary-backup.js`);
+        }
+    }
+
+    async function performRestore() {
+        const lastBackup = window.getLastBackupInfo ? window.getLastBackupInfo() : null;
+        if (!lastBackup) {
+            alert('No backup found. Click "Backup Now" first.');
+            return;
+        }
+        
+        const currentFossils = JSON.parse(localStorage.getItem('ammoniteMyLogs') || '[]');
+        const confirmRestore = confirm(`⚠️ WARNING: Restoring will REPLACE your current collection (${currentFossils.length} fossils) with the backup from ${new Date(lastBackup.date).toLocaleString()} (${lastBackup.fossil_count} fossils).\n\nThis cannot be undone. Continue?`);
+        
+        if (!confirmRestore) return;
+        
+        const result = await window.restoreFromCloudinary(lastBackup.url);
+        
+        if (result && result.success) {
+            localStorage.setItem('ammoniteMyLogs', JSON.stringify(result.fossils));
+            alert(`✅ Restored ${result.fossils.length} fossils from backup dated ${new Date(result.backup_date).toLocaleString()}`);
+            window.location.reload();
+        } else {
+            alert(`❌ Restore failed: ${result && result.error ? result.error : 'Unknown error'}`);
+        }
+    }
+
+    function exportLocalJSON() {
+        const fossilData = JSON.parse(localStorage.getItem('ammoniteMyLogs') || '[]');
+        const dataStr = JSON.stringify(fossilData, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ammonite_backup_${new Date().toISOString().slice(0,19)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        alert(`Exported ${fossilData.length} fossils to JSON file.`);
+    }
+
     // Expose to onclick attributes
     window.handleLogout         = handleLogout;
     window.changePassword       = changePassword;
     window.confirmDowngrade     = confirmDowngrade;
     window.confirmDeleteAccount = confirmDeleteAccount;
     window.togglePwd            = togglePwd;
+    window.performBackup        = performBackup;
+    window.performRestore       = performRestore;
+    window.exportLocalJSON      = exportLocalJSON;
+    
+    // Add event listeners when DOM loads
+    document.addEventListener('DOMContentLoaded', () => {
+        const backupBtn = document.getElementById('manualBackupBtn');
+        const restoreBtn = document.getElementById('restoreBackupBtn');
+        const exportBtn = document.getElementById('exportLocalBtn');
+        
+        if (backupBtn) backupBtn.addEventListener('click', performBackup);
+        if (restoreBtn) restoreBtn.addEventListener('click', performRestore);
+        if (exportBtn) exportBtn.addEventListener('click', exportLocalJSON);
+    });
 </script>
 
+<script>
+    // Hamburger menu
+    const _hBtn = document.getElementById('hamburgerBtn');
+    const _hMenu = document.getElementById('mobileMenu');
+    if (_hBtn && _hMenu) {
+        _hBtn.addEventListener('click', function(e) { e.stopPropagation(); _hBtn.classList.toggle('open'); _hMenu.classList.toggle('open'); });
+        _hMenu.querySelectorAll('a').forEach(l => l.addEventListener('click', () => { _hBtn.classList.remove('open'); _hMenu.classList.remove('open'); }));
+        document.addEventListener('click', function(e) { if (!_hMenu.contains(e.target) && !_hBtn.contains(e.target)) { _hBtn.classList.remove('open'); _hMenu.classList.remove('open'); } });
+    }
+</script>
 
-    <script>
-        const _hBtn = document.getElementById('hamburgerBtn');
-        const _hMenu = document.getElementById('mobileMenu');
-        if (_hBtn && _hMenu) {
-            _hBtn.addEventListener('click', function(e) { e.stopPropagation(); _hBtn.classList.toggle('open'); _hMenu.classList.toggle('open'); });
-            _hMenu.querySelectorAll('a').forEach(l => l.addEventListener('click', () => { _hBtn.classList.remove('open'); _hMenu.classList.remove('open'); }));
-            document.addEventListener('click', function(e) { if (!_hMenu.contains(e.target) && !_hBtn.contains(e.target)) { _hBtn.classList.remove('open'); _hMenu.classList.remove('open'); } });
-        }
-    </script>
-
-    <script>
-        // ── NAV PADLOCK LOGIC ──
-        // "My Fossil Collection" shows 🔒 for FREE users
 </body>
 </html>
