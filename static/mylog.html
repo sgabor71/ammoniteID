@@ -6,7 +6,6 @@
     <title>My Fossil Collection - AmmoniteID</title>
     <script src="/static/tier-gates.js"></script>
     <style>
-        /* (All styles unchanged from your original – omitted for brevity) */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Georgia', 'Merriweather', serif; background: #F5F1E8; color: #000000; line-height: 1.6; background-image: url('background.jpg'); background-size: cover; background-attachment: fixed; background-position: center; min-height: 100vh; }
         nav { background: rgba(255,255,255,0.97); backdrop-filter: blur(10px); padding: 1.2rem 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: sticky; top: 0; z-index: 1000; }
@@ -301,7 +300,6 @@
 <div id="syncToast" class="sync-toast"></div>
 
 <script>
-    // ======================== AD BANNER (unchanged) ========================
     let partners = [], adRotationTimer = null, rotationIndex = 0, rotationList = [];
     async function loadAdPartners() {
         try {
@@ -317,7 +315,7 @@
             if (partners.length) initializeAds(); else document.getElementById('partner-ad-banner').style.display = 'none';
         } catch(e) { console.error(e); }
     }
-    function showAd(index) { /* same as original - omitted for brevity */ }
+    function showAd(index) { /* same */ }
     function buildRotationList() { let l=[]; partners.forEach((p,i)=>{for(let w=0;w<(p.rotation_weight||1);w++)l.push(i);}); return l; }
     function rotateAd() { /* same */ }
     function initializeAds() { /* same */ }
@@ -326,12 +324,10 @@
 <script src="/static/ad-tracking.js"></script>
 
 <script>
-    // ======================== MAIN LOGIC ========================
     let fossilData = [], filteredData = [], currentSort = 'date-desc', expandedRow = null;
     let selectedIds = new Set();
     let syncInProgress = false;
 
-    // Helper: deduplicate by ID, keep the one with more photos
     function deduplicateById(items) {
         const map = new Map();
         for (const item of items) {
@@ -362,7 +358,6 @@
         localStorage.setItem('ammoniteMyLogs', JSON.stringify(fossilData));
     }
 
-    // Show toast message
     function showToast(msg) {
         const toast = document.getElementById('syncToast');
         toast.textContent = msg;
@@ -370,7 +365,6 @@
         setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
-    // Sync local fossils to DB (only if not already synced)
     async function syncLocalToDatabase(userId) {
         if (!userId || syncInProgress) return;
         syncInProgress = true;
@@ -411,7 +405,6 @@
         syncInProgress = false;
     }
 
-    // Fetch from DB and merge (avoid duplicates)
     async function fetchAndMergeDb(userId) {
         try {
             const res = await fetch(`/api/collection/${userId}`);
@@ -432,7 +425,6 @@
                 keepForever: false,
                 syncedToDb: true
             }));
-            // Merge: local wins if more photos, otherwise DB adds new
             const merged = [...fossilData];
             for (const dbF of dbFossils) {
                 const existingIdx = merged.findIndex(l => l.id === dbF.id);
@@ -454,7 +446,6 @@
                 populateFilters();
                 showToast(`📥 Added ${newCount} new fossil(s) from cloud`);
             } else {
-                // just update any missing sync flag
                 for (const f of fossilData) {
                     if (dbFossils.some(db => db.id === f.id)) f.syncedToDb = true;
                 }
@@ -469,27 +460,6 @@
         showToast('Syncing...');
         await syncLocalToDatabase(uid);
         await fetchAndMergeDb(uid);
-    }
-
-    // CRUD operations
-    function addFossil(fossil) {
-        fossilData.unshift(fossil);
-        saveToLocalStorage();
-        filteredData = [...fossilData];
-        renderData();
-        updateStats();
-        populateFilters();
-    }
-
-    function updateFossil(id, updates) {
-        const idx = fossilData.findIndex(f => f.id == id);
-        if (idx !== -1) {
-            fossilData[idx] = { ...fossilData[idx], ...updates };
-            saveToLocalStorage();
-            filteredData = [...fossilData];
-            renderData();
-            updateStats();
-        }
     }
 
     function deleteFossilById(id) {
@@ -538,12 +508,10 @@
         }
     }
 
-    // UI event handlers
     function toggleCardSelect(id, checked) {
         if (checked) selectedIds.add(id);
         else selectedIds.delete(id);
         updateBulkBar();
-        // Update checkbox in desktop row
         const rowCheckbox = document.querySelector(`.desktop-table tr[data-id="${id}"] .row-checkbox`);
         if (rowCheckbox) rowCheckbox.checked = checked;
         const card = document.getElementById(`card-${id}`);
@@ -708,29 +676,28 @@
                 ? `<div class="thumb-wrap"><img src="${fossil.photos[0]}" alt="photo" onclick="openZoom('${fossil.photos[0].replace(/'/g,"&#39;")}'); event.stopPropagation();">${fossil.photos.length > 1 ? `<span class="thumb-count">+${fossil.photos.length-1}</span>` : ''}</div>`
                 : '<span style="color:#bbb;">—</span>';
 
-            // Desktop row
+            // Desktop row - ALL IDs QUOTED
             const tr = document.createElement('tr');
             tr.setAttribute('data-id', fossil.id);
-            // Row click toggles expansion (only if not clicking on checkbox or icon)
             tr.onclick = (e) => {
                 if (!e.target.closest('.action-icon') && !e.target.closest('input[type="checkbox"]') && !e.target.closest('img')) {
                     toggleExpand(fossil.id);
                 }
             };
             tr.innerHTML = `
-                <td><input type="checkbox" class="row-checkbox" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); toggleCardSelect(${fossil.id}, this.checked);"></td>
+                <td><input type="checkbox" class="row-checkbox" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); toggleCardSelect('${fossil.id}', this.checked);"></td>
                 <td>${photoThumb}</td>
                 <td>${fossil.family}</td>
                 <td>${fossil.genus}</td>
                 <td class="${confClass}">${fossil.confidence}%</td>
                 <td>${new Date(fossil.date).toLocaleDateString()}</td>
-                <td><span class="action-icon favorite-icon ${fossil.favorite ? '' : 'inactive'}" onclick="event.stopPropagation(); toggleFavorite(${fossil.id});">⭐</span></td>
-                <td><span class="action-icon delete-icon" onclick="event.stopPropagation(); deleteFossil(${fossil.id});">🗑️</span></td>
-                <td><span class="action-icon expand-icon" onclick="event.stopPropagation(); toggleExpand(${fossil.id});">${expandedRow === fossil.id ? '▲' : '▼'}</span></td>
+                <td><span class="action-icon favorite-icon ${fossil.favorite ? '' : 'inactive'}" onclick="event.stopPropagation(); toggleFavorite('${fossil.id}');">⭐</span></td>
+                <td><span class="action-icon delete-icon" onclick="event.stopPropagation(); deleteFossil('${fossil.id}');">🗑️</span></td>
+                <td><span class="action-icon expand-icon" onclick="event.stopPropagation(); toggleExpand('${fossil.id}');">${expandedRow === fossil.id ? '▲' : '▼'}</span></td>
             `;
             tbody.appendChild(tr);
 
-            // Expanded details row
+            // Expanded details row - ALL IDs QUOTED
             if (expandedRow === fossil.id) {
                 const detailTr = document.createElement('tr');
                 detailTr.className = 'expanded-details';
@@ -754,19 +721,19 @@
                         <div class="detail-item"><strong>Confidence</strong>${fossil.confidence}%</div>
                         <div class="detail-item"><strong>Date</strong>${new Date(fossil.date).toLocaleDateString()}</div>
                     </div>
-                    <div class="detail-notes"><label>Personal Notes:</label><textarea onblur="saveNotes(${fossil.id}, this.value)">${fossil.notes || ''}</textarea></div>
+                    <div class="detail-notes"><label>Personal Notes:</label><textarea onblur="saveNotes('${fossil.id}', this.value)">${fossil.notes || ''}</textarea></div>
                     ${genusHtml}
                     <div class="detail-actions">
-                        <button class="btn-favorite" onclick="toggleFavorite(${fossil.id})">${fossil.favorite ? '☆ Unfavorite' : '☆ Favorite'}</button>
-                        <button class="btn-keep" onclick="toggleKeepForever(${fossil.id})">${fossil.keepForever ? '✓ Keep Forever' : '☐ Keep Forever'}</button>
-                        <button class="btn-share" onclick="openShareModal(${fossil.id})">📤 Share</button>
-                        <button class="btn-delete-detail" onclick="deleteFossil(${fossil.id})">🗑️ Delete</button>
+                        <button class="btn-favorite" onclick="toggleFavorite('${fossil.id}')">${fossil.favorite ? '☆ Unfavorite' : '☆ Favorite'}</button>
+                        <button class="btn-keep" onclick="toggleKeepForever('${fossil.id}')">${fossil.keepForever ? '✓ Keep Forever' : '☐ Keep Forever'}</button>
+                        <button class="btn-share" onclick="openShareModal('${fossil.id}')">📤 Share</button>
+                        <button class="btn-delete-detail" onclick="deleteFossil('${fossil.id}')">🗑️ Delete</button>
                     </div>
                 </div></td>`;
                 tbody.appendChild(detailTr);
             }
 
-            // Mobile card
+            // Mobile card - ALL IDs QUOTED
             const confMobClass = fossil.confidence >= 70 ? 'card-conf-high' : (fossil.confidence >= 50 ? 'card-conf-med' : 'card-conf-low');
             const confLabel = fossil.confidence >= 70 ? 'High' : (fossil.confidence >= 50 ? 'Med' : 'Low');
             const photoMob = hasPhotos ? `<img class="card-photo" src="${fossil.photos[0]}" onclick="openZoom('${fossil.photos[0]}')">` : '<div class="card-photo-placeholder">🪨</div>';
@@ -776,7 +743,7 @@
             card.id = `card-${fossil.id}`;
             card.innerHTML = `
                 <div class="fossil-card-top">
-                    <div class="card-checkbox-wrap"><input type="checkbox" ${isSelected ? 'checked' : ''} onchange="toggleCardSelect(${fossil.id}, this.checked)"></div>
+                    <div class="card-checkbox-wrap"><input type="checkbox" ${isSelected ? 'checked' : ''} onchange="toggleCardSelect('${fossil.id}', this.checked)"></div>
                     ${photoMob}
                     <div class="card-info">
                         <div class="card-family">${fossil.family}</div>
@@ -785,12 +752,12 @@
                     </div>
                 </div>
                 <div class="card-actions">
-                    <button onclick="toggleFavorite(${fossil.id})">${fossil.favorite ? '⭐' : '☆'}</button>
-                    <button onclick="toggleKeepForever(${fossil.id})">${fossil.keepForever ? '📌' : '📎'}</button>
-                    <button onclick="openShareModal(${fossil.id})">📤</button>
-                    <button onclick="deleteFossil(${fossil.id})">🗑️</button>
+                    <button onclick="toggleFavorite('${fossil.id}')">${fossil.favorite ? '⭐' : '☆'}</button>
+                    <button onclick="toggleKeepForever('${fossil.id}')">${fossil.keepForever ? '📌' : '📎'}</button>
+                    <button onclick="openShareModal('${fossil.id}')">📤</button>
+                    <button onclick="deleteFossil('${fossil.id}')">🗑️</button>
                 </div>
-                <button class="card-expand-btn" onclick="toggleCardExpand(${fossil.id}, this)">${expandedRow === fossil.id ? '▲ Hide Details' : '▼ Show Details'}</button>
+                <button class="card-expand-btn" onclick="toggleCardExpand('${fossil.id}', this)">${expandedRow === fossil.id ? '▲ Hide Details' : '▼ Show Details'}</button>
                 <div class="card-expanded ${expandedRow === fossil.id ? 'open' : ''}" id="card-exp-${fossil.id}">
                     ${fossil.photos?.length > 1 ? `<div class="card-expanded-photos">${fossil.photos.map(p => `<img src="${p}" onclick="openZoom('${p}')">`).join('')}</div>` : ''}
                     <div class="card-detail-grid">
@@ -800,7 +767,7 @@
                         <div class="card-detail-item"><strong>Date</strong><span>${new Date(fossil.date).toLocaleDateString()}</span></div>
                     </div>
                     ${genusBreakHtml}
-                    <div class="card-notes"><textarea onblur="saveNotes(${fossil.id}, this.value)">${fossil.notes || ''}</textarea></div>
+                    <div class="card-notes"><textarea onblur="saveNotes('${fossil.id}', this.value)">${fossil.notes || ''}</textarea></div>
                 </div>
             `;
             mobileCards.appendChild(card);
@@ -869,7 +836,6 @@
         document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { modal.remove(); document.removeEventListener('keydown', esc); } });
     }
 
-    // Sorting header clicks
     document.querySelectorAll('#fossilTable th[data-sort]').forEach(th => {
         th.style.cursor = 'pointer';
         th.addEventListener('click', () => {
