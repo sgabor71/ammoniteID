@@ -62,6 +62,11 @@ class StorageCleanup(BaseModel):
     days: Optional[int] = None
     confirm: bool = False
 
+class FossilUpdate(BaseModel):
+    favorite: Optional[bool] = None
+    keep_forever: Optional[bool] = None
+    notes: Optional[str] = None
+
 
 # ============================================================
 # POST /api/collection/save
@@ -142,9 +147,9 @@ async def get_collection(uid: str):
         c.execute("""
             SELECT id, identification_id, family, genus, family_label,
                    confidence, scenario, formatted_output, genus_breakdown,
-                   photo_paths, notes, created_at
+                   photo_paths, notes, created_at, favorite, keep_forever
             FROM fossil_collection
-            WHERE user_id = ?
+            WHERE user_id = ? AND (deleted_at IS NULL OR deleted_at = '')
             ORDER BY created_at DESC
         """, (uid,))
         rows = c.fetchall()
@@ -169,10 +174,60 @@ async def get_collection(uid: str):
             "photos": json.loads(row["photo_paths"] or "[]"),
             "notes": row["notes"] or "",
             "date": row["created_at"],
-            "favorite": False,
+            "favorite": bool(row["favorite"]),
+            "keepForever": bool(row["keep_forever"]),
         })
 
     return {"status": "ok", "count": len(fossils), "fossils": fossils}
+
+
+# ============================================================
+# PATCH /api/collection/{entry_id}
+# Update fossil fields: favorite, keep_forever, notes
+# ============================================================
+@collection_router.patch("/api/collection/{entry_id}")
+async def update_fossil(entry_id: str, body: FossilUpdate):
+    conn = _db()
+    c = conn.cursor()
+
+    # Check fossil exists
+    c.execute("SELECT id FROM fossil_collection WHERE id = ?", (entry_id,))
+    if not c.fetchone():
+        conn.close()
+        raise HTTPException(status_code=404, detail="Fossil not found.")
+
+    # Build dynamic update
+    updates = []
+    values = []
+
+    if body.favorite is not None:
+        updates.append("favorite = ?")
+        values.append(1 if body.favorite else 0)
+
+    if body.keep_forever is not None:
+        updates.append("keep_forever = ?")
+        values.append(1 if body.keep_forever else 0)
+
+    if body.notes is not None:
+        updates.append("notes = ?")
+        values.append(body.notes)
+
+    if not updates:
+        conn.close()
+        return {"status": "ok", "updated": False, "reason": "No fields to update"}
+
+    values.append(entry_id)
+    sql = f"UPDATE fossil_collection SET {', '.join(updates)} WHERE id = ?"
+
+    try:
+        c.execute(sql, values)
+        conn.commit()
+    except Exception as e:
+        conn.close()
+        raise HTTPException(status_code=500, detail=str(e))
+
+    conn.close()
+    return {"status": "ok", "updated": True, "id": entry_id}
 
 
 # ============================================================
