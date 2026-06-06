@@ -10,3 +10,4 @@ numpy==1.24.3
 firebase-admin==6.2.0
 stripe==7.4.0
 python-dotenv==1.0.0
+apscheduler
