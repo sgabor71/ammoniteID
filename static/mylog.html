@@ -703,15 +703,15 @@
                 }
             };
             tr.innerHTML = `
-                <td><input type="checkbox" class="row-checkbox" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); toggleCardSelect(${fossil.id}, this.checked);"></td>
+                <td><input type="checkbox" class="row-checkbox" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); toggleCardSelect('${fossil.id}', this.checked);"></td>
                 <td>${photoThumb}</td>
                 <td>${fossil.family}</td>
                 <td>${fossil.genus}</td>
                 <td class="${confClass}">${fossil.confidence}%</td>
                 <td>${new Date(fossil.date).toLocaleDateString()}</td>
-                <td><span class="action-icon favorite-icon ${fossil.favorite ? '' : 'inactive'}" onclick="event.stopPropagation(); toggleFavorite(${fossil.id});">⭐</span></td>
-                <td><span class="action-icon delete-icon" onclick="event.stopPropagation(); deleteFossil(${fossil.id});">🗑️</span></td>
-                <td><span class="action-icon expand-icon" onclick="event.stopPropagation(); toggleExpand(${fossil.id});">${expandedRow === fossil.id ? '▲' : '▼'}</span></td>
+                <td><span class="action-icon favorite-icon ${fossil.favorite ? '' : 'inactive'}" onclick="event.stopPropagation(); toggleFavorite('${fossil.id}');">⭐</span></td>
+                <td><span class="action-icon delete-icon" onclick="event.stopPropagation(); deleteFossil('${fossil.id}');">🗑️</span></td>
+                <td><span class="action-icon expand-icon" onclick="event.stopPropagation(); toggleExpand('${fossil.id}');">${expandedRow === fossil.id ? '▲' : '▼'}</span></td>
             `;
             tbody.appendChild(tr);
 
@@ -739,13 +739,13 @@
                         <div class="detail-item"><strong>Confidence</strong>${fossil.confidence}%</div>
                         <div class="detail-item"><strong>Date</strong>${new Date(fossil.date).toLocaleDateString()}</div>
                     </div>
-                    <div class="detail-notes"><label>Personal Notes:</label><textarea onblur="saveNotes(${fossil.id}, this.value)">${fossil.notes || ''}</textarea></div>
+                    <div class="detail-notes"><label>Personal Notes:</label><textarea onblur="saveNotes('${fossil.id}', this.value)">${fossil.notes || ''}</textarea></div>
                     ${genusHtml}
                     <div class="detail-actions">
-                        <button class="btn-favorite" onclick="toggleFavorite(${fossil.id})">${fossil.favorite ? '☆ Unfavorite' : '☆ Favorite'}</button>
-                        <button class="btn-keep" onclick="toggleKeepForever(${fossil.id})">${fossil.keepForever ? '✓ Keep Forever' : '☐ Keep Forever'}</button>
-                        <button class="btn-share" onclick="openShareModal(${fossil.id})">📤 Share</button>
-                        <button class="btn-delete-detail" onclick="deleteFossil(${fossil.id})">🗑️ Delete</button>
+                        <button class="btn-favorite" onclick="toggleFavorite('${fossil.id}')">${fossil.favorite ? '☆ Unfavorite' : '☆ Favorite'}</button>
+                        <button class="btn-keep" onclick="toggleKeepForever('${fossil.id}')">${fossil.keepForever ? '✓ Keep Forever' : '☐ Keep Forever'}</button>
+                        <button class="btn-share" onclick="openShareModal('${fossil.id}')">📤 Share</button>
+                        <button class="btn-delete-detail" onclick="deleteFossil('${fossil.id}')">🗑️ Delete</button>
                     </div>
                 </div></td>`;
                 tbody.appendChild(detailTr);
@@ -761,7 +761,7 @@
             card.id = `card-${fossil.id}`;
             card.innerHTML = `
                 <div class="fossil-card-top">
-                    <div class="card-checkbox-wrap"><input type="checkbox" ${isSelected ? 'checked' : ''} onchange="toggleCardSelect(${fossil.id}, this.checked)"></div>
+                    <div class="card-checkbox-wrap"><input type="checkbox" ${isSelected ? 'checked' : ''} onchange="toggleCardSelect('${fossil.id}', this.checked)"></div>
                     ${photoMob}
                     <div class="card-info">
                         <div class="card-family">${fossil.family}</div>
@@ -770,12 +770,12 @@
                     </div>
                 </div>
                 <div class="card-actions">
-                    <button onclick="toggleFavorite(${fossil.id})">${fossil.favorite ? '⭐' : '☆'}</button>
-                    <button onclick="toggleKeepForever(${fossil.id})">${fossil.keepForever ? '📌' : '📎'}</button>
-                    <button onclick="openShareModal(${fossil.id})">📤</button>
-                    <button onclick="deleteFossil(${fossil.id})">🗑️</button>
+                    <button onclick="toggleFavorite('${fossil.id}')">${fossil.favorite ? '⭐' : '☆'}</button>
+                    <button onclick="toggleKeepForever('${fossil.id}')">${fossil.keepForever ? '📌' : '📎'}</button>
+                    <button onclick="openShareModal('${fossil.id}')">📤</button>
+                    <button onclick="deleteFossil('${fossil.id}')">🗑️</button>
                 </div>
-                <button class="card-expand-btn" onclick="toggleCardExpand(${fossil.id}, this)">${expandedRow === fossil.id ? '▲ Hide Details' : '▼ Show Details'}</button>
+                <button class="card-expand-btn" onclick="toggleCardExpand('${fossil.id}', this)">${expandedRow === fossil.id ? '▲ Hide Details' : '▼ Show Details'}</button>
                 <div class="card-expanded ${expandedRow === fossil.id ? 'open' : ''}" id="card-exp-${fossil.id}">
                     ${fossil.photos?.length > 1 ? `<div class="card-expanded-photos">${fossil.photos.map(p => `<img src="${p}" onclick="openZoom('${p}')">`).join('')}</div>` : ''}
                     <div class="card-detail-grid">
@@ -785,7 +785,7 @@
                         <div class="card-detail-item"><strong>Date</strong><span>${new Date(fossil.date).toLocaleDateString()}</span></div>
                     </div>
                     ${genusBreakHtml}
-                    <div class="card-notes"><textarea onblur="saveNotes(${fossil.id}, this.value)">${fossil.notes || ''}</textarea></div>
+                    <div class="card-notes"><textarea onblur="saveNotes('${fossil.id}', this.value)">${fossil.notes || ''}</textarea></div>
                 </div>
             `;
             mobileCards.appendChild(card);
