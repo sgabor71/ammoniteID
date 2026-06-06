@@ -827,6 +827,7 @@
 
     <script src="/static/hamburger-menu.js"></script>
     <script src="/static/tier-gates.js"></script>
+    <script src="/static/cloudinary-backup.js"></script>
 
     <script>
         // ── Auth gate: EXPERT+ only ───────────────────────────
@@ -906,7 +907,7 @@
 
         async function saveReviewToDB(item) {
             try {
-                await fetch(`/queue/${item.id}/update`, {
+                const res = await fetch(`/queue/${item.id}/update`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: new URLSearchParams({
@@ -914,9 +915,18 @@
                         expert_family: item.expert_family || '',
                         expert_genus: item.expert_genus || '',
                         expert_notes: item.expert_notes || '',
-                        reviewed_by: 'expert'
+                        reviewed_by: 'expert',
+                        ml_flag: item.mlTrainingFlag ? '1' : '0'
                     })
                 });
+
+                if (res.ok) {
+                    const result = await res.json();
+                    // Images are now deleted server-side after verdict
+                    if (result.updated && ['reviewed', 'incorrect', 'ambiguous'].includes(item.status)) {
+                        console.log(`Photos cleaned for review ${item.id}`);
+                    }
+                }
             } catch(e) {
                 console.warn('Could not save review to DB:', e.message);
             }
@@ -1189,12 +1199,23 @@
         }
 
         function deleteIdentification(id) {
-            if (confirm('Are you sure you want to permanently delete this entry?')) {
+            if (confirm('Are you sure you want to permanently delete this entry?\n\nThis will also delete from Cloudinary backup.')) {
                 const index = identifications.findIndex(i => i.id === id);
                 
                 if (index > -1) {
+                    const item = identifications[index];
+                    const userId = localStorage.getItem('ammonite_user_id');
+
+                    // Sync delete via API (local + Cloudinary)
+                    if (window.syncDelete && userId) {
+                        window.syncDelete(userId, item.identification_id || item.id).then(result => {
+                            if (result && result.success) {
+                                console.log('Sync delete successful');
+                            }
+                        });
+                    }
+
                     identifications.splice(index, 1);
-                    saveReviewToDB(item);
                     
                     // Also remove from My Log
                     let myLogs = JSON.parse(localStorage.getItem('ammoniteMyLogs') || '[]');
@@ -1220,6 +1241,12 @@
                 item.keepForever = !item.keepForever;
                 item.autoDeleteDate = item.keepForever ? null : calculateAutoDeleteFromStatus(item);
                 saveReviewToDB(item);
+
+                // Persist keep_forever to backend
+                if (window.toggleKeepForever) {
+                    window.toggleKeepForever(item.identification_id || item.id, item.keepForever);
+                }
+
                 filterByStatus(currentTab);
             }
         }
