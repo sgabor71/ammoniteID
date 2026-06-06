@@ -1,387 +1,3 @@
-# ============================================================
-# identifier.py — Core identification logic
-# AmmoniteID v1.0
-# ============================================================
-# Loads the model once at startup and provides the
-# identify() function used by the API endpoints.
-# Smart cropping automatically detects the fossil
-# region when it occupies a small part of the frame.
-# ============================================================
-import os
-os.environ['TF_XLA_FLAGS'] = '--tf_xla_enable_xla_devices=false'
-import io
-import json
-import numpy as np
-import tensorflow as tf
-tf.config.optimizer.set_jit(False)  # Disable XLA JIT compilation
-from pathlib import Path
-from PIL import Image
-from config import (
-    MODEL_PATH, CLASS_INFO, IMAGE_SIZE,
-    FAMILY_LIKELY_THRESHOLD, FAMILY_POSSIBLE_THRESHOLD,
-    GENUS_BEST_MATCH_THRESHOLD, GENUS_POSSIBLE_THRESHOLD
-)
-
-# ── Load class information ───────────────────────────────────
-with open(str(CLASS_INFO), 'r') as f:
-    class_info = json.load(f)
-
-INDEX_TO_CLASS   = {
-    int(k): v
-    for k, v in class_info['index_to_class'].items()
-}
-GENUS_TO_FAMILY  = class_info['genus_to_family']
-FAMILY_TO_GENERA = class_info['family_to_genera']
-NON_AMMONITE_MAP = class_info['non_ammonite_map']
-NUM_CLASSES      = class_info['num_classes']
-
-# ── Non-ammonite display names ───────────────────────────────
-NON_AM_DISPLAY = {
-    'Not_Ammonite':     'a rock, pebble or non-fossil object',
-    'Belemnite Fossil': 'a Belemnite',
-    'Bivalve':          'a Bivalve',
-    'Devils toenail':   'a Devils Toenail (Gryphaea)',
-}
-
-# ── Load Keras model once at startup ────────────────────────
-print("Loading ammonite identification model (Keras)...")
-model = tf.keras.models.load_model(str(MODEL_PATH))
-print(f"Model loaded. Input shape: {model.input_shape}, Output shape: {model.output_shape}")
-
-
-# ============================================================
-# IMAGE LOADING AND PREPROCESSING
-# ============================================================
-
-def find_fossil_region(img: Image.Image) -> Image.Image:
-    """
-    Attempts to find and crop to the most likely
-    fossil region in the image before resizing.
-
-    Uses edge detection to find the region with
-    the most visual detail — fossils typically have
-    more edge complexity than surrounding rock or
-    plain background.
-
-    Falls back to the full image if no clearly
-    distinct region is found.
-    """
-    # Work on a small thumbnail for speed
-    thumb = img.copy()
-    thumb.thumbnail((224, 224))
-    thumb_array = np.array(
-        thumb.convert('L'), dtype=np.float32
-    )
-
-    h, w = thumb_array.shape
-
-    # Compute edge strength using horizontal and
-    # vertical gradients — fossils have more edges
-    # than plain rock or background
-    grad_x = np.abs(
-        np.diff(thumb_array, axis=1, append=0)
-    )
-    grad_y = np.abs(
-        np.diff(thumb_array, axis=0, append=0)
-    )
-    edge_strength = grad_x + grad_y
-
-    # Scan overlapping windows to find the region
-    # with the highest edge density
-    window_h = int(h * 0.6)
-    window_w = int(w * 0.6)
-
-    best_score = -1
-    best_top   = 0
-    best_left  = 0
-
-    step = max(1, min(h, w) // 8)
-
-    for top in range(0, h - window_h + 1, step):
-        for left in range(0, w - window_w + 1, step):
-            region = edge_strength[
-                top:top + window_h,
-                left:left + window_w
-            ]
-            score = float(np.mean(region))
-            if score > best_score:
-                best_score = score
-                best_top   = top
-                best_left  = left
-
-    # Scale coordinates back to original image size
-    scale_x = img.width  / w
-    scale_y = img.height / h
-
-    # Add padding around the detected region
-    padding = 0.1
-    orig_top    = max(0, int(
-        (best_top - h * padding) * scale_y
-    ))
-    orig_left   = max(0, int(
-        (best_left - w * padding) * scale_x
-    ))
-    orig_bottom = min(img.height, int(
-        (best_top + window_h + h * padding) * scale_y
-    ))
-    orig_right  = min(img.width, int(
-        (best_left + window_w + w * padding) * scale_x
-    ))
-
-    # Only crop if the region is meaningfully smaller
-    # than the full image — otherwise use full image
-    crop_area = (
-        (orig_right  - orig_left) *
-        (orig_bottom - orig_top)
-    )
-    full_area = img.width * img.height
-
-    if crop_area < full_area * 0.85:
-        return img.crop((
-            orig_left,
-            orig_top,
-            orig_right,
-            orig_bottom
-        ))
-
-    return img
-
-
-def load_image_from_bytes(
-    image_bytes: bytes,
-    smart_crop: bool = True
-) -> np.ndarray:
-    """
-    Converts raw image bytes into a numpy array
-    ready for the model.
-
-    smart_crop: if True, automatically detects and
-    crops to the fossil region before resizing.
-    Significantly improves results when the fossil
-    occupies a small part of the frame.
-    """
-    img = Image.open(io.BytesIO(image_bytes))
-    img = img.convert('RGB')
-
-    if smart_crop:
-        img = find_fossil_region(img)
-
-    img = img.resize((IMAGE_SIZE, IMAGE_SIZE))
-    return np.array(img, dtype=np.float32)
-
-
-# ============================================================
-# IDENTIFICATION LOGIC
-# ============================================================
-
-def build_bar(score: float, width: int = 10) -> str:
-    """Converts a probability score to a visual bar.
-    Example: 0.70 → ███████░░░
-    """
-    filled = round(score * width)
-    empty  = width - filled
-    return '█' * filled + '░' * empty
-
-
-def get_genus_wording(score: float) -> str:
-    """Converts a normalised genus score to wording."""
-    if score >= GENUS_BEST_MATCH_THRESHOLD:
-        return 'best match'
-    elif score >= GENUS_POSSIBLE_THRESHOLD:
-        return 'possible'
-    else:
-        return 'less likely'
-
-
-def identify_single(image_array: np.ndarray) -> dict:
-    """
-    Runs a single preprocessed image array through
-    the Keras model and returns raw and grouped scores.
-    """
-    # Add batch dimension — model expects (1, 224, 224, 3)
-    batch = np.expand_dims(image_array, axis=0).astype(np.float32)
-
-    # Run Keras inference
-    raw = model.predict(batch, verbose=0)[0]
-
-    # Map index to class name (handle model output size vs class_info mismatch)
-    num_outputs = len(raw)
-    class_scores = {
-        INDEX_TO_CLASS[i]: float(raw[i])
-        for i in range(num_outputs)
-        if i in INDEX_TO_CLASS
-    }
-
-    # Separate genus scores from non-ammonite scores
-    genus_scores  = {}
-    non_am_scores = {}
-
-    for name, score in class_scores.items():
-        if name in GENUS_TO_FAMILY:
-            genus_scores[name]  = score
-        else:
-            non_am_scores[name] = score
-
-    # Sum genus scores within each family
-    family_scores = {
-        family: sum(
-            genus_scores.get(g, 0.0)
-            for g in genera
-        )
-        for family, genera in FAMILY_TO_GENERA.items()
-    }
-
-    non_am_total = sum(non_am_scores.values())
-    top_non_am   = max(
-        non_am_scores, key=non_am_scores.get
-    )
-
-    return {
-        'class_scores':  class_scores,
-        'genus_scores':  genus_scores,
-        'family_scores': family_scores,
-        'non_am_scores': non_am_scores,
-        'non_am_total':  non_am_total,
-        'top_non_am':    top_non_am,
-    }
-
-
-def combine_results(single_results: list) -> dict:
-    """
-    Combines results from multiple photos of the
-    same specimen by averaging all scores.
-
-    When multiple photos agree the combined confidence
-    increases. When they disagree the confidence drops
-    which is the honest and correct response.
-    """
-    if len(single_results) == 1:
-        return single_results[0]
-
-    all_classes = single_results[0]['class_scores'].keys()
-
-    # Average scores across all photos
-    avg_class = {
-        cls: float(np.mean([
-            r['class_scores'][cls]
-            for r in single_results
-        ]))
-        for cls in all_classes
-    }
-
-    # Regroup averaged scores
-    genus_scores  = {}
-    non_am_scores = {}
-
-    for name, score in avg_class.items():
-        if name in GENUS_TO_FAMILY:
-            genus_scores[name]  = score
-        else:
-            non_am_scores[name] = score
-
-    family_scores = {
-        family: sum(
-            genus_scores.get(g, 0.0)
-            for g in genera
-        )
-        for family, genera in FAMILY_TO_GENERA.items()
-    }
-
-    non_am_total = sum(non_am_scores.values())
-    top_non_am   = max(
-        non_am_scores, key=non_am_scores.get
-    )
-
-    return {
-        'class_scores':  avg_class,
-        'genus_scores':  genus_scores,
-        'family_scores': family_scores,
-        'non_am_scores': non_am_scores,
-        'non_am_total':  non_am_total,
-        'top_non_am':    top_non_am,
-    }
-
-
-def generate_confidence_message(
-    top_family_score: float,
-    top_genus_score: float,
-    scenario: str
-) -> dict:
-    """
-    Generates confidence labels and feedback messages based on scores.
-    
-    Returns dict with:
-    - family_label: "HIGH ✅", "MODERATE ⚠️", or "LOW ❌"
-    - genus_label: same
-    - feedback_message: Short tip for user
-    """
-    
-    # Determine confidence levels
-    def get_confidence_label(score):
-        if score >= 75:
-            return "HIGH ✅"
-        elif score >= 55:
-            return "MODERATE ⚠️"
-        else:
-            return "LOW ❌"
-    
-    family_label = get_confidence_label(top_family_score)
-    genus_label = get_confidence_label(top_genus_score) if top_genus_score else None
-    
-    feedback_message = ""
-    feedback_style = "info"  # 'info' (blue) or 'warning' (yellow/orange)
-    
-    # Generate feedback based on scenario and confidence
-    if scenario == 'non_ammonite':
-        if top_family_score >= 75:
-            # High confidence non-ammonite
-            feedback_message = "💡 If you believe this is actually an ammonite, try retaking with the spiral/coiling pattern clearly visible"
-            feedback_style = "info"
-        elif top_family_score >= 55:
-            # Moderate confidence non-ammonite
-            feedback_message = "💡 If you believe this is actually an ammonite, try retaking with the spiral/coiling pattern clearly visible"
-            feedback_style = "info"
-        else:
-            # Low confidence non-ammonite
-            feedback_message = "⚠️ Unable to confidently identify this specimen. 💡 If you believe this is actually an ammonite, for better results, try: retake and fill 80%+ of frame, better lighting, sharper focus"
-            feedback_style = "warning"
-    
-    elif scenario == 'uncertain':
-        feedback_message = "⚠️ Low confidence - for a more reliable result, try: closer photo, better lighting, or fill 80%+ of frame"
-        feedback_style = "warning"
-    
-    elif scenario in ['low_confidence', 'moderate_confidence', 'possible']:
-        # Family confidence check
-        if top_family_score < 55:
-            feedback_message = "⚠️ Low confidence - for a more reliable result, try: closer photo, better lighting, or fill 80%+ of frame"
-            feedback_style = "warning"
-        elif top_family_score < 75:
-            feedback_message = "💡 This result is likely correct. For even better accuracy, try filling 80%+ of frame or rotating 30-90°"
-            feedback_style = "info"
-        else:
-            # Family high, genus low/moderate
-            if top_genus_score and top_genus_score < 55:
-                feedback_message = "⚠️ Genus unclear - a closer photo showing ribs/sutures may help refine the identification"
-                feedback_style = "warning"
-            elif top_genus_score and top_genus_score < 75:
-                feedback_message = "💡 Family identification is confident. For better genus accuracy, try adding another photo rotated 30-90°"
-                feedback_style = "info"
-    
-    # High confidence scenarios - check if any is moderate
-    elif scenario in ['likely']:
-        if top_family_score < 75 or (top_genus_score and top_genus_score < 75):
-            if top_genus_score and top_genus_score < 75:
-                feedback_message = "💡 This result is likely correct. For even better accuracy, try adding another photo rotated 30-90°"
-                feedback_style = "info"
-    
-    return {
-        'family_label': family_label,
-        'genus_label': genus_label,
-        'feedback_message': feedback_message,
-        'feedback_style': feedback_style
-    }
-
-
 def build_result(
     combined: dict,
     num_photos: int
@@ -389,7 +5,14 @@ def build_result(
     """
     Takes combined scores and builds the full
     structured result with scenario, genus breakdown
-    and formatted text output.
+    and formatted output.
+    
+    Scenarios (4 tiers):
+    - 'likely':        ≥80% confidence - high confidence identification
+    - 'possible':      60-79% confidence - medium confidence, still useful
+    - 'low':           30-59% confidence - low confidence but give best guess
+    - 'uncertain':     ≤29% confidence - too noisy, don't try
+    - 'non_ammonite':  Non-ammonite detection
     """
     family_scores    = combined['family_scores']
     non_am_total     = combined['non_am_total']
@@ -402,26 +25,27 @@ def build_result(
     top_family_score = family_scores[top_family] * 100
     top_non_am_score = combined['non_am_scores'][top_non_am]
 
-    # ── Determine scenario ───────────────────────────────────
+    # ── Determine scenario (4 tiers + non-ammonite) ───────────────────
     print(f"NON-AM DEBUG: non_am_total={non_am_total}, non_am*100={non_am_total * 100}, top_family_score={top_family_score}")
+    
     if non_am_total * 100 > top_family_score:
         scenario = 'non_ammonite'
     elif top_family_score >= FAMILY_LIKELY_THRESHOLD:
-        scenario = 'likely'
+        scenario = 'likely'      # ≥80% - high confidence
     elif top_family_score >= FAMILY_POSSIBLE_THRESHOLD:
-        scenario = 'possible'
+        scenario = 'possible'    # 60-79% - medium confidence
+    elif top_family_score >= FAMILY_LOW_THRESHOLD:
+        scenario = 'low'         # 30-59% - low confidence but give best guess
     else:
-        scenario = 'uncertain'
+        scenario = 'uncertain'   # ≤29% - too noisy
 
     print(f"SCENARIO DEBUG: scenario={scenario}, score={top_family_score}")
 
-    
-
-    # ── Build genus breakdown ────────────────────────────────
+    # ── Build genus breakdown (show for likely, possible, AND low) ───
     genus_breakdown = []
-    if scenario in ('likely', 'possible'):
+    if scenario in ('likely', 'possible', 'low'):
         family_genera = FAMILY_TO_GENERA[top_family]
-        family_total = family_scores[top_family]  # Use raw probability
+        family_total = family_scores[top_family]
 
         for genus in family_genera:
             raw  = genus_scores.get(genus, 0.0)
@@ -443,11 +67,7 @@ def build_result(
             reverse=True
         )
 
-    # ── Identify non-ammonite category ───────────────────────
-    non_am_category = NON_AMMONITE_MAP.get(
-        top_non_am, 'Other_Fossil'
-    )
-
+    # ── Build the result dictionary ────────────────────────────────
     result = {
         'scenario':         scenario,
         'num_photos':       num_photos,
@@ -461,74 +81,84 @@ def build_result(
         'non_am_total':     round(non_am_total * 100),
         'top_non_am':       top_non_am,
         'top_non_am_score': round(top_non_am_score * 100),
-        'non_am_category':  non_am_category,
-        'non_am_display':   NON_AM_DISPLAY.get(
-                               top_non_am,
-                               top_non_am
-                            ),
+        'non_am_category':  NON_AMMONITE_MAP.get(top_non_am, 'Other_Fossil'),
+        'non_am_display':   NON_AM_DISPLAY.get(top_non_am, top_non_am),
     }
 
-    # Generate confidence labels and feedback
-    print(f"DEBUG: About to generate confidence labels")
-    print(f"DEBUG: top_family_score = {top_family_score}")
-    print(f"DEBUG: non_am_total = {non_am_total * 100}")
-    print(f"DEBUG: genus_breakdown = {genus_breakdown}")
-    print(f"DEBUG: scenario = {scenario}")
+    # Generate confidence labels with new thresholds
+    def get_confidence_label(score):
+        if score >= 80:
+            return "HIGH ✅"
+        elif score >= 60:
+            return "MODERATE ⚠️"
+        elif score >= 30:
+            return "LOW ⚠️"
+        else:
+            return "VERY LOW ❌"
     
-    # Extract genus score - use percentage (already 0-100) or normalised_score * 100
+    # Extract genus score for labels
     if genus_breakdown and len(genus_breakdown) > 0:
-        # Use 'percentage' which is already calculated as 0-100
         top_genus_score = genus_breakdown[0].get('percentage', 0)
     else:
         top_genus_score = 0
     
-    print(f"DEBUG: top_genus_score extracted = {top_genus_score}")
-    
-    # For non-ammonite scenarios, use the non_am_total as the confidence score
+    # Generate scenario-specific messaging
     if scenario == 'non_ammonite':
         score_for_message = round(non_am_total * 100)
-    else:
-        score_for_message = round(top_family_score)
+        result['family_label'] = get_confidence_label(score_for_message)
+        result['genus_label'] = None
+        result['feedback_message'] = "💡 If you believe this is actually an ammonite, try retaking with the spiral/coiling pattern clearly visible"
+        result['feedback_style'] = "info"
     
-    confidence_data = generate_confidence_message(
-        top_family_score=score_for_message,
-        top_genus_score=top_genus_score,  # Already rounded in backend
-        scenario=scenario
-    )
-    print(f"DEBUG: confidence_data = {confidence_data}")
+    elif scenario == 'uncertain':
+        result['family_label'] = "VERY LOW ❌"
+        result['genus_label'] = None
+        result['feedback_message'] = "⚠️ Image too unclear for identification. Please retake with: fossil filling 80%+ of frame, even lighting, sharp focus"
+        result['feedback_style'] = "warning"
     
-    result['family_label'] = confidence_data['family_label']
-    result['genus_label'] = confidence_data['genus_label']
-    result['feedback_message'] = confidence_data['feedback_message']
-    result['feedback_style'] = confidence_data.get('feedback_style', 'info')
+    elif scenario == 'low':
+        result['family_label'] = get_confidence_label(top_family_score)
+        result['genus_label'] = get_confidence_label(top_genus_score) if top_genus_score else "LOW ⚠️"
+        result['feedback_message'] = f"⚠️ Low confidence ({round(top_family_score)}%) - this is our best guess. For better results, retake with fossil filling 80%+ of frame and even lighting"
+        result['feedback_style'] = "warning"
     
-    print(f"DEBUG: Labels added to result")
+    elif scenario == 'possible':
+        result['family_label'] = get_confidence_label(top_family_score)
+        result['genus_label'] = get_confidence_label(top_genus_score) if top_genus_score else "MODERATE ⚠️"
+        result['feedback_message'] = "💡 This result is likely correct. For better accuracy, try adding another photo rotated 30-90°"
+        result['feedback_style'] = "info"
+    
+    else:  # 'likely'
+        result['family_label'] = get_confidence_label(top_family_score)
+        result['genus_label'] = get_confidence_label(top_genus_score) if top_genus_score else "HIGH ✅"
+        result['feedback_message'] = "✅ High confidence identification"
+        result['feedback_style'] = "success"
 
     result['formatted_output'] = format_output(result)
     return result
 
 
-# ============================================================
-# OUTPUT FORMATTING
-# ============================================================
-
 def format_output(result: dict) -> str:
     """
     Produces the agreed display text for the app.
-    Handles all six output scenarios.
+    Handles all seven output scenarios (likely, possible, low, uncertain, non_ammonite).
     """
     scenario   = result['scenario']
     num_photos = result.get('num_photos', 1)
     lines      = []
 
-    # ── Scenario 1 and 2: Ammonite identified ────────────────
-    if scenario in ('likely', 'possible'):
+    # ── Scenarios 1, 2, 3: Ammonite identified (likely, possible, low) ──
+    if scenario in ('likely', 'possible', 'low'):
         family    = result['top_family']
         score_pct = result['top_family_score']
-        wording   = (
-            'Likely' if scenario == 'likely'
-            else 'Possible'
-        )
+        
+        # Choose wording based on scenario
+        if scenario == 'likely':
+            wording = 'Likely'
+        elif scenario == 'possible':
+            wording = 'Possible'
+        else:  # 'low'
+            wording = 'Best Guess'
 
         lines.append(
             f"FAMILY:  {family}"
@@ -539,6 +169,15 @@ def format_output(result: dict) -> str:
             lines.append(
                 f"         Based on {num_photos} photographs"
             )
+        
+        # Add warning for low confidence
+        if scenario == 'low':
+            lines.append("")
+            lines.append("⚠️  LOW CONFIDENCE IDENTIFICATION  ⚠️")
+            lines.append("    This is our best estimate - the image may be:")
+            lines.append("    - Too far away (fossil not filling the frame)")
+            lines.append("    - Poorly lit or out of focus")
+            lines.append("    - Taken at an angle obscuring key features")
 
         lines.append("")
         lines.append("GENUS:")
@@ -557,7 +196,7 @@ def format_output(result: dict) -> str:
             "it is recommended to consult with an expert."
         )
 
-    # ── Scenario 3: Uncertain ────────────────────────────────
+    # ── Scenario 4: Uncertain (≤29%) ────────────────────────────────
     elif scenario == 'uncertain':
         lines.append(
             "FAMILY:  Uncertain — confidence too low"
@@ -566,6 +205,17 @@ def format_output(result: dict) -> str:
         lines.append("")
         lines.append(
             "GENUS:   Cannot be determined from this image."
+        )
+        lines.append("")
+        lines.append("This typically happens when:")
+        lines.append(
+            "  — The fossil is too small in the frame"
+        )
+        lines.append(
+            "  — Lighting is poor or shadows obscure details"
+        )
+        lines.append(
+            "  — The photo is blurry or at a steep angle"
         )
         lines.append("")
         lines.append("For best results:")
@@ -580,12 +230,8 @@ def format_output(result: dict) -> str:
             "  — Use even lighting with no shadows"
             " across the ribs"
         )
-        lines.append(
-            "  — Try a second photo from a"
-            " different angle"
-        )
 
-    # ── Scenarios 4, 5 and 6: Non-ammonite ──────────────────
+    # ── Scenarios 5, 6, 7: Non-ammonite ────────────────────────────
     elif scenario == 'non_ammonite':
         non_am_cat = result['non_am_category']
 
@@ -641,33 +287,3 @@ def format_output(result: dict) -> str:
             )
 
     return '\n'.join(lines)
-
-
-# ============================================================
-# MAIN ENTRY POINT
-# ============================================================
-
-def identify_from_bytes_list(
-    images_bytes: list,
-    num_photos: int
-) -> dict:
-    """
-    Main entry point called by the API.
-
-    Takes a list of raw image byte strings,
-    runs smart crop and identification on each,
-    combines the results, and returns the full
-    structured result with formatted output.
-    """
-    single_results = []
-
-    for img_bytes in images_bytes:
-        img_array = load_image_from_bytes(
-            img_bytes,
-            smart_crop=True
-        )
-        result = identify_single(img_array)
-        single_results.append(result)
-
-    combined = combine_results(single_results)
-    return build_result(combined, num_photos)
