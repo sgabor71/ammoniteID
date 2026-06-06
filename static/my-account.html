@@ -269,7 +269,7 @@
             </div>
         </div>
 
-        <!-- Cloudinary Backup Card (Premium only) -->
+        <!-- Cloudinary Backup Card (Premium+) -->
         <div class="card premium-card" id="cloudinaryBackupCard" style="display: none;">
             <h2>☁️ Cloud Backup</h2>
             <p style="color: var(--light-text); margin-bottom: 16px;">Your fossil collection is backed up to Cloudinary cloud storage. Never lose your finds!</p>
@@ -277,6 +277,12 @@
             <div class="backup-status">
                 📦 Last backup: <strong id="lastBackupDate">Never</strong>
                 <span id="backupFossilCount"></span>
+            </div>
+
+            <!-- Retention Status -->
+            <div class="backup-status" id="retentionStatusBox" style="display:none;">
+                📊 <strong>Retention:</strong>
+                <span id="retentionInfo">Loading...</span>
             </div>
             
             <div class="btn-row">
@@ -292,6 +298,33 @@
             
             <div class="warning-box" style="margin-top: 16px; font-size: 0.8rem;">
                 💡 <strong>How it works:</strong> Your fossil data (not images) is saved as a JSON file to Cloudinary's free cloud storage. You can restore anytime. Images remain on your device for privacy.
+                <br><br>
+                🗑️ <strong>Sync delete:</strong> When you delete a fossil locally, it will also be removed from your cloud backup.
+            </div>
+        </div>
+
+        <!-- Admin Full Backup Card (Admin only) -->
+        <div class="card" id="adminBackupCard" style="display: none; border: 2px solid #c62828; background: linear-gradient(135deg, #ffffff, #fff5f5);">
+            <h2>🛡️ Admin Full Backup</h2>
+            <p style="color: var(--light-text); margin-bottom: 16px;">Full system backup including all users, identifications, review queue, partners, and content. Auto-backup runs daily. Manual deletion only.</p>
+            
+            <div class="backup-status">
+                📦 Last admin backup: <strong id="lastAdminBackupDate">Never</strong>
+                <span id="adminBackupStats"></span>
+            </div>
+            
+            <div class="btn-row">
+                <button id="adminBackupBtn" class="btn" style="background:#c62828;color:white;">🛡️ Full System Backup</button>
+                <button id="mlExportBtn" class="btn btn-outline">🧠 Export ML Training Data</button>
+            </div>
+            
+            <div id="adminBackupProgress" style="display: none; margin-top: 16px;">
+                <progress id="adminBackupProgressBar" value="0" max="100"></progress>
+                <span id="adminBackupProgressText" style="font-size: 0.8rem; color: #666; display: block; margin-top: 6px;">Creating full backup...</span>
+            </div>
+            
+            <div class="success-box" style="margin-top: 16px; font-size: 0.8rem;">
+                🔒 <strong>Admin policy:</strong> Auto-backup daily to Cloudinary. No auto-delete — only manual deletion allowed. All admin page data included in backups.
             </div>
         </div>
 
@@ -398,6 +431,36 @@
                         document.getElementById('lastBackupDate').textContent = new Date(lastBackup.date).toLocaleString();
                         document.getElementById('backupFossilCount').innerHTML = `(${lastBackup.fossil_count} fossils)`;
                     }
+
+                    // Load retention status
+                    if (window.getRetentionStatus) {
+                        const retention = await window.getRetentionStatus(user.uid);
+                        if (retention) {
+                            const statusBox = document.getElementById('retentionStatusBox');
+                            const info = document.getElementById('retentionInfo');
+                            statusBox.style.display = 'block';
+                            if (retention.auto_delete_enabled) {
+                                info.textContent = `${retention.total_active} active | ${retention.kept_forever} kept forever | ${retention.at_risk_auto_delete} expiring soon (30-day retention)`;
+                            } else if (retention.admin_manual_only) {
+                                info.textContent = `${retention.total_active} active | Manual delete only (admin)`;
+                            } else {
+                                info.textContent = `${retention.total_active} active`;
+                            }
+                        }
+                    }
+
+                    // Show admin backup card for ADMIN tier
+                    if (tier === 'ADMIN') {
+                        document.getElementById('adminBackupCard').style.display = 'block';
+                        const lastAdminBackup = window.getLastAdminBackupInfo ? window.getLastAdminBackupInfo() : null;
+                        if (lastAdminBackup) {
+                            document.getElementById('lastAdminBackupDate').textContent = new Date(lastAdminBackup.date).toLocaleString();
+                            if (lastAdminBackup.stats) {
+                                document.getElementById('adminBackupStats').innerHTML =
+                                    `(${lastAdminBackup.stats.total_users} users, ${lastAdminBackup.stats.total_identifications} IDs)`;
+                            }
+                        }
+                    }
                 } else {
                     document.getElementById('freeInfo').style.display = 'block';
                 }
@@ -498,7 +561,7 @@
             }
         }, 200);
         
-        const result = await window.backupToCloudinary(userId, fossilData);
+        const result = await window.backupToCloudinary(userId, fossilData, currentTier);
         clearInterval(interval);
         
         if (result && result.success) {
@@ -514,6 +577,55 @@
             progressDiv.style.display = 'none';
             const errorMsg = result && result.error ? result.error : 'Unknown error';
             alert(`❌ Backup failed: ${errorMsg}\n\nCheck Cloudinary credentials in cloudinary-backup.js`);
+        }
+    }
+
+    // Admin Full Backup
+    async function performAdminBackup() {
+        const userId = localStorage.getItem('ammonite_user_id');
+        if (!userId) { alert('Not logged in.'); return; }
+
+        const progressDiv = document.getElementById('adminBackupProgress');
+        const progressBar = document.getElementById('adminBackupProgressBar');
+        const progressText = document.getElementById('adminBackupProgressText');
+
+        progressDiv.style.display = 'block';
+        progressBar.value = 20;
+        progressText.textContent = 'Gathering all system data...';
+
+        const interval = setInterval(() => {
+            if (progressBar.value < 90) progressBar.value += 10;
+        }, 300);
+
+        const result = await window.adminFullBackup(userId);
+        clearInterval(interval);
+
+        if (result && result.success) {
+            progressBar.value = 100;
+            progressText.textContent = 'Full system backup complete!';
+            document.getElementById('lastAdminBackupDate').textContent = new Date(result.backup_date).toLocaleString();
+            if (result.stats) {
+                document.getElementById('adminBackupStats').innerHTML =
+                    `(${result.stats.total_users} users, ${result.stats.total_identifications} IDs)`;
+            }
+            setTimeout(() => { progressDiv.style.display = 'none'; }, 2000);
+            alert('✅ Admin full backup complete!\n\nAll system data saved to Cloudinary.');
+        } else {
+            progressDiv.style.display = 'none';
+            alert(`❌ Admin backup failed: ${result?.error || 'Unknown error'}`);
+        }
+    }
+
+    // ML Data Export
+    async function performMLExport() {
+        const userId = localStorage.getItem('ammonite_user_id');
+        if (!userId) { alert('Not logged in.'); return; }
+
+        const result = await window.exportMLData(userId);
+        if (result && result.success) {
+            alert(`✅ ML training data exported!\n\n${result.total_items} reviewed items exported.`);
+        } else {
+            alert(`❌ ML export failed: ${result?.error || 'Unknown error'}`);
         }
     }
 
@@ -564,16 +676,22 @@
     window.performBackup        = performBackup;
     window.performRestore       = performRestore;
     window.exportLocalJSON      = exportLocalJSON;
+    window.performAdminBackup   = performAdminBackup;
+    window.performMLExport      = performMLExport;
     
     // Add event listeners when DOM loads
     document.addEventListener('DOMContentLoaded', () => {
         const backupBtn = document.getElementById('manualBackupBtn');
         const restoreBtn = document.getElementById('restoreBackupBtn');
         const exportBtn = document.getElementById('exportLocalBtn');
+        const adminBackupBtn = document.getElementById('adminBackupBtn');
+        const mlExportBtn = document.getElementById('mlExportBtn');
         
         if (backupBtn) backupBtn.addEventListener('click', performBackup);
         if (restoreBtn) restoreBtn.addEventListener('click', performRestore);
         if (exportBtn) exportBtn.addEventListener('click', exportLocalJSON);
+        if (adminBackupBtn) adminBackupBtn.addEventListener('click', performAdminBackup);
+        if (mlExportBtn) mlExportBtn.addEventListener('click', performMLExport);
     });
 </script>
 
