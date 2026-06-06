@@ -19,6 +19,7 @@ from auth_api import auth_router, get_user_tier
 from features_api import features_router
 from stripe_api import stripe_router
 from collection_api import collection_router
+from retention_api import retention_router
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse, RedirectResponse
 from typing import List
@@ -27,6 +28,7 @@ import json
 import sqlite3
 from datetime import datetime
 from pathlib import Path
+from contextlib import asynccontextmanager
 
 from config import (
     UPLOAD_DIR, REVIEW_DIR,
@@ -35,11 +37,37 @@ from config import (
 )
 from identifier import identify_from_bytes_list
 
+# ── Scheduler setup ───────────────────────────────────────────
+from apscheduler.schedulers.background import BackgroundScheduler
+from retention_api import run_auto_delete as _run_auto_delete
+
+scheduler = BackgroundScheduler()
+
+def scheduled_auto_delete():
+    """Runs daily at 2 AM to clean up expired identifications."""
+    try:
+        result = _run_auto_delete()
+        print(f"🗑️ Auto-delete: {result.get('auto_deleted', 0)} items cleaned")
+    except Exception as e:
+        print(f"⚠️ Auto-delete error: {e}")
+
+@asynccontextmanager
+async def lifespan(app):
+    # Startup
+    scheduler.add_job(scheduled_auto_delete, 'cron', hour=2, minute=0, id='auto_delete')
+    scheduler.start()
+    print("⏰ Scheduler started — auto-delete runs daily at 2:00 AM UTC")
+    yield
+    # Shutdown
+    scheduler.shutdown()
+    print("⏰ Scheduler stopped")
+
 # ── Create the app ───────────────────────────────────────────
 app = FastAPI(
     title="AmmoniteID API",
     description="Ammonite fossil identification backend",
-    version=APP_VERSION
+    version=APP_VERSION,
+    lifespan=lifespan
 )
 
 # ── Service worker must be at root path, not /static/ ────────
@@ -58,6 +86,7 @@ app.include_router(auth_router)
 app.include_router(features_router)
 app.include_router(stripe_router)
 app.include_router(collection_router)
+app.include_router(retention_router)
 
 # ── Add CORS middleware ──────────────────────────────────────
 app.add_middleware(
@@ -176,6 +205,10 @@ def init_db():
     id_cols = [row[1] for row in c.fetchall()]
     if 'user_id' not in id_cols:
         c.execute("ALTER TABLE identifications ADD COLUMN user_id TEXT")
+    if 'keep_forever' not in id_cols:
+        c.execute("ALTER TABLE identifications ADD COLUMN keep_forever INTEGER DEFAULT 0")
+    if 'deleted_at' not in id_cols:
+        c.execute("ALTER TABLE identifications ADD COLUMN deleted_at TEXT")
 
     # ── Review queue table ────────────────────────────────────
     c.execute('''
@@ -200,6 +233,14 @@ def init_db():
     rq_cols = [col[1] for col in c.fetchall()]
     if 'photo_paths' not in rq_cols:
         c.execute("ALTER TABLE review_queue ADD COLUMN photo_paths TEXT")
+    if 'deleted_at' not in rq_cols:
+        c.execute("ALTER TABLE review_queue ADD COLUMN deleted_at TEXT")
+    if 'ml_flagged' not in rq_cols:
+        c.execute("ALTER TABLE review_queue ADD COLUMN ml_flagged INTEGER DEFAULT 0")
+    if 'photos_cleaned' not in rq_cols:
+        c.execute("ALTER TABLE review_queue ADD COLUMN photos_cleaned INTEGER DEFAULT 0")
+    if 'photos_cleaned_at' not in rq_cols:
+        c.execute("ALTER TABLE review_queue ADD COLUMN photos_cleaned_at TEXT")
 
     # ── Partners table ────────────────────────────────────────
     c.execute('''
@@ -252,6 +293,16 @@ def init_db():
             created_at        TEXT
         )
     ''')
+
+    # ── Migration: add new columns to fossil_collection ───
+    c.execute("PRAGMA table_info(fossil_collection)")
+    fc_cols = [col[1] for col in c.fetchall()]
+    if 'keep_forever' not in fc_cols:
+        c.execute("ALTER TABLE fossil_collection ADD COLUMN keep_forever INTEGER DEFAULT 0")
+    if 'deleted_at' not in fc_cols:
+        c.execute("ALTER TABLE fossil_collection ADD COLUMN deleted_at TEXT")
+    if 'cloudinary_backup_url' not in fc_cols:
+        c.execute("ALTER TABLE fossil_collection ADD COLUMN cloudinary_backup_url TEXT")
 
     conn.commit()
     conn.close()
@@ -530,7 +581,8 @@ def update_review(
     expert_genus:  str = None,
     expert_notes:  str = None,
     status:        str = "reviewed",
-    reviewed_by:   str = "expert"
+    reviewed_by:   str = "expert",
+    ml_flag:       int = 0
 ):
     """
     Updates a review queue item with expert verdict.
@@ -538,6 +590,7 @@ def update_review(
     
     Called from the expert review portal when
     an expert submits their correction.
+    After verdict, images are deleted (local + Cloudinary).
     """
     conn = sqlite3.connect(str(DB_PATH))
     c    = conn.cursor()
@@ -545,7 +598,8 @@ def update_review(
         UPDATE review_queue
         SET status=?, expert_family=?,
             expert_genus=?, expert_notes=?,
-            reviewed_at=?, reviewed_by=?
+            reviewed_at=?, reviewed_by=?,
+            ml_flagged=?
         WHERE id=?
     ''', (
         status,
@@ -554,15 +608,35 @@ def update_review(
         expert_notes,
         datetime.utcnow().isoformat(),
         reviewed_by,
+        ml_flag,
         review_id
     ))
     conn.commit()
+
+    # ── Delete review photos after verdict ─────────────────
+    if status in ('reviewed', 'incorrect', 'ambiguous'):
+        c2 = conn.cursor()
+        c2.execute("SELECT identification_id FROM review_queue WHERE id=?", (review_id,))
+        row = c2.fetchone()
+        if row:
+            photo_dir = REVIEW_DIR / row[0]
+            if photo_dir.exists():
+                import shutil
+                shutil.rmtree(str(photo_dir))
+            c2.execute('''
+                UPDATE review_queue
+                SET photos_cleaned = 1, photos_cleaned_at = ?
+                WHERE id = ?
+            ''', (datetime.utcnow().isoformat(), review_id))
+            conn.commit()
+
     conn.close()
 
     return {
         "review_id": review_id,
         "status":    status,
-        "updated":   True
+        "updated":   True,
+        "ml_flagged": bool(ml_flag)
     }
 
 
