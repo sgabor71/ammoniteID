@@ -748,6 +748,22 @@
                 if (tierAtLeast(userTier, 'PREMIUM')) try {
                     const topGenus = result.genus_breakdown?.[0]?.genus || 'Unknown';
 
+                    // Determine what to save based on scenario
+                    let saveFamily, saveGenus, saveConfidence;
+                    if (result.scenario === 'non_ammonite') {
+                        saveFamily = result.non_am_display || result.top_non_am || 'Not an ammonite';
+                        saveGenus = result.non_am_category || 'N/A';
+                        saveConfidence = result.non_am_total || 0;
+                    } else if (result.scenario === 'uncertain') {
+                        saveFamily = 'Uncertain';
+                        saveGenus = 'Unknown';
+                        saveConfidence = result.family_confidence || 0;
+                    } else {
+                        saveFamily = result.top_family || 'Unknown';
+                        saveGenus = topGenus;
+                        saveConfidence = result.family_confidence || 0;
+                    }
+
                     // 1. Save to localStorage (fast, works offline)
                     const fossils = JSON.parse(localStorage.getItem('ammoniteMyLogs') || '[]');
                     let photoBase64 = '';
@@ -757,10 +773,10 @@
                     const localEntry = {
                         id: identification_id,
                         date: new Date().toISOString(),
-                        family: result.top_family || 'Unknown',
-                        genus: topGenus,
+                        family: saveFamily,
+                        genus: saveGenus,
                         family_label: result.family_label || '',
-                        confidence: result.family_confidence || 0,
+                        confidence: saveConfidence,
                         photos: photoBase64 ? [photoBase64] : [],
                         genusBreakdown: result.genus_breakdown || [],
                         scenario: result.scenario || '',
@@ -780,10 +796,10 @@
                             body: JSON.stringify({
                                 user_id: userId,
                                 identification_id: identification_id,
-                                family: result.top_family || 'Unknown',
-                                genus: topGenus,
+                                family: saveFamily,
+                                genus: saveGenus,
                                 family_label: result.family_label || '',
-                                confidence: result.family_confidence || 0,
+                                confidence: saveConfidence,
                                 scenario: result.scenario || '',
                                 formatted_output: result.formatted_output || '',
                                 genus_breakdown: result.genus_breakdown || [],
@@ -794,12 +810,10 @@
 
                 } catch(e) { console.warn('Could not save to collection:', e); }
 
-
-
                 // Save to review queue
                 try {
                     const queue = JSON.parse(localStorage.getItem('ammoniteReviewQueue') || '[]');
-                    queue.unshift({id:Date.now(), date:new Date().toISOString(), family:result.top_family||'Unknown', confidence:result.family_confidence||0, genus_breakdown:result.genus_breakdown||[], scenario:result.scenario||'', status:'pending', autoDeleteDate:new Date(Date.now()+30*24*60*60*1000).toISOString().split('T')[0]});
+                    queue.unshift({id:Date.now(), date:new Date().toISOString(), family:saveFamily, confidence:saveConfidence, genus_breakdown:result.genus_breakdown||[], scenario:result.scenario||'', status:'pending', autoDeleteDate:new Date(Date.now()+30*24*60*60*1000).toISOString().split('T')[0]});
                     localStorage.setItem('ammoniteReviewQueue', JSON.stringify(queue));
                 } catch(e) { console.warn('Could not save to queue:', e); }
 
