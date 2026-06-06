@@ -744,7 +744,22 @@
                     document.getElementById('topFamily').innerHTML = `<span style="font-size:1.8rem;font-weight:bold;">Family: ${result.top_family||'Unknown'}</span><br><span style="font-size:1.1rem;color:${confColor};">${confMessage}</span>`;
                     document.getElementById('familyConfidence').textContent = familyConf + '%';
                     document.getElementById('familyDescription').innerHTML = `<div style="margin-top:15px;padding:12px;background:${confBg};border-left:4px solid ${confColor};border-radius:5px;font-family:Arial;color:#333;">${confMessage} (${familyConf}% confidence)</div>`;
-                    document.getElementById('genusBreakdown').innerHTML = `<div style="margin-top:25px;padding-top:15px;border-top:1px solid #e0e0e0;text-align:center;"><p style="font-size:0.85rem;color:#999;margin:0;">AmmoniteID is powered by AI and can make mistakes</p></div>`;
+                    const gb = document.getElementById('genusBreakdown');
+                    gb.innerHTML = '<h3 style="margin-bottom:1rem;color:var(--dark-brown);">Genus Breakdown</h3>';
+                    if (result.genus_breakdown && result.genus_breakdown.length > 0) {
+                        result.genus_breakdown.forEach((g, idx) => {
+                            const s = g.percentage || 0;
+                            let genusLabel, genusColor;
+                            if (s >= 80) { genusLabel = 'Likely'; genusColor = '#28a745'; }
+                            else if (s >= 60) { genusLabel = 'Possible'; genusColor = '#ff9800'; }
+                            else if (s >= 30) { genusLabel = 'Low'; genusColor = '#dc3545'; }
+                            else { genusLabel = 'Very Low'; genusColor = '#999'; }
+                            gb.innerHTML += `<div class="genus-item ${idx===0?'best-match':''}"><div class="genus-label"><span style="${idx===0?'font-weight:bold;font-size:1.1rem;':''}">${g.genus}</span><span style="${idx===0?'font-weight:bold;':''}">${s}% — ${idx===0?'Best Match':'Possible'} <span style="color:${genusColor};font-weight:bold;">[${genusLabel}]</span></span></div><div class="progress-bar"><div class="progress-fill" style="width:${s}%"></div></div></div>`;
+                        });
+                    } else {
+                        gb.innerHTML += '<p style="color:var(--light-text);font-family:Arial;">No genus data available.</p>';
+                    }
+                    gb.innerHTML += `<div style="margin-top:25px;padding-top:15px;border-top:1px solid #e0e0e0;text-align:center;"><p style="font-size:0.85rem;color:#999;margin:0;">AmmoniteID is powered by AI and can make mistakes</p></div>`;
                 }
 
                 progressIndicator.style.display = 'none';
