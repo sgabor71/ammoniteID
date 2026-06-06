@@ -36,11 +36,18 @@ REVIEW_DIR.mkdir(exist_ok=True, parents=True)
 # Model settings
 IMAGE_SIZE = 224  # EfficientNet-B0 input size
 
-# Confidence thresholds
-FAMILY_LIKELY_THRESHOLD = 75
-FAMILY_POSSIBLE_THRESHOLD = 50
-GENUS_BEST_MATCH_THRESHOLD = 0.25
-GENUS_POSSIBLE_THRESHOLD = 0.15
+# Confidence thresholds (updated for 4-tier system)
+# Tier 1: ≥80% - High confidence (Likely)
+# Tier 2: 60-79% - Medium confidence (Possible)
+# Tier 3: 30-59% - Low confidence (Best Guess - still show identification)
+# Tier 4: ≤29% - Too noisy (Uncertain - don't show identification)
+FAMILY_LIKELY_THRESHOLD = 80    # Was 75
+FAMILY_POSSIBLE_THRESHOLD = 60  # Was 50
+FAMILY_LOW_THRESHOLD = 30       # NEW - 30-59% shows best guess with warning
+
+# Genus thresholds (normalised scores within family)
+GENUS_BEST_MATCH_THRESHOLD = 0.60   # ≥60% = best match
+GENUS_POSSIBLE_THRESHOLD = 0.30     # 30-59% = possible
 
 # Upload limits
 MAX_PHOTOS  = 3
