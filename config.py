@@ -14,7 +14,7 @@ IS_HOSTIM = os.getenv('HOSTIM') is not None or os.path.exists('/data')
 BASE_DIR = Path(__file__).parent
 
 # Model and class info file paths
-MODEL_PATH = BASE_DIR / 'ammonite_model_v1_quantized.tflite'
+MODEL_PATH = BASE_DIR / 'ammonite_model_v1.tflite'
 CLASS_INFO = BASE_DIR / 'class_info.json'
 
 # Storage directories - different paths for Render vs Hostim vs local
