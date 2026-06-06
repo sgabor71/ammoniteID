@@ -14,7 +14,7 @@ IS_HOSTIM = os.getenv('HOSTIM') is not None or os.path.exists('/data')
 BASE_DIR = Path(__file__).parent
 
 # Model and class info file paths
-MODEL_PATH = BASE_DIR / 'ammonite_model_v1.keras'
+MODEL_PATH = BASE_DIR / 'ammonite_model_v1_quantized.tflite'
 CLASS_INFO = BASE_DIR / 'class_info.json'
 
 # Storage directories - different paths for Render vs Hostim vs local
@@ -36,18 +36,12 @@ REVIEW_DIR.mkdir(exist_ok=True, parents=True)
 # Model settings
 IMAGE_SIZE = 224  # EfficientNet-B0 input size
 
-# Confidence thresholds (updated for 4-tier system)
-# Tier 1: ≥80% - High confidence (Likely)
-# Tier 2: 60-79% - Medium confidence (Possible)
-# Tier 3: 30-59% - Low confidence (Best Guess - still show identification)
-# Tier 4: ≤29% - Too noisy (Uncertain - don't show identification)
-FAMILY_LIKELY_THRESHOLD = 80    # Was 75
-FAMILY_POSSIBLE_THRESHOLD = 60  # Was 50
-FAMILY_LOW_THRESHOLD = 30       # NEW - 30-59% shows best guess with warning
-
-# Genus thresholds (normalised scores within family)
-GENUS_BEST_MATCH_THRESHOLD = 0.60   # ≥60% = best match
-GENUS_POSSIBLE_THRESHOLD = 0.30     # 30-59% = possible
+# Confidence thresholds
+FAMILY_LIKELY_THRESHOLD = 80
+FAMILY_POSSIBLE_THRESHOLD = 60
+FAMILY_LOW_THRESHOLD = 30
+GENUS_BEST_MATCH_THRESHOLD = 0.25
+GENUS_POSSIBLE_THRESHOLD = 0.15
 
 # Upload limits
 MAX_PHOTOS  = 3
