@@ -99,7 +99,14 @@
         .empty-state h2 { color: #1a1a1a; font-size: 1.8rem; margin-bottom: 0.5rem; }
         .empty-state a { display: inline-block; padding: 1rem 2rem; background: #2c5f2d; color: white; text-decoration: none; border-radius: 10px; font-family: 'Arial', sans-serif; font-weight: 600; }
         @media (max-width: 1024px) { .stats-sidebar { display: none; } .main-container { flex-direction: column; } }
-        @media (max-width: 768px) { .controls { flex-direction: column; } }
+        @media (max-width: 768px) { .controls { flex-direction: column; } .btn-filters, .btn-sync { display: none !important; } .mobile-more-wrap { display: block !important; } }
+        .mobile-more-wrap { display: none; position: relative; }
+        .mobile-more-btn { padding: 0.6rem 1.2rem; background: #2c5f2d; color: white; border: none; border-radius: 8px; cursor: pointer; font-family: 'Arial', sans-serif; font-weight: 600; font-size: 1rem; }
+        .mobile-more-dropdown { display: none; position: absolute; top: 100%; right: 0; background: white; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 100; min-width: 180px; overflow: hidden; margin-top: 6px; }
+        .mobile-more-dropdown.open { display: block; }
+        .mobile-more-dropdown button { display: block; width: 100%; padding: 12px 18px; border: none; background: none; text-align: left; font-family: 'Arial', sans-serif; font-size: 0.95rem; font-weight: 600; color: #333; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
+        .mobile-more-dropdown button:last-child { border-bottom: none; }
+        .mobile-more-dropdown button:hover { background: #f0f5f0; }
         .hidden { display: none !important; }
         .hamburger-btn { display: none; }
         .mobile-menu { display: none; }
@@ -235,6 +242,13 @@
                     </select>
                     <button class="btn-filters" onclick="toggleFilters()">🔍 Filters</button>
                     <button class="btn-sync" id="syncNowBtn" onclick="manualSyncToCloud()">☁️ Sync Now</button>
+                    <div class="mobile-more-wrap">
+                        <button class="mobile-more-btn" onclick="toggleMobileMore(event)">⋮ More</button>
+                        <div class="mobile-more-dropdown" id="mobileMoreDropdown">
+                            <button onclick="toggleFilters(); closeMobileMore();">🔍 Filters</button>
+                            <button onclick="manualSyncToCloud(); closeMobileMore();">☁️ Sync Now</button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="filters-panel" id="filtersPanel">
@@ -421,37 +435,37 @@
                 genusBreakdown: f.genus_breakdown || [],
                 scenario: f.scenario || '',
                 notes: f.notes || '',
-                favorite: false,
-                keepForever: false,
+                favorite: f.favorite || false,
+                keepForever: f.keepForever || false,
                 syncedToDb: true
             }));
-            const merged = [...fossilData];
+
+            // Database is source of truth — merge LOCAL photos into DB entries
+            const localFossils = JSON.parse(localStorage.getItem('ammoniteMyLogs') || '[]');
             for (const dbF of dbFossils) {
-                const existingIdx = merged.findIndex(l => l.id === dbF.id);
-                if (existingIdx === -1) {
-                    merged.push(dbF);
-                } else {
-                    if ((dbF.photos?.length || 0) > (merged[existingIdx].photos?.length || 0)) {
-                        merged[existingIdx] = dbF;
-                    }
+                const localMatch = localFossils.find(l => l.id === dbF.id);
+                if (localMatch && localMatch.photos && localMatch.photos.length > 0 && (!dbF.photos || dbF.photos.length === 0)) {
+                    dbF.photos = localMatch.photos;
                 }
             }
-            const newCount = merged.length - fossilData.length;
-            if (newCount > 0) {
-                fossilData = merged;
-                saveToLocalStorage();
-                filteredData = [...fossilData];
-                renderData();
-                updateStats();
-                populateFilters();
-                showToast(`📥 Added ${newCount} new fossil(s) from cloud`);
-            } else {
-                for (const f of fossilData) {
-                    if (dbFossils.some(db => db.id === f.id)) f.syncedToDb = true;
-                }
-                saveToLocalStorage();
-            }
-        } catch(e) { console.warn(e); }
+
+            // Find any local-only entries not yet synced to database
+            const dbIds = new Set(dbFossils.map(f => f.id));
+            const unsyncedLocal = localFossils.filter(l => !dbIds.has(l.id));
+
+            // Final list: database entries + unsynced local entries, sorted newest first
+            fossilData = deduplicateById([...dbFossils, ...unsyncedLocal]);
+            fossilData.sort((a, b) => new Date(b.date) - new Date(a.date));
+            saveToLocalStorage();
+            filteredData = [...fossilData];
+            sortData();
+            updateStats();
+            populateFilters();
+            if (dbFossils.length > 0) showToast(`✅ Loaded ${dbFossils.length} fossil(s) from cloud`);
+        } catch(e) {
+            console.warn('Database fetch failed, using local data:', e);
+            loadFromLocalStorage();
+        }
     }
 
     async function manualSyncToCloud() {
@@ -465,6 +479,9 @@
     function deleteFossilById(id) {
         const idx = fossilData.findIndex(f => f.id == id);
         if (idx !== -1) {
+            // Delete from database first
+            fetch(`/api/collection/${id}`, { method: 'DELETE' }).catch(()=>{});
+            // Then remove from local data
             fossilData.splice(idx, 1);
             saveToLocalStorage();
             filteredData = filteredData.filter(f => f.id != id);
@@ -473,7 +490,6 @@
             renderData();
             updateStats();
             populateFilters();
-            fetch(`/api/collection/${id}`, { method: 'DELETE' }).catch(()=>{});
         }
     }
 
@@ -495,6 +511,10 @@
     function deleteSelectedFossils() {
         if (selectedIds.size === 0) return;
         if (!confirm(`Delete ${selectedIds.size} selected fossil(s)?`)) return;
+        // Delete from database first
+        for (let id of selectedIds) {
+            fetch(`/api/collection/${id}`, { method: 'DELETE' }).catch(()=>{});
+        }
         fossilData = fossilData.filter(f => !selectedIds.has(f.id));
         filteredData = filteredData.filter(f => !selectedIds.has(f.id));
         selectedIds.clear();
@@ -503,9 +523,6 @@
         renderData();
         updateStats();
         populateFilters();
-        for (let id of selectedIds) {
-            fetch(`/api/collection/${id}`, { method: 'DELETE' }).catch(()=>{});
-        }
     }
 
     function toggleCardSelect(id, checked) {
@@ -590,6 +607,9 @@
 
     function openShareModal(id) { alert('Share functionality - coming soon!'); }
     function toggleFilters() { document.getElementById('filtersPanel').classList.toggle('active'); }
+    function toggleMobileMore(e) { e.stopPropagation(); document.getElementById('mobileMoreDropdown').classList.toggle('open'); }
+    function closeMobileMore() { document.getElementById('mobileMoreDropdown').classList.remove('open'); }
+    document.addEventListener('click', function(e) { const dd = document.getElementById('mobileMoreDropdown'); if (dd && !dd.contains(e.target) && !e.target.classList.contains('mobile-more-btn')) dd.classList.remove('open'); });
     function toggleStats() { document.getElementById('statsSidebar').classList.toggle('collapsed'); document.getElementById('statsArrow').textContent = document.getElementById('statsSidebar').classList.contains('collapsed') ? '▲' : '▼'; }
     function exportPDF() { alert('PDF export - coming soon!'); }
     function exportCSV() { alert('CSV export - coming soon!'); }
@@ -880,8 +900,8 @@
                 localStorage.setItem('ammonite_tier', tier);
                 if (!tierAtLeast(tier, 'PREMIUM')) { window.location.href = '/static/upgrade.html'; return; }
                 loadFromLocalStorage();
-                await syncLocalToDatabase(user.uid);
                 await fetchAndMergeDb(user.uid);
+                await syncLocalToDatabase(user.uid);
             } catch(e) {
                 const cachedTier = (localStorage.getItem('ammonite_tier') || 'FREE').toUpperCase();
                 if (!tierAtLeast(cachedTier, 'PREMIUM')) { window.location.href = '/static/upgrade.html'; return; }
