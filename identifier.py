@@ -43,19 +43,24 @@ NON_AM_DISPLAY = {
     'Devils toenail':   'a Devils Toenail (Gryphaea)',
 }
 
-# ── Load Keras model once at startup ────────────────────────
-print("Loading ammonite identification model (Keras)...")
+# ── Load TFLite model once at startup ────────────────────────
+print("Loading ammonite identification model (TFLite)...")
 try:
     # Check if model file exists
     if not MODEL_PATH.exists():
         raise FileNotFoundError(f"Model not found at {MODEL_PATH}")
     
-    model = tf.keras.models.load_model(str(MODEL_PATH))
-    print(f"Model loaded. Input shape: {model.input_shape}, Output shape: {model.output_shape}")
+    interpreter = tf.lite.Interpreter(model_path=str(MODEL_PATH))
+    interpreter.allocate_tensors()
+    _input_details  = interpreter.get_input_details()
+    _output_details = interpreter.get_output_details()
+    _input_index  = _input_details[0]['index']
+    _output_index = _output_details[0]['index']
+    print(f"Model loaded. Input shape: {_input_details[0]['shape']}, Output shape: {_output_details[0]['shape']}")
 except Exception as e:
     print(f"ERROR loading model: {e}")
     print(f"Current working directory: {os.getcwd()}")
-    print(f"Files in model directory: {list(MODEL_PATH.parent.glob('*.keras'))}")
+    print(f"Files in model directory: {list(MODEL_PATH.parent.glob('*.tflite'))}")
     raise
 
 
@@ -211,8 +216,10 @@ def identify_single(image_array: np.ndarray) -> dict:
     # Add batch dimension — model expects (1, 224, 224, 3)
     batch = np.expand_dims(image_array, axis=0).astype(np.float32)
 
-    # Run Keras inference
-    raw = model.predict(batch, verbose=0)[0]
+    # Run TFLite inference
+    interpreter.set_tensor(_input_index, batch)
+    interpreter.invoke()
+    raw = interpreter.get_tensor(_output_index)[0]
 
     # Map index to class name (handle model output size vs class_info mismatch)
     num_outputs = len(raw)
