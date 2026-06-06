@@ -299,6 +299,8 @@ def init_db():
     fc_cols = [col[1] for col in c.fetchall()]
     if 'keep_forever' not in fc_cols:
         c.execute("ALTER TABLE fossil_collection ADD COLUMN keep_forever INTEGER DEFAULT 0")
+    if 'favorite' not in fc_cols:
+        c.execute("ALTER TABLE fossil_collection ADD COLUMN favorite INTEGER DEFAULT 0")
     if 'deleted_at' not in fc_cols:
         c.execute("ALTER TABLE fossil_collection ADD COLUMN deleted_at TEXT")
     if 'cloudinary_backup_url' not in fc_cols:
