@@ -138,6 +138,85 @@
         }
     }
 
+    // ── Fix Keras 3.x → TF.js compatibility ────────────────
+    // Keras 3 uses formats TF.js doesn't understand:
+    //   1. "batch_shape" → needs "batch_input_shape" in InputLayer
+    //   2. DTypePolicy objects → needs plain string like "float32"
+    //   3. "silu" activation → needs "swish" (same function, different name)
+    function patchKeras3Topology(obj) {
+        if (!obj || typeof obj !== 'object') return obj;
+        if (Array.isArray(obj)) { obj.forEach(patchKeras3Topology); return obj; }
+
+        // Fix InputLayer: batch_shape → batch_input_shape
+        if (obj.class_name === 'InputLayer' && obj.config) {
+            if (obj.config.batch_shape && !obj.config.batch_input_shape) {
+                obj.config.batch_input_shape = obj.config.batch_shape;
+                delete obj.config.batch_shape;
+            }
+        }
+
+        // Fix DTypePolicy → plain string
+        if (obj.dtype && typeof obj.dtype === 'object' && obj.dtype.class_name === 'DTypePolicy') {
+            obj.dtype = obj.dtype.config?.name || 'float32';
+        }
+
+        // Fix silu → swish (same math, TF.js name)
+        if (obj.activation === 'silu') {
+            obj.activation = 'swish';
+        }
+
+        // Recurse into all nested objects
+        for (const key of Object.keys(obj)) {
+            if (typeof obj[key] === 'object' && obj[key] !== null) {
+                patchKeras3Topology(obj[key]);
+            }
+        }
+        return obj;
+    }
+
+    // ── Register custom layers for Keras 3 compat ─────────────
+    // Keras Normalization preprocessing layer isn't in TF.js.
+    // It does: (x - mean) / sqrt(variance + epsilon)
+    function registerCustomLayers() {
+        if (typeof tf === 'undefined') return;
+        if (tf._ammoniteCustomRegistered) return;
+
+        class NormalizationLayer extends tf.layers.Layer {
+            constructor(config) {
+                super(config);
+                this.axis = config.axis || [-1];
+                this.epsilon = 1e-6;
+            }
+            build(inputShape) {
+                const axisShape = [inputShape[inputShape.length - 1]];
+                this.mean_ = this.addWeight('mean', axisShape, 'float32', tf.initializers.zeros());
+                this.variance_ = this.addWeight('variance', axisShape, 'float32', tf.initializers.ones());
+                // count weight exists in file but we don't use it
+                this.count_ = this.addWeight('count', [], 'int32', tf.initializers.zeros());
+            }
+            call(inputs) {
+                const x = Array.isArray(inputs) ? inputs[0] : inputs;
+                const mean = this.mean_.read();
+                const variance = this.variance_.read();
+                return tf.tidy(() => {
+                    return tf.div(tf.sub(x, mean), tf.sqrt(tf.add(variance, this.epsilon)));
+                });
+            }
+            computeOutputShape(inputShape) { return inputShape; }
+            getClassName() { return 'Normalization'; }
+            static get className() { return 'Normalization'; }
+        }
+
+        try {
+            tf.serialization.registerClass(NormalizationLayer);
+            console.log('offline-engine: registered Normalization layer');
+        } catch (e) {
+            // Already registered or TF.js issue — not fatal
+            console.warn('offline-engine: Normalization registration:', e.message);
+        }
+        tf._ammoniteCustomRegistered = true;
+    }
+
     // ── Build a TF.js IOHandler from IDB data ────────────────
     // layers-model format: model.json contains modelTopology +
     // weightsManifest.  Each shard path maps to an ArrayBuffer
@@ -164,11 +243,14 @@
                     offset += src.byteLength;
                 }
 
+                // Patch Keras 3 topology for TF.js compatibility
+                const topology = JSON.parse(JSON.stringify(modelJson.modelTopology));
+                patchKeras3Topology(topology);
+
                 return {
-                    modelTopology   : modelJson.modelTopology,
+                    modelTopology   : topology,
                     weightSpecs,
                     weightData,
-                    // Signal that output is already normalised (sigmoid/softmax)
                     format          : modelJson.format,
                     generatedBy     : modelJson.generatedBy,
                     convertedBy     : modelJson.convertedBy,
@@ -224,6 +306,7 @@
 
             // 6. Pre-load the model into memory so first inference is fast
             progress('loading', 95);
+            registerCustomLayers();
             _model = await tf.loadLayersModel(buildIOHandler(modelJson, shardBuffers));
             // Warm up with a dummy tensor
             const dummy = tf.zeros([1, IMAGE_SIZE, IMAGE_SIZE, 3]);
@@ -278,8 +361,8 @@
             shardBuffers.push(buf);
         }
 
+        registerCustomLayers();
         _model = await tf.loadLayersModel(buildIOHandler(modelJson, shardBuffers));
-        console.log('offline-engine: model loaded from IDB');
     }
 
     // ── Preprocess image → Float32Array [1,224,224,3] ────────
@@ -293,11 +376,12 @@
                 canvas.height = IMAGE_SIZE;
                 canvas.getContext('2d').drawImage(img, 0, 0, IMAGE_SIZE, IMAGE_SIZE);
                 const px   = canvas.getContext('2d').getImageData(0, 0, IMAGE_SIZE, IMAGE_SIZE).data;
+                // Model has built-in Rescaling(1/255) — pass raw 0-255 pixels
                 const f32  = new Float32Array(IMAGE_SIZE * IMAGE_SIZE * 3);
                 for (let i = 0; i < IMAGE_SIZE * IMAGE_SIZE; i++) {
-                    f32[i * 3]     = px[i * 4]     / 255.0;   // R
-                    f32[i * 3 + 1] = px[i * 4 + 1] / 255.0;   // G
-                    f32[i * 3 + 2] = px[i * 4 + 2] / 255.0;   // B
+                    f32[i * 3]     = px[i * 4];       // R (0-255)
+                    f32[i * 3 + 1] = px[i * 4 + 1];   // G (0-255)
+                    f32[i * 3 + 2] = px[i * 4 + 2];   // B (0-255)
                 }
                 if (file instanceof Blob) URL.revokeObjectURL(img.src);
                 resolve(f32);
