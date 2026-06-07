@@ -11,25 +11,15 @@ from datetime import datetime, timedelta
 import sqlite3
 import os
 
+# Import shared database configuration
+from database import DB_PATH
+
 auth_router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 # Permanent admin UID — always has ADMIN tier regardless of DB
 PERMANENT_ADMIN_UID = "16fjKKd4XPOD8PMZhGQSHmSAdPO2"
 
 VALID_TIERS = ("FREE", "PREMIUM", "EXPERT", "ADMIN")
-
-def get_db_path():
-    if os.getenv('DATABASE_PATH'):
-        return Path(os.getenv('DATABASE_PATH'))
-    elif os.getenv('RENDER'):
-        return Path('/tmp/ammonite.db')
-    elif os.path.exists('/data'):
-        return Path('/data/ammonite.db')
-    else:
-        return Path(__file__).parent / 'ammonite.db'
-
-DB_PATH = get_db_path()
-DB_PATH.parent.mkdir(exist_ok=True, parents=True)
 
 SERVICE_ACCOUNT = Path(__file__).parent / 'firebase_service_account.json'
 
