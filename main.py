@@ -103,6 +103,46 @@ app.add_middleware(
 # ── Database setup (now handled by database.py) ──────────────
 # The init_db() function now uses DB_PATH from database.py
 
+def add_missing_columns():
+    """Add missing columns to tables for migration."""
+    conn = sqlite3.connect(str(DB_PATH))
+    c = conn.cursor()
+    
+    # Check and add updated_at column to users table if missing
+    try:
+        c.execute("PRAGMA table_info(users)")
+        columns = [col[1] for col in c.fetchall()]
+        if 'updated_at' not in columns:
+            c.execute("ALTER TABLE users ADD COLUMN updated_at TEXT DEFAULT CURRENT_TIMESTAMP")
+            conn.commit()
+            print("✅ Added missing updated_at column to users table")
+    except Exception as e:
+        print(f"Column check for users.updated_at: {e}")
+    
+    # Check and add updated_at column to partners table if missing
+    try:
+        c.execute("PRAGMA table_info(partners)")
+        columns = [col[1] for col in c.fetchall()]
+        if 'updated_at' not in columns:
+            c.execute("ALTER TABLE partners ADD COLUMN updated_at TEXT DEFAULT CURRENT_TIMESTAMP")
+            conn.commit()
+            print("✅ Added missing updated_at column to partners table")
+    except Exception as e:
+        print(f"Column check for partners.updated_at: {e}")
+    
+    # Check and add updated_at column to feature_flags table if missing
+    try:
+        c.execute("PRAGMA table_info(feature_flags)")
+        columns = [col[1] for col in c.fetchall()]
+        if 'updated_at' not in columns:
+            c.execute("ALTER TABLE feature_flags ADD COLUMN updated_at TEXT DEFAULT CURRENT_TIMESTAMP")
+            conn.commit()
+            print("✅ Added missing updated_at column to feature_flags table")
+    except Exception as e:
+        print(f"Column check for feature_flags.updated_at: {e}")
+    
+    conn.close()
+
 def init_db():
     """
     Creates DB tables. Safe to run repeatedly — uses CREATE IF NOT EXISTS.
@@ -290,9 +330,23 @@ def init_db():
     if 'cloudinary_backup_url' not in fc_cols:
         c.execute("ALTER TABLE fossil_collection ADD COLUMN cloudinary_backup_url TEXT")
 
+    # ── Feature flags table (for feature gating) ──────────────
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS feature_flags (
+            feature_key TEXT PRIMARY KEY,
+            label       TEXT NOT NULL,
+            rule        TEXT NOT NULL DEFAULT 'premium',
+            description TEXT,
+            updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
     conn.commit()
     conn.close()
     print(f"✅ DB initialised at {DB_PATH} — 4-tier system active")
+    
+    # Add any missing columns after table creation
+    add_missing_columns()
 
 # Initialize database when server starts
 init_db()
