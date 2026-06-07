@@ -11,7 +11,7 @@
         // Register service worker for full offline support
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/static/service-worker.js')
+                navigator.serviceWorker.register('/service-worker.js')
                     .then(reg => {
                         console.log('[SW] Registered, scope:', reg.scope);
                         // Tell SW to also cache model once offline-engine has downloaded it
