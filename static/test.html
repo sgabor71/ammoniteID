@@ -7,6 +7,24 @@
     <script src="/static/tier-gates.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
     <script src="/static/offline-engine.js"></script>
+    <script>
+        // Register service worker for full offline support
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/service-worker.js')
+                    .then(reg => {
+                        console.log('[SW] Registered, scope:', reg.scope);
+                        // Tell SW to also cache model once offline-engine has downloaded it
+                        window.addEventListener('offline-ready', () => {
+                            if (navigator.serviceWorker.controller) {
+                                navigator.serviceWorker.controller.postMessage({ type: 'CACHE_MODEL' });
+                            }
+                        });
+                    })
+                    .catch(e => console.warn('[SW] Registration failed:', e));
+            });
+        }
+    </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -890,11 +908,61 @@
 
     <!-- OFFLINE SCRIPT -->
     <script>
-        function updateOfflineStatus(){const bar=document.getElementById('offlineBar');const isOff=!navigator.onLine;const mr=window.offlineReady&&window.offlineReady();const oTier=(localStorage.getItem('ammonite_tier')||'FREE').toUpperCase();const canOff=(oTier==='PREMIUM'||oTier==='ADMIN'||oTier==='EXPERT');if(isOff&&canOff&&mr){bar.style.display='block';bar.style.background='#e8f5e9';bar.style.borderLeft='4px solid #2c5f2d';bar.innerHTML='📡 <strong>Offline Mode</strong> — identifying using local AI model';}else if(isOff&&!canOff){bar.style.display='block';bar.style.background='#fff3cd';bar.style.borderLeft='4px solid #ff9800';bar.innerHTML='📵 <strong>No signal</strong> — <a href="/static/upgrade.html" style="color:#e67e22;font-weight:bold;">Upgrade for offline mode →</a>';}else if(isOff&&canOff){bar.style.display='block';bar.style.background='#fff3cd';bar.style.borderLeft='4px solid #ff9800';bar.innerHTML='📵 <strong>No signal</strong> — offline model not yet downloaded';}else if(mr&&canOff){bar.style.display='block';bar.style.background='#e8f5e9';bar.style.borderLeft='4px solid #2c5f2d';bar.innerHTML='✅ <strong>Online</strong> — offline mode ready as backup';}else{bar.style.display='none';}}
-        window.addEventListener('online',updateOfflineStatus);window.addEventListener('offline',updateOfflineStatus);window.addEventListener('offline-ready',updateOfflineStatus);
-        function checkOfflineDownloadVisibility(){/* Auto-download handles this now — nothing to show */}
-        /* startOfflineDownload removed — model auto-downloads via offline-engine.js */
-        document.addEventListener('DOMContentLoaded',()=>{updateOfflineStatus();});
+        (function () {
+            const TIERS = ['PREMIUM', 'ADMIN', 'EXPERT'];
+            function canUseOffline() {
+                return TIERS.includes((localStorage.getItem('ammonite_tier') || 'FREE').toUpperCase());
+            }
+            function showBar(bg, border, html) {
+                const el = document.getElementById('offlineBar');
+                if (!el) return;
+                el.style.display    = 'block';
+                el.style.background = bg;
+                el.style.borderLeft = '4px solid ' + border;
+                el.innerHTML        = html;
+            }
+            function hideBar() {
+                const el = document.getElementById('offlineBar');
+                if (el) el.style.display = 'none';
+            }
+            function updateOfflineStatus() {
+                const isOff  = !navigator.onLine;
+                const ready  = window.offlineReady && window.offlineReady();
+                const dling  = window.offlineDownloading && window.offlineDownloading();
+                const canOff = canUseOffline();
+                if (dling) return; // progress bar shown by polling
+                if (isOff && canOff && ready)
+                    showBar('#e8f5e9','#2c5f2d','📡 <strong>Offline Mode</strong> — identifying using local AI model');
+                else if (isOff && !canOff)
+                    showBar('#fff3cd','#ff9800','📵 <strong>No signal</strong> — <a href="/static/upgrade.html" style="color:#e67e22;font-weight:bold;">Upgrade for offline mode →</a>');
+                else if (isOff && canOff && !ready)
+                    showBar('#fff3cd','#ff9800','📵 <strong>No signal</strong> — offline model not yet downloaded');
+                else if (!isOff && ready && canOff)
+                    showBar('#e8f5e9','#2c5f2d','✅ <strong>Online</strong> — offline mode ready as backup');
+                else if (!isOff && !ready && canOff)
+                    showBar('#e3f0ff','#4A90A4','⏬ <strong>Downloading offline model</strong> — this happens once in the background');
+                else
+                    hideBar();
+            }
+            // Poll while downloading so bar reflects progress
+            let _poll;
+            function pollDuringDownload() {
+                clearTimeout(_poll);
+                if (window.offlineDownloading && window.offlineDownloading()) {
+                    updateOfflineStatus();
+                    _poll = setTimeout(pollDuringDownload, 1500);
+                } else {
+                    updateOfflineStatus();
+                }
+            }
+            window.addEventListener('online',         updateOfflineStatus);
+            window.addEventListener('offline',        updateOfflineStatus);
+            window.addEventListener('offline-ready',  updateOfflineStatus);
+            document.addEventListener('DOMContentLoaded', () => {
+                updateOfflineStatus();
+                setTimeout(pollDuringDownload, 2000);
+            });
+        })();
     </script>
 
 </body>
