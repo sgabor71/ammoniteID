@@ -1,18 +1,18 @@
 // ============================================================
 // offline-engine.js — Offline fossil identification engine
-// AmmoniteID — runs the TFLite model directly in the browser
+// AmmoniteID — runs the TFJS model directly in the browser
 // ============================================================
 //
-// Uses the TFLite Task Library (WASM) to run the quantized
-// model locally. No server needed. Same model, same accuracy.
+// Uses TensorFlow.js to run the model locally. No server needed.
+// Same model, same accuracy.
 //
 // Add to identify page:
-//   <script src="https://cdn.jsdelivr.net/npm/@�f/tfjs@4.20.0/dist/tf.min.js"></script>
+//   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
 //   <script src="/static/offline-engine.js"></script>
 // ============================================================
 
 (function () {
-    const MODEL_URL = '/static/ammonite_model_v1.tflite';
+    const MODEL_URL = '/static/tfjs_model/model.json';   // ← CHANGED
     const CLASS_INFO_URL = '/static/class_info.json';
     const IMAGE_SIZE = 224;
 
@@ -76,7 +76,7 @@
         }
     }
 
-    // ── Download and cache the model ────────────────────────
+    // ── Download and cache the model (TFJS format) ───────────
     window.downloadOfflineModel = async function (progressCallback) {
         if (_downloading) return false;
         _downloading = true;
@@ -84,41 +84,34 @@
         try {
             if (progressCallback) progressCallback({ stage: 'downloading', progress: 0 });
 
-            // Download model file
-            const response = await fetch(MODEL_URL);
-            if (!response.ok) throw new Error('Model download failed');
+            // Download model.json and its shards
+            const modelJsonRes = await fetch(MODEL_URL);
+            if (!modelJsonRes.ok) throw new Error('Model manifest download failed');
+            const modelJson = await modelJsonRes.json();
 
-            const reader = response.body.getReader();
-            const contentLength = +response.headers.get('Content-Length') || 8400000;
-            let receivedLength = 0;
-            const chunks = [];
-
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-                chunks.push(value);
-                receivedLength += value.length;
+            // Download all weight shards
+            const weightUrls = modelJson.weightsManifest.map(entry => entry.paths).flat();
+            const weightData = [];
+            let totalBytes = 0;
+            for (const url of weightUrls) {
+                const baseUrl = MODEL_URL.substring(0, MODEL_URL.lastIndexOf('/') + 1);
+                const fullUrl = baseUrl + url;
+                const res = await fetch(fullUrl);
+                if (!res.ok) throw new Error(`Failed to download weight: ${url}`);
+                const buffer = await res.arrayBuffer();
+                weightData.push(buffer);
+                totalBytes += buffer.byteLength;
                 if (progressCallback) {
-                    progressCallback({
-                        stage: 'downloading',
-                        progress: Math.round((receivedLength / contentLength) * 100)
-                    });
+                    progressCallback({ stage: 'downloading', progress: Math.min(90, Math.round((weightData.length / weightUrls.length) * 90)) });
                 }
             }
 
-            // Combine chunks into single ArrayBuffer
-            const modelBytes = new Uint8Array(receivedLength);
-            let position = 0;
-            for (const chunk of chunks) {
-                modelBytes.set(chunk, position);
-                position += chunk.length;
-            }
+            // Store model JSON and weights in IndexedDB
+            if (progressCallback) progressCallback({ stage: 'saving', progress: 95 });
+            await idbSet('offline_model_json', JSON.stringify(modelJson));
+            await idbSet('offline_model_weights', weightData);
 
-            // Store in IndexedDB
-            if (progressCallback) progressCallback({ stage: 'saving', progress: 100 });
-            await idbSet('offline_model', modelBytes);
-
-            // Load class info too
+            // Store class info too
             await loadClassInfo();
 
             _offlineReady = true;
@@ -137,7 +130,8 @@
     // ── Delete the offline model ────────────────────────────
     window.deleteOfflineModel = async function () {
         try {
-            await idbDelete('offline_model');
+            await idbDelete('offline_model_json');
+            await idbDelete('offline_model_weights');
             await idbDelete('class_info');
             _offlineReady = false;
             _model = null;
@@ -156,9 +150,10 @@
 
         // Load model from IndexedDB if not in memory
         if (!_model) {
-            const modelBytes = await idbGet('offline_model');
-            if (!modelBytes) throw new Error('Model not found in storage');
-            _model = modelBytes;
+            const modelJsonStr = await idbGet('offline_model_json');
+            const weightData = await idbGet('offline_model_weights');
+            if (!modelJsonStr || !weightData) throw new Error('Model not found in storage');
+            _model = { json: JSON.parse(modelJsonStr), weights: weightData };
         }
 
         // Process each image
@@ -204,44 +199,41 @@
         });
     }
 
-    // ── Run TFLite inference using tf.js ────────────────────
+    // ── Run TFJS model inference ───────────────────────────
     async function runInference(imageArray) {
-        // Use tf.js with the TFLite delegate
-        // Load tf.js if not already loaded
         if (typeof tf === 'undefined') {
             throw new Error('TensorFlow.js not loaded');
         }
 
-        // Create interpreter from stored model bytes
-        if (!window._tfliteModel) {
-            const modelBytes = await idbGet('offline_model');
-            window._tfliteModel = await tf.loadGraphModel(
-                tf.io.browserHTTPRequest(MODEL_URL),
-            ).catch(() => null);
-
-            // If graph model doesn't work, fall back to manual inference
-            if (!window._tfliteModel) {
-                // Use raw WASM TFLite interpreter
-                return runTFLiteWASM(imageArray);
-            }
+        // Load the model graph from stored JSON + weights
+        if (!window._tfModel) {
+            const modelJson = _model.json;
+            const weightBuffers = _model.weights;
+            // We need to reconstruct the model. Use tf.loadGraphModel with IOHandler
+            // Since we have the model.json string and weight buffers, we can create a custom IOHandler
+            const customIOHandler = {
+                load: async () => {
+                    const weightsManifest = modelJson.weightsManifest;
+                    const weightSpecs = weightsManifest.flatMap(m => m.weights);
+                    const weightData = new ArrayBuffer(weightBuffers.reduce((acc, buf) => acc + buf.byteLength, 0));
+                    let offset = 0;
+                    for (const buf of weightBuffers) {
+                        new Uint8Array(weightData).set(new Uint8Array(buf), offset);
+                        offset += buf.byteLength;
+                    }
+                    return { modelTopology: modelJson.modelTopology, weightSpecs, weightData };
+                }
+            };
+            window._tfModel = await tf.loadGraphModel(customIOHandler);
         }
 
         const inputTensor = tf.tensor(imageArray, [1, IMAGE_SIZE, IMAGE_SIZE, 3]);
-        const prediction = window._tfliteModel.predict(inputTensor);
+        const prediction = window._tfModel.predict(inputTensor);
         const scores = await prediction.data();
         inputTensor.dispose();
         prediction.dispose();
 
         return processScores(Array.from(scores));
-    }
-
-    // ── Fallback: manual softmax + score processing ─────────
-    // If we can't load tf.js graph model, we process raw output
-    async function runTFLiteWASM(imageArray) {
-        // For environments where tf.js can't load the model directly,
-        // we send to server (which is the online path anyway).
-        // This fallback exists for safety.
-        throw new Error('Direct TFLite WASM not available — use online mode');
     }
 
     // ── Process raw model output scores ─────────────────────
@@ -495,8 +487,8 @@
     // ── Boot: check if model is already downloaded, auto-download if not ──
     async function init() {
         try {
-            const stored = await idbGet('offline_model');
-            if (stored) {
+            const storedJson = await idbGet('offline_model_json');
+            if (storedJson) {
                 // Always refresh class_info from server when online
                 if (navigator.onLine) {
                     try {
