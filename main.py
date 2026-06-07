@@ -31,7 +31,7 @@ from pathlib import Path
 from contextlib import asynccontextmanager
 
 from config import (
-    UPLOAD_DIR, REVIEW_DIR,
+    BASE_DIR, UPLOAD_DIR, REVIEW_DIR,
     MAX_PHOTOS, MAX_FILE_MB,
     MODEL_VERSION, APP_VERSION
 )
@@ -78,6 +78,18 @@ async def service_worker():
 @app.get("/manifest.json")
 async def manifest():
     return FileResponse("static/manifest.json", media_type="application/json")
+
+# ── Serve the offline model file (TFLite) for premium users ──
+@app.get("/static/ammonite_model_v1.tflite")
+async def serve_offline_model():
+    model_path = BASE_DIR / "ammonite_model_v1.tflite"
+    if not model_path.exists():
+        raise HTTPException(status_code=404, detail="Model file not found")
+    return FileResponse(
+        str(model_path),
+        media_type="application/octet-stream",
+        headers={"Content-Disposition": "inline"}
+    )
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(admin_api_router)
