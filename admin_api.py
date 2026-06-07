@@ -12,6 +12,36 @@ from pathlib import Path
 # Import shared database configuration
 from database import DB_PATH
 
+# ── Auto-migrate: add missing columns if needed ──────────────
+def _migrate_users_table():
+    try:
+        conn = sqlite3.connect(str(DB_PATH))
+        c = conn.cursor()
+        c.execute("PRAGMA table_info(users)")
+        columns = [col[1] for col in c.fetchall()]
+        
+        migrations = {
+            'updated_at': "ALTER TABLE users ADD COLUMN updated_at TEXT DEFAULT CURRENT_TIMESTAMP",
+            'premium_status': "ALTER TABLE users ADD COLUMN premium_status TEXT DEFAULT 'FREE'",
+            'is_admin': "ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0",
+            'tier': "ALTER TABLE users ADD COLUMN tier TEXT DEFAULT 'FREE'",
+        }
+        
+        for col, sql in migrations.items():
+            if col not in columns:
+                try:
+                    c.execute(sql)
+                    print(f"✅ admin_api: added missing column '{col}'")
+                except Exception:
+                    pass
+        
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"⚠️ admin_api migration check: {e}")
+
+_migrate_users_table()
+
 router = APIRouter()
 
 # ============================================
