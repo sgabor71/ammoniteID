@@ -1,9 +1,9 @@
 // ============================================================
 // service-worker.js — AmmoniteID PWA Service Worker
-// v3 — forces re-cache: offline mode auto-download, UI cleanup
+// v4 — adds TFJS model files to cache for offline mode
 // ============================================================
 
-const CACHE_NAME = 'ammoniteid-v3';   // ← bumped to force fresh cache on all devices
+const CACHE_NAME = 'ammoniteid-v4';   // ← bumped to v4 for new model assets
 
 const CORE_ASSETS = [
     // ── Pages ──────────────────────────────────────────────
@@ -24,7 +24,7 @@ const CORE_ASSETS = [
     '/static/disclaimer.html',
 
     // ── Shared JS ──────────────────────────────────────────
-    '/static/tier-gates.js',          // ← NEW: must be cached for offline nav to work
+    '/static/tier-gates.js',
     '/static/hamburger-menu.js',
     '/static/responsive-mobile.css',
     '/static/auth-sync.js',
@@ -33,15 +33,23 @@ const CORE_ASSETS = [
 
     // ── Data ───────────────────────────────────────────────
     '/static/class_info.json',
+
+    // ── TFJS Model (offline mode) ──────────────────────────
+    '/static/tfjs_model/model.json',
+    '/static/tfjs_model/group1-shard1of5.bin',
+    '/static/tfjs_model/group1-shard2of5.bin',
+    '/static/tfjs_model/group1-shard3of5.bin',
+    '/static/tfjs_model/group1-shard4of5.bin',
+    '/static/tfjs_model/group1-shard5of5.bin',
 ];
 
 // ── Install: cache core assets ──────────────────────────────
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
-            console.log('SW v3: caching core assets');
+            console.log('SW v4: caching core assets + TFJS model');
             return cache.addAll(CORE_ASSETS).catch(err => {
-                console.warn('SW v3: some assets failed to cache', err);
+                console.warn('SW v4: some assets failed to cache', err);
             });
         })
     );
@@ -49,7 +57,7 @@ self.addEventListener('install', event => {
     self.skipWaiting();
 });
 
-// ── Activate: delete old caches (v1 and any others) ─────────
+// ── Activate: delete old caches (v1, v2, v3, etc.) ─────────
 self.addEventListener('activate', event => {
     event.waitUntil(
         caches.keys().then(keys =>
@@ -57,7 +65,7 @@ self.addEventListener('activate', event => {
                 keys
                     .filter(k => k !== CACHE_NAME)
                     .map(k => {
-                        console.log('SW v3: deleting old cache', k);
+                        console.log('SW v4: deleting old cache', k);
                         return caches.delete(k);
                     })
             )
