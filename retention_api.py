@@ -14,30 +14,15 @@ from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from typing import Optional
 
+# Import shared database configuration
+from database import DB_PATH, REVIEW_DIR
+
 retention_router = APIRouter(prefix="/api/retention", tags=["retention"])
 
 # ── Config ────────────────────────────────────────────────────
 CLOUDINARY_CLOUD_NAME = os.getenv("CLOUDINARY_CLOUD_NAME", "dds5rebi2")
 CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY", "")
 CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET", "")
-
-def get_db_path():
-    if os.getenv('DATABASE_PATH'):
-        return Path(os.getenv('DATABASE_PATH'))
-    elif os.path.exists('/data'):
-        return Path('/data/ammonite.db')
-    else:
-        return Path(__file__).parent / 'ammonite.db'
-
-DB_PATH = get_db_path()
-
-def get_review_dir():
-    if os.path.exists('/data'):
-        return Path('/data/review_queue')
-    else:
-        return Path(__file__).parent / 'review_queue'
-
-REVIEW_DIR = get_review_dir()
 
 
 # ── Pydantic models ──────────────────────────────────────────
