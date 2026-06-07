@@ -8,10 +8,10 @@ import sqlite3
 import json
 from pathlib import Path
 
-content_router = APIRouter()
+# Import shared database configuration
+from database import DB_PATH
 
-# Database path
-DB_PATH = Path(__file__).parent / 'ammonite.db'
+content_router = APIRouter()
 
 # ============================================
 # ADDITIONAL DATABASE SCHEMA
@@ -105,7 +105,7 @@ class DesignSettings(BaseModel):
 async def get_home_content():
     """Get home page content"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(str(DB_PATH))
         cursor = conn.cursor()
         
         cursor.execute("SELECT content_data FROM site_content WHERE content_id = 'home_hero'")
@@ -131,7 +131,7 @@ async def get_home_content():
 async def save_home_content(content: HomeContent):
     """Save home page content"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(str(DB_PATH))
         cursor = conn.cursor()
         
         # Save hero content
@@ -179,7 +179,7 @@ async def save_home_content(content: HomeContent):
 async def get_about_content():
     """Get about page content"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(str(DB_PATH))
         cursor = conn.cursor()
         
         cursor.execute("SELECT content_data FROM site_content WHERE content_id = 'about_content'")
@@ -198,7 +198,7 @@ async def get_about_content():
 async def save_about_content(content: AboutContent):
     """Save about page content"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(str(DB_PATH))
         cursor = conn.cursor()
         
         content_data = json.dumps({
@@ -229,7 +229,7 @@ async def save_about_content(content: AboutContent):
 async def get_contact_content():
     """Get contact page content"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(str(DB_PATH))
         cursor = conn.cursor()
         
         cursor.execute("SELECT content_data FROM site_content WHERE content_id = 'contact_info'")
@@ -248,7 +248,7 @@ async def get_contact_content():
 async def save_contact_content(content: ContactContent):
     """Save contact page content"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(str(DB_PATH))
         cursor = conn.cursor()
         
         content_data = json.dumps({
@@ -278,7 +278,7 @@ async def save_contact_content(content: ContactContent):
 async def get_design_settings():
     """Get all design settings"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(str(DB_PATH))
         cursor = conn.cursor()
         
         cursor.execute("SELECT setting_name, setting_value FROM site_design")
@@ -299,7 +299,7 @@ async def get_design_settings():
 async def save_design_settings(settings: DesignSettings):
     """Save design settings"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(str(DB_PATH))
         cursor = conn.cursor()
         
         settings_dict = {
@@ -333,7 +333,7 @@ async def save_design_settings(settings: DesignSettings):
 async def reset_design_settings():
     """Reset design settings to defaults"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(str(DB_PATH))
         cursor = conn.cursor()
         
         defaults = {
@@ -371,7 +371,7 @@ async def reset_design_settings():
 async def get_all_content():
     """Get all site content including partners - used by partners.html page"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(str(DB_PATH))
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         
