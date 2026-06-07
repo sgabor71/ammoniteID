@@ -294,25 +294,14 @@
     <div id="partner-ad-banner"></div>
 
     <div class="container">
-        <!-- PREMIUM WARNING -->
-        <div id="premiumWarning" style="display:none;margin-bottom:1.5rem;padding:16px 20px;border-radius:12px;background:linear-gradient(135deg,#fff3cd,#ffe8b6);border-left:5px solid #ff9800;font-family:Arial;">
-            <div style="font-size:1rem;font-weight:bold;color:#333;margin-bottom:8px;">⚠️ Premium Feature Not Activated</div>
-            <p style="color:#555;margin:0 0 12px 0;font-size:0.95rem;">You have Premium access but haven't downloaded the offline model yet.</p>
-            <button onclick="document.getElementById('offlineDownloadSection').scrollIntoView({behavior:'smooth'})" style="padding:8px 16px;background:#ff9800;color:white;border:none;border-radius:6px;font-weight:bold;cursor:pointer;">⬇️ Activate Now</button>
-        </div>
+        <!-- PREMIUM WARNING (removed — offline model auto-downloads) -->
+        <div id="premiumWarning" style="display:none;"></div>
 
         <!-- OFFLINE BAR -->
         <div id="offlineBar" style="display:none;margin-bottom:1.5rem;padding:14px 18px;border-radius:12px;font-family:Arial;font-size:0.95rem;"></div>
 
-        <!-- OFFLINE DOWNLOAD -->
-        <div id="offlineDownloadSection" style="display:none;margin-bottom:1.5rem;text-align:center;background:white;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-            <button id="downloadModelBtn" onclick="startOfflineDownload()" style="padding:12px 24px;background:linear-gradient(135deg,#f39c12,#e67e22);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:bold;cursor:pointer;">⬇️ Enable Offline Mode</button>
-            <p style="font-size:0.85rem;color:#999;margin-top:8px;">One-time download (8.5MB)</p>
-            <div id="downloadProgress" style="display:none;margin-top:10px;">
-                <div style="background:#e0e0e0;border-radius:8px;height:8px;overflow:hidden;"><div id="downloadBar" style="background:#e67e22;height:100%;width:0%;transition:width 0.3s;"></div></div>
-                <p id="downloadStatus" style="font-size:0.85rem;color:#666;margin-top:5px;">Downloading...</p>
-            </div>
-        </div>
+        <!-- OFFLINE DOWNLOAD (removed — auto-downloads in background) -->
+        <div id="offlineDownloadSection" style="display:none;"></div>
 
         <!-- UPLOAD SECTION -->
         <div class="upload-section">
@@ -903,7 +892,7 @@
     <script>
         function updateOfflineStatus(){const bar=document.getElementById('offlineBar');const isOff=!navigator.onLine;const mr=window.offlineReady&&window.offlineReady();const oTier=(localStorage.getItem('ammonite_tier')||'FREE').toUpperCase();const canOff=(oTier==='PREMIUM'||oTier==='ADMIN'||oTier==='EXPERT');if(isOff&&canOff&&mr){bar.style.display='block';bar.style.background='#e8f5e9';bar.style.borderLeft='4px solid #2c5f2d';bar.innerHTML='📡 <strong>Offline Mode</strong> — identifying using local AI model';}else if(isOff&&!canOff){bar.style.display='block';bar.style.background='#fff3cd';bar.style.borderLeft='4px solid #ff9800';bar.innerHTML='📵 <strong>No signal</strong> — <a href="/static/upgrade.html" style="color:#e67e22;font-weight:bold;">Upgrade for offline mode →</a>';}else if(isOff&&canOff){bar.style.display='block';bar.style.background='#fff3cd';bar.style.borderLeft='4px solid #ff9800';bar.innerHTML='📵 <strong>No signal</strong> — offline model not yet downloaded';}else if(mr&&canOff){bar.style.display='block';bar.style.background='#e8f5e9';bar.style.borderLeft='4px solid #2c5f2d';bar.innerHTML='✅ <strong>Online</strong> — offline mode ready as backup';}else{bar.style.display='none';}}
         window.addEventListener('online',updateOfflineStatus);window.addEventListener('offline',updateOfflineStatus);window.addEventListener('offline-ready',updateOfflineStatus);
-        function checkOfflineDownloadVisibility(){const section=document.getElementById('offlineDownloadSection');const warning=document.getElementById('premiumWarning');const mr=window.offlineReady&&window.offlineReady();const oTier=(localStorage.getItem('ammonite_tier')||'FREE').toUpperCase();const canOff=(oTier==='PREMIUM'||oTier==='ADMIN'||oTier==='EXPERT');if(canOff&&!mr){warning.style.display='block';section.style.display='block';}else if(mr){warning.style.display='none';section.style.display='none';}else{warning.style.display='none';section.style.display='none';}}
+        function checkOfflineDownloadVisibility(){/* Auto-download handles this now — nothing to show */}
         async function startOfflineDownload(){const btn=document.getElementById('downloadModelBtn');const progress=document.getElementById('downloadProgress');const bar=document.getElementById('downloadBar');const status=document.getElementById('downloadStatus');btn.disabled=true;btn.textContent='⬇️ Downloading...';progress.style.display='block';const success=await window.downloadOfflineModel(function(info){if(info.stage==='downloading'){bar.style.width=info.progress+'%';status.textContent='Downloading... '+info.progress+'%';}else if(info.stage==='saving'){status.textContent='Saving to device...';}else if(info.stage==='done'){status.textContent='✅ Offline mode ready!';}else if(info.stage==='error'){status.textContent='❌ Failed: '+info.error;}});if(success){setTimeout(()=>{document.getElementById('offlineDownloadSection').style.display='none';updateOfflineStatus();},1500);}else{btn.disabled=false;btn.textContent='⬇️ Enable Offline Mode';}}
         window.startOfflineDownload=startOfflineDownload;
         document.addEventListener('DOMContentLoaded',()=>{updateOfflineStatus();setTimeout(checkOfflineDownloadVisibility,1500);});
