@@ -6,12 +6,13 @@ from pydantic import BaseModel
 from datetime import datetime, timedelta
 from typing import Optional, List
 import sqlite3
+import os
 from pathlib import Path
 
-router = APIRouter()
+# Import shared database configuration
+from database import DB_PATH
 
-# Database path (adjust based on your setup)
-DB_PATH = Path(__file__).parent / 'ammonite.db'
+router = APIRouter()
 
 # ============================================
 # DATABASE SCHEMA UPDATES NEEDED
@@ -144,7 +145,7 @@ class Partner(BaseModel):
 async def track_ad_impression(impression: AdImpression):
     """Track when an ad is shown to a user"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(str(DB_PATH))
         cursor = conn.cursor()
         
         cursor.execute("""
@@ -164,7 +165,7 @@ async def track_ad_impression(impression: AdImpression):
 async def track_ad_click(click: AdClick):
     """Track when a user clicks an ad"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(str(DB_PATH))
         cursor = conn.cursor()
         
         cursor.execute("""
@@ -184,7 +185,7 @@ async def track_ad_click(click: AdClick):
 async def track_page_visit(visit: PageVisit):
     """Track page visits"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(str(DB_PATH))
         cursor = conn.cursor()
         
         cursor.execute("""
@@ -207,7 +208,7 @@ async def track_page_visit(visit: PageVisit):
 async def get_dashboard_stats():
     """Get overview statistics for admin dashboard"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(str(DB_PATH))
         cursor = conn.cursor()
         
         # Total users
@@ -292,7 +293,7 @@ async def get_dashboard_stats():
 async def get_ad_performance():
     """Get detailed ad performance by partner and page"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(str(DB_PATH))
         cursor = conn.cursor()
         
         # Performance by partner
@@ -354,7 +355,7 @@ async def get_ad_performance():
 async def get_partner_report(partner_id: str, date_from: Optional[str] = None, date_to: Optional[str] = None):
     """Generate detailed report for a specific partner"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(str(DB_PATH))
         cursor = conn.cursor()
         
         # Build date filter
@@ -452,7 +453,7 @@ async def get_partner_report(partner_id: str, date_from: Optional[str] = None, d
 async def get_all_partners():
     """Get all partners"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(str(DB_PATH))
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         
@@ -502,7 +503,7 @@ async def get_all_partners():
 async def create_partner(partner: Partner):
     """Add a new partner"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(str(DB_PATH))
         cursor = conn.cursor()
         
         cursor.execute("""
@@ -532,7 +533,7 @@ async def create_partner(partner: Partner):
 async def update_partner(partner_id: str, partner: Partner):
     """Update partner details"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(str(DB_PATH))
         cursor = conn.cursor()
         
         cursor.execute("""
@@ -562,7 +563,7 @@ async def update_partner(partner_id: str, partner: Partner):
 async def delete_partner(partner_id: str):
     """Deactivate a partner"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(str(DB_PATH))
         cursor = conn.cursor()
         
         cursor.execute("UPDATE partners SET active = 0, status = 'expired' WHERE partner_id = ?", (partner_id,))
@@ -579,7 +580,7 @@ async def delete_partner(partner_id: str):
 async def pause_partner(partner_id: str):
     """Pause a partner - hides from public pages but keeps data"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(str(DB_PATH))
         cursor = conn.cursor()
         
         cursor.execute("UPDATE partners SET status = 'paused' WHERE partner_id = ?", (partner_id,))
@@ -596,7 +597,7 @@ async def pause_partner(partner_id: str):
 async def resume_partner(partner_id: str):
     """Resume a paused partner"""
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(str(DB_PATH))
         cursor = conn.cursor()
         
         cursor.execute("UPDATE partners SET status = 'active' WHERE partner_id = ?", (partner_id,))
@@ -634,7 +635,7 @@ async def update_user_tier(uid: str, body: TierUpdate):
     if uid == PERMANENT_ADMIN_UID and tier != "ADMIN":
         raise HTTPException(status_code=403, detail="Cannot change permanent admin tier.")
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(str(DB_PATH))
     c = conn.cursor()
     c.execute("SELECT 1 FROM users WHERE firebase_uid = ?", (uid,))
     if not c.fetchone():
