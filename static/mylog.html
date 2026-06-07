@@ -456,9 +456,11 @@
             }
 
             // Find any local-only entries not yet synced to database
+            // ONLY keep entries that were never synced (syncedToDb !== true)
+            // If syncedToDb is true but not in database → deleted from another device → discard
             const dbIds = new Set(dbFossils.map(f => f.id));
             const dbBareIds = new Set(dbFossils.map(f => f.id?.includes('_') ? f.id.split('_').slice(1).join('_') : f.id));
-            const unsyncedLocal = localFossils.filter(l => !dbIds.has(l.id) && !dbBareIds.has(l.id));
+            const unsyncedLocal = localFossils.filter(l => !dbIds.has(l.id) && !dbBareIds.has(l.id) && !l.syncedToDb);
 
             // Final list: database entries + unsynced local entries, sorted newest first
             fossilData = deduplicateById([...dbFossils, ...unsyncedLocal]);
