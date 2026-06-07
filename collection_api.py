@@ -5,9 +5,11 @@
 # Endpoints:
 #   POST   /api/collection/save        — save fossil after identification
 #   GET    /api/collection/{uid}       — get user's full collection
-#   DELETE /api/collection/{id}        — delete fossil + image from Hostim
+#   PATCH  /api/collection/{entry_id}  — update favorite/keep_forever/notes
+#   DELETE /api/collection/{entry_id}  — delete fossil + image from Hostim
+#   DELETE /api/collection/{uid}/all   — delete all fossils for a user
 #   GET    /api/storage/stats          — image storage stats for admin
-#   DELETE /api/storage/cleanup        — admin bulk delete images
+#   POST   /api/storage/cleanup        — admin bulk delete images
 # ============================================================
 
 import os
@@ -21,21 +23,10 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
+# Import shared database configuration
+from database import DB_PATH, REVIEW_DIR
+
 collection_router = APIRouter(tags=["collection"])
-
-# ── Paths ────────────────────────────────────────────────────
-def get_db_path():
-    if os.getenv('DATABASE_PATH'):
-        return Path(os.getenv('DATABASE_PATH'))
-    elif os.getenv('RENDER'):
-        return Path('/tmp/ammonite.db')
-    elif os.path.exists('/data'):
-        return Path('/data/ammonite.db')
-    else:
-        return Path(__file__).parent / 'ammonite.db'
-
-DB_PATH = get_db_path()
-REVIEW_DIR = Path('/data/review_queue') if os.path.exists('/data') else Path(__file__).parent / 'review_queue'
 
 
 def _db():
@@ -231,7 +222,7 @@ async def update_fossil(entry_id: str, body: FossilUpdate):
 
 
 # ============================================================
-# DELETE /api/collection/{id}
+# DELETE /api/collection/{entry_id}
 # Delete fossil from collection + image from Hostim
 # ============================================================
 @collection_router.delete("/api/collection/{entry_id}")
