@@ -25,6 +25,9 @@ from pydantic import BaseModel
 from pathlib import Path
 import sqlite3
 
+# Import shared database configuration
+from database import DB_PATH
+
 stripe_router = APIRouter(prefix="/api/stripe", tags=["stripe"])
 
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY", "")
@@ -36,11 +39,6 @@ STRIPE_PRICE_ANNUAL   = os.getenv("STRIPE_PRICE_ANNUAL",   "")
 # ── Base URL for redirect after payment ──────────────────────
 # Change to your deployed domain when on Hetzner
 BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
-
-if os.getenv('RENDER'):
-    DB_PATH = Path('/tmp/ammonite.db')
-else:
-    DB_PATH = Path(__file__).parent / 'ammonite.db'
 
 
 def _db():
