@@ -31,11 +31,14 @@ from pathlib import Path
 from contextlib import asynccontextmanager
 
 from config import (
-    UPLOAD_DIR, REVIEW_DIR,           # BASE_DIR removed (no longer needed)
+    UPLOAD_DIR, REVIEW_DIR,
     MAX_PHOTOS, MAX_FILE_MB,
     MODEL_VERSION, APP_VERSION
 )
 from identifier import identify_from_bytes_list
+
+# Import shared database configuration
+from database import DB_PATH, REVIEW_DIR as DB_REVIEW_DIR
 
 # ── Scheduler setup ───────────────────────────────────────────
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -79,8 +82,6 @@ async def service_worker():
 async def manifest():
     return FileResponse("static/manifest.json", media_type="application/json")
 
-# (Removed the /static/ammonite_model_v1.tflite route — no longer needed)
-
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(admin_api_router)
 app.include_router(content_router)
@@ -99,27 +100,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── Database setup ───────────────────────────────────────────
-# Database location - supports Hostim /data, Render /tmp, or local
-def get_db_path():
-    """Determine database path based on environment."""
-    # Check for explicit DATABASE_PATH (Hostim)
-    if os.getenv('DATABASE_PATH'):
-        return Path(os.getenv('DATABASE_PATH'))
-    # Check for Render environment
-    elif os.getenv('RENDER'):
-        return Path('/tmp/ammonite.db')
-    # Check for /data mount (Hostim fallback)
-    elif os.path.exists('/data'):
-        return Path('/data/ammonite.db')
-    # Local development
-    else:
-        return Path(__file__).parent / 'ammonite.db'
-
-DB_PATH = get_db_path()
-
-# Ensure parent directory exists
-DB_PATH.parent.mkdir(exist_ok=True, parents=True)
+# ── Database setup (now handled by database.py) ──────────────
+# The init_db() function now uses DB_PATH from database.py
 
 def init_db():
     """
@@ -485,7 +467,7 @@ async def identify(
 
     # ── Save photos to disk for review ───────────────────────
     # Create a folder for this identification
-    review_folder = REVIEW_DIR / identification_id
+    review_folder = DB_REVIEW_DIR / identification_id
     review_folder.mkdir(parents=True, exist_ok=True)
     
     saved_photo_paths = []
@@ -623,7 +605,7 @@ def update_review(
         c2.execute("SELECT identification_id FROM review_queue WHERE id=?", (review_id,))
         row = c2.fetchone()
         if row:
-            photo_dir = REVIEW_DIR / row[0]
+            photo_dir = DB_REVIEW_DIR / row[0]
             if photo_dir.exists():
                 import shutil
                 shutil.rmtree(str(photo_dir))
@@ -702,7 +684,7 @@ def get_photo(identification_id: str, photo_name: str):
     """
     from fastapi.responses import FileResponse
     
-    photo_path = REVIEW_DIR / identification_id / photo_name
+    photo_path = DB_REVIEW_DIR / identification_id / photo_name
     
     if not photo_path.exists():
         raise HTTPException(
