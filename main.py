@@ -113,7 +113,7 @@ def add_missing_columns():
         c.execute("PRAGMA table_info(users)")
         columns = [col[1] for col in c.fetchall()]
         if 'updated_at' not in columns:
-            c.execute("ALTER TABLE users ADD COLUMN updated_at TEXT DEFAULT CURRENT_TIMESTAMP")
+            c.execute("ALTER TABLE users ADD COLUMN updated_at TEXT DEFAULT ''")
             conn.commit()
             print("✅ Added missing updated_at column to users table")
     except Exception as e:
@@ -124,7 +124,7 @@ def add_missing_columns():
         c.execute("PRAGMA table_info(partners)")
         columns = [col[1] for col in c.fetchall()]
         if 'updated_at' not in columns:
-            c.execute("ALTER TABLE partners ADD COLUMN updated_at TEXT DEFAULT CURRENT_TIMESTAMP")
+            c.execute("ALTER TABLE partners ADD COLUMN updated_at TEXT DEFAULT ''")
             conn.commit()
             print("✅ Added missing updated_at column to partners table")
     except Exception as e:
@@ -135,7 +135,7 @@ def add_missing_columns():
         c.execute("PRAGMA table_info(feature_flags)")
         columns = [col[1] for col in c.fetchall()]
         if 'updated_at' not in columns:
-            c.execute("ALTER TABLE feature_flags ADD COLUMN updated_at TEXT DEFAULT CURRENT_TIMESTAMP")
+            c.execute("ALTER TABLE feature_flags ADD COLUMN updated_at TEXT DEFAULT ''")
             conn.commit()
             print("✅ Added missing updated_at column to feature_flags table")
     except Exception as e:
@@ -185,7 +185,7 @@ def init_db():
         c.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0")
 
     if 'updated_at' not in existing_cols:
-        c.execute("ALTER TABLE users ADD COLUMN updated_at TEXT DEFAULT CURRENT_TIMESTAMP")
+        c.execute("ALTER TABLE users ADD COLUMN updated_at TEXT DEFAULT ''")
         print("✅ Added updated_at column to users table")
 
     # ── Migration: copy old data into tier column ─────────────
