@@ -345,8 +345,14 @@
     function deduplicateById(items) {
         const map = new Map();
         for (const item of items) {
-            const existing = map.get(item.id);
+            // Check both full id and bare identification_id to catch old/new format duplicates
+            const bareId = item.id?.includes('_') ? item.id.split('_').slice(1).join('_') : item.id;
+            const existingFull = map.get(item.id);
+            const existingBare = map.get(bareId);
+            const existing = existingFull || existingBare;
             if (!existing || (item.photos && item.photos.length > (existing.photos?.length || 0))) {
+                // Remove old key if upgrading from bare to composite
+                if (existingBare && !existingFull) map.delete(bareId);
                 map.set(item.id, item);
             }
         }
@@ -451,7 +457,8 @@
 
             // Find any local-only entries not yet synced to database
             const dbIds = new Set(dbFossils.map(f => f.id));
-            const unsyncedLocal = localFossils.filter(l => !dbIds.has(l.id));
+            const dbBareIds = new Set(dbFossils.map(f => f.id?.includes('_') ? f.id.split('_').slice(1).join('_') : f.id));
+            const unsyncedLocal = localFossils.filter(l => !dbIds.has(l.id) && !dbBareIds.has(l.id));
 
             // Final list: database entries + unsynced local entries, sorted newest first
             fossilData = deduplicateById([...dbFossils, ...unsyncedLocal]);
