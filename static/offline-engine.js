@@ -12,7 +12,7 @@
 // ============================================================
 
 (function () {
-    const MODEL_URL = '/static/ammonite_model_v1_quantized.tflite';
+    const MODEL_URL = '/static/ammonite_model_v1.tflite';
     const CLASS_INFO_URL = '/static/class_info.json';
     const IMAGE_SIZE = 224;
 
@@ -492,17 +492,37 @@
         });
     }
 
-    // ── Boot: check if model is already downloaded ──────────
+    // ── Boot: check if model is already downloaded, auto-download if not ──
     async function init() {
         try {
             const stored = await idbGet('offline_model');
             if (stored) {
+                // Always refresh class_info from server when online
+                if (navigator.onLine) {
+                    try {
+                        const res = await fetch(CLASS_INFO_URL);
+                        _classInfo = await res.json();
+                        await idbSet('class_info', JSON.stringify(_classInfo));
+                    } catch(e) { /* use cached version */ }
+                }
                 await loadClassInfo();
                 _offlineReady = true;
                 console.log('offline-engine: model found in storage — offline ready');
                 window.dispatchEvent(new Event('offline-ready'));
+            } else if (navigator.onLine) {
+                // Auto-download model silently in background
+                console.log('offline-engine: auto-downloading model in background...');
+                const success = await window.downloadOfflineModel(function(info) {
+                    if (info.stage === 'done') {
+                        console.log('offline-engine: auto-download complete — offline ready');
+                        window.dispatchEvent(new Event('offline-ready'));
+                    }
+                });
+                if (!success) {
+                    console.log('offline-engine: auto-download failed — will retry next load');
+                }
             } else {
-                console.log('offline-engine: no model in storage — online only');
+                console.log('offline-engine: no model in storage and offline — cannot download');
             }
         } catch (e) {
             console.log('offline-engine: IndexedDB not available');
