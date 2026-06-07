@@ -685,10 +685,14 @@
             try {
                 let result;
                 const isOffline = !navigator.onLine;
-                if (isOffline && window.offlineReady && window.offlineReady()) {
+                const offTier = (localStorage.getItem('ammonite_tier') || 'FREE').toUpperCase();
+                const canOffline = (offTier === 'PREMIUM' || offTier === 'ADMIN' || offTier === 'EXPERT');
+                if (isOffline && canOffline && window.offlineReady && window.offlineReady()) {
                     progressIndicator.querySelector('p').textContent = '🔍 Identifying offline...';
                     result = await window.identifyOffline(selectedFiles);
                     result.family_confidence = result.top_family_score;
+                } else if (isOffline && !canOffline) {
+                    throw new Error('NO_SIGNAL_FREE');
                 } else if (isOffline) {
                     throw new Error('NO_SIGNAL');
                 } else {
@@ -851,8 +855,10 @@
                 } catch(e) { console.warn('Could not save to queue:', e); }
 
             } catch(error) {
-                if (error.message === 'NO_SIGNAL') {
-                    alert('📵 No internet signal.\n\nTake photos now and identify when back online.\n\n⭐ Premium users can identify offline — upgrade to unlock!');
+                if (error.message === 'NO_SIGNAL_FREE') {
+                    alert('📵 No internet signal.\n\nFree users need internet to identify fossils.\n\n⭐ Upgrade to Premium for offline identification!');
+                } else if (error.message === 'NO_SIGNAL') {
+                    alert('📵 No internet signal.\n\nOffline model not downloaded yet.\n\nTake photos now and identify when back online.');
                 } else {
                     alert('Error identifying fossil. Please check your connection and try again.');
                 }
@@ -895,9 +901,9 @@
 
     <!-- OFFLINE SCRIPT -->
     <script>
-        function updateOfflineStatus(){const bar=document.getElementById('offlineBar');const isOff=!navigator.onLine;const mr=window.offlineReady&&window.offlineReady();if(isOff&&mr){bar.style.display='block';bar.style.background='#e8f5e9';bar.style.borderLeft='4px solid #2c5f2d';bar.innerHTML='📡 <strong>Offline mode active</strong> — identifying using local AI model';}else if(isOff){bar.style.display='block';bar.style.background='#fff3cd';bar.style.borderLeft='4px solid #ff9800';bar.innerHTML='📵 <strong>No signal</strong> — <a href="/static/upgrade.html" style="color:#e67e22;font-weight:bold;">Upgrade for offline mode →</a>';}else if(mr){bar.style.display='block';bar.style.background='#e8f5e9';bar.style.borderLeft='4px solid #2c5f2d';bar.innerHTML='✅ <strong>Online</strong> — offline mode ready as backup';}else{bar.style.display='none';}}
+        function updateOfflineStatus(){const bar=document.getElementById('offlineBar');const isOff=!navigator.onLine;const mr=window.offlineReady&&window.offlineReady();const oTier=(localStorage.getItem('ammonite_tier')||'FREE').toUpperCase();const canOff=(oTier==='PREMIUM'||oTier==='ADMIN'||oTier==='EXPERT');if(isOff&&canOff&&mr){bar.style.display='block';bar.style.background='#e8f5e9';bar.style.borderLeft='4px solid #2c5f2d';bar.innerHTML='📡 <strong>Offline Mode</strong> — identifying using local AI model';}else if(isOff&&!canOff){bar.style.display='block';bar.style.background='#fff3cd';bar.style.borderLeft='4px solid #ff9800';bar.innerHTML='📵 <strong>No signal</strong> — <a href="/static/upgrade.html" style="color:#e67e22;font-weight:bold;">Upgrade for offline mode →</a>';}else if(isOff&&canOff){bar.style.display='block';bar.style.background='#fff3cd';bar.style.borderLeft='4px solid #ff9800';bar.innerHTML='📵 <strong>No signal</strong> — offline model not yet downloaded';}else if(mr&&canOff){bar.style.display='block';bar.style.background='#e8f5e9';bar.style.borderLeft='4px solid #2c5f2d';bar.innerHTML='✅ <strong>Online</strong> — offline mode ready as backup';}else{bar.style.display='none';}}
         window.addEventListener('online',updateOfflineStatus);window.addEventListener('offline',updateOfflineStatus);window.addEventListener('offline-ready',updateOfflineStatus);
-        function checkOfflineDownloadVisibility(){const section=document.getElementById('offlineDownloadSection');const warning=document.getElementById('premiumWarning');const mr=window.offlineReady&&window.offlineReady();const isPremium=document.querySelector('.account-badge.premium')!==null;if(isPremium&&!mr){warning.style.display='block';section.style.display='block';}else if(mr){warning.style.display='none';section.style.display='none';}else{warning.style.display='none';section.style.display='none';}}
+        function checkOfflineDownloadVisibility(){const section=document.getElementById('offlineDownloadSection');const warning=document.getElementById('premiumWarning');const mr=window.offlineReady&&window.offlineReady();const oTier=(localStorage.getItem('ammonite_tier')||'FREE').toUpperCase();const canOff=(oTier==='PREMIUM'||oTier==='ADMIN'||oTier==='EXPERT');if(canOff&&!mr){warning.style.display='block';section.style.display='block';}else if(mr){warning.style.display='none';section.style.display='none';}else{warning.style.display='none';section.style.display='none';}}
         async function startOfflineDownload(){const btn=document.getElementById('downloadModelBtn');const progress=document.getElementById('downloadProgress');const bar=document.getElementById('downloadBar');const status=document.getElementById('downloadStatus');btn.disabled=true;btn.textContent='⬇️ Downloading...';progress.style.display='block';const success=await window.downloadOfflineModel(function(info){if(info.stage==='downloading'){bar.style.width=info.progress+'%';status.textContent='Downloading... '+info.progress+'%';}else if(info.stage==='saving'){status.textContent='Saving to device...';}else if(info.stage==='done'){status.textContent='✅ Offline mode ready!';}else if(info.stage==='error'){status.textContent='❌ Failed: '+info.error;}});if(success){setTimeout(()=>{document.getElementById('offlineDownloadSection').style.display='none';updateOfflineStatus();},1500);}else{btn.disabled=false;btn.textContent='⬇️ Enable Offline Mode';}}
         window.startOfflineDownload=startOfflineDownload;
         document.addEventListener('DOMContentLoaded',()=>{updateOfflineStatus();setTimeout(checkOfflineDownloadVisibility,1500);});
