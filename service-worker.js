@@ -1,9 +1,9 @@
 // ============================================================
 // service-worker.js — AmmoniteID PWA Service Worker
-// v2 — forces mobile to re-cache all updated files
+// v3 — forces re-cache: offline mode auto-download, UI cleanup
 // ============================================================
 
-const CACHE_NAME = 'ammoniteid-v2';   // ← bumped to force fresh cache on all devices
+const CACHE_NAME = 'ammoniteid-v3';   // ← bumped to force fresh cache on all devices
 
 const CORE_ASSETS = [
     // ── Pages ──────────────────────────────────────────────
@@ -39,9 +39,9 @@ const CORE_ASSETS = [
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
-            console.log('SW v2: caching core assets');
+            console.log('SW v3: caching core assets');
             return cache.addAll(CORE_ASSETS).catch(err => {
-                console.warn('SW v2: some assets failed to cache', err);
+                console.warn('SW v3: some assets failed to cache', err);
             });
         })
     );
@@ -57,7 +57,7 @@ self.addEventListener('activate', event => {
                 keys
                     .filter(k => k !== CACHE_NAME)
                     .map(k => {
-                        console.log('SW v2: deleting old cache', k);
+                        console.log('SW v3: deleting old cache', k);
                         return caches.delete(k);
                     })
             )
