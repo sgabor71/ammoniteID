@@ -184,6 +184,10 @@ def init_db():
     if 'is_admin' not in existing_cols:
         c.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0")
 
+    if 'updated_at' not in existing_cols:
+        c.execute("ALTER TABLE users ADD COLUMN updated_at TEXT DEFAULT CURRENT_TIMESTAMP")
+        print("✅ Added updated_at column to users table")
+
     # ── Migration: copy old data into tier column ─────────────
     # Only update rows where tier is NULL or still 'FREE' from default
     # Admins first (highest priority)
