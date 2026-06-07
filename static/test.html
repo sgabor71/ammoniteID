@@ -807,14 +807,15 @@
                         notes: '',
                         favorite: false,
                         keepForever: false,
-                        source: isOffline ? 'offline' : 'online'
+                        source: isOffline ? 'offline' : 'online',
+                        syncedToDb: false
                     };
                     fossils.unshift(localEntry);
                     localStorage.setItem('ammoniteMyLogs', JSON.stringify(fossils));
 
                     // 2. Save to database (syncs across all devices)
                     try {
-                        await fetch('/api/collection/save', {
+                        const dbRes = await fetch('/api/collection/save', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
@@ -830,6 +831,10 @@
                                 notes: ''
                             })
                         });
+                        if (dbRes.ok) {
+                            localEntry.syncedToDb = true;
+                            localStorage.setItem('ammoniteMyLogs', JSON.stringify(fossils));
+                        }
                     } catch(e) { console.warn('DB save failed (non-fatal):', e.message); }
 
                 } catch(e) { console.warn('Could not save to collection:', e); }
