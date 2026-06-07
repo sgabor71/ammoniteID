@@ -795,7 +795,7 @@
                         photoBase64 = await new Promise(res => { const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = () => res(''); r.readAsDataURL(selectedFiles[0]); });
                     }
                     const localEntry = {
-                        id: identification_id,
+                        id: userId + '_' + identification_id,
                         date: new Date().toISOString(),
                         family: saveFamily,
                         genus: saveGenus,
