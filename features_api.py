@@ -27,12 +27,10 @@ from pathlib import Path
 import sqlite3
 import os
 
-features_router = APIRouter(prefix="/api", tags=["features"])
+# Import shared database configuration
+from database import DB_PATH
 
-if os.getenv('RENDER'):
-    DB_PATH = Path('/tmp/ammonite.db')
-else:
-    DB_PATH = Path(__file__).parent / 'ammonite.db'
+features_router = APIRouter(prefix="/api", tags=["features"])
 
 
 # ── The full list of gateable features + sensible defaults ───
