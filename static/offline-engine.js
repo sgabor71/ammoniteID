@@ -57,7 +57,10 @@
     window.isOffline          = () => !navigator.onLine;
 
     // ── IndexedDB helpers ────────────────────────────────────
+    let _db = null;  // cached DB connection
+
     function openDB() {
+        if (_db) return Promise.resolve(_db);
         return new Promise((resolve, reject) => {
             const req = indexedDB.open(DB_NAME, DB_VERSION);
             req.onupgradeneeded = (e) => {
@@ -66,39 +69,48 @@
                     db.createObjectStore(STORE);
                 }
             };
-            req.onsuccess = () => resolve(req.result);
+            req.onsuccess = () => { _db = req.result; resolve(_db); };
             req.onerror   = () => reject(req.error);
+            _db && _db.addEventListener('close', () => { _db = null; });
         });
+    }
+
+    function withTimeout(promise, ms, label) {
+        return Promise.race([
+            promise,
+            new Promise((_, reject) => setTimeout(() => reject(new Error(`Timeout: ${label} after ${ms}ms`)), ms))
+        ]);
     }
 
     async function idbGet(key) {
         const db = await openDB();
-        return new Promise((resolve, reject) => {
+        return withTimeout(new Promise((resolve, reject) => {
             const tx  = db.transaction(STORE, 'readonly');
             const req = tx.objectStore(STORE).get(key);
             req.onsuccess = () => resolve(req.result !== undefined ? req.result : null);
             req.onerror   = () => reject(req.error);
-        });
+        }), 10000, 'idbGet ' + key);
     }
 
     async function idbSet(key, value) {
         const db = await openDB();
-        return new Promise((resolve, reject) => {
+        return withTimeout(new Promise((resolve, reject) => {
             const tx = db.transaction(STORE, 'readwrite');
             tx.objectStore(STORE).put(value, key);
             tx.oncomplete = () => resolve();
             tx.onerror    = () => reject(tx.error);
-        });
+            tx.onabort    = () => reject(new Error('Transaction aborted: ' + (tx.error || 'unknown')));
+        }), 30000, 'idbSet ' + key);
     }
 
     async function idbDelete(key) {
         const db = await openDB();
-        return new Promise((resolve, reject) => {
+        return withTimeout(new Promise((resolve, reject) => {
             const tx = db.transaction(STORE, 'readwrite');
             tx.objectStore(STORE).delete(key);
             tx.oncomplete = () => resolve();
             tx.onerror    = () => reject(tx.error);
-        });
+        }), 10000, 'idbDelete ' + key);
     }
 
     // ── Load class_info ──────────────────────────────────────
