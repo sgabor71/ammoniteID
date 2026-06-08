@@ -91,10 +91,9 @@ self.addEventListener('fetch', (event) => {
     if (url.includes('firebase'))                   return;
     if (url.includes('googleapis.com'))             return;
 
-    // Model shards → cache-first (immutable large files) – no longer needed, but keep as fallback
+    // Model shards handled by offline-engine.js via IndexedDB — just pass through
     if (url.includes('/tfjs_model/')) {
-        event.respondWith(cacheFirst(event.request, CACHE_MODEL));
-        return;
+        return;  // let the network fetch happen normally (no intercept)
     }
 
     // TFJS CDN → cache-first
