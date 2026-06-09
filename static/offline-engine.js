@@ -140,7 +140,7 @@
             FAMILY_TO_GENERA = _classInfo.family_to_genera || {};
             NON_AMMONITE_MAP = _classInfo.non_ammonite_map || {};
             THRESHOLDS       = Object.assign(
-                { family_likely: 0.75, family_possible: 0.55, genus_best_match: 0.6, genus_possible: 0.3 },
+                { family_likely: 80, family_possible: 60, family_low: 30, genus_best_match: 0.6, genus_possible: 0.3 },
                 _classInfo.thresholds || {}
             );
             return true;
@@ -597,25 +597,27 @@
         let scenario;
         if (nonAmTotal * 100 > topFamilyScore) {
             scenario = 'non_ammonite';
-        } else if (topFamilyScore >= (TH.family_likely   || 75)) {
+        } else if (topFamilyScore >= TH.family_likely) {
             scenario = 'likely';
-        } else if (topFamilyScore >= (TH.family_possible || 55)) {
+        } else if (topFamilyScore >= TH.family_possible) {
             scenario = 'possible';
+        } else if (topFamilyScore >= TH.family_low) {
+            scenario = 'low';
         } else {
             scenario = 'uncertain';
         }
 
-        // Genus breakdown (only for ammonite scenarios)
+        // Genus breakdown (show for likely, possible, AND low)
         const genusBreakdown = [];
-        if (scenario === 'likely' || scenario === 'possible') {
+        if (scenario === 'likely' || scenario === 'possible' || scenario === 'low') {
             const genera     = FAMILY_TO_GENERA[topFamily] || [];
             const familyTotal = familyScores[topFamily] || 1;
             for (const genus of genera) {
                 const raw  = genusScores[genus] || 0;
                 const norm = raw / familyTotal;
                 const pct  = Math.round(norm * 100);
-                const wording = norm >= (TH.genus_best_match || 0.6) ? 'best match'
-                              : norm >= (TH.genus_possible   || 0.3) ? 'possible'
+                const wording = norm >= TH.genus_best_match ? 'best match'
+                              : norm >= TH.genus_possible   ? 'possible'
                               : 'less likely';
                 genusBreakdown.push({
                     genus,
@@ -632,7 +634,7 @@
         const nonAmDisplay  = NON_AM_DISPLAY[topNonAm]   || topNonAm;
 
         const topGenusScore = genusBreakdown.length ? genusBreakdown[0].percentage : 0;
-        const confLabel     = s => s >= 75 ? 'HIGH ✅' : s >= 55 ? 'MODERATE ⚠️' : 'LOW ❌';
+        const confLabel     = s => s >= 80 ? 'HIGH ✅' : s >= 60 ? 'MODERATE ⚠️' : 'LOW ❌';
 
         const result = {
             scenario,
@@ -652,7 +654,7 @@
             family_label       : confLabel(topFamilyScore),
             genus_label        : topGenusScore ? confLabel(topGenusScore) : null,
             feedback_message   : generateFeedback(scenario, topFamilyScore, topGenusScore),
-            feedback_style     : topFamilyScore >= 55 ? 'info' : 'warning',
+            feedback_style     : topFamilyScore >= 60 ? 'info' : 'warning',
             model_version      : 'v1-offline',
             offline            : true,
             formatted_output   : '',
@@ -669,10 +671,12 @@
     function generateFeedback(scenario, familyScore, genusScore) {
         if (scenario === 'non_ammonite')
             return '💡 If you believe this is an ammonite, try retaking with the spiral/coiling pattern clearly visible';
-        if (scenario === 'uncertain' || familyScore < 55)
+        if (scenario === 'uncertain')
             return '⚠️ Low confidence — try: closer photo, better lighting, or fill 80%+ of frame';
-        if (familyScore < 75)
-            return '💡 This result is likely correct. For even better accuracy, try filling 80%+ of frame or rotating 30–90°';
+        if (scenario === 'low')
+            return '⚠️ Low confidence — this is our best guess. Try a closer photo for better accuracy';
+        if (scenario === 'possible')
+            return '💡 This result is possible. For better accuracy, try filling 80%+ of frame or rotating 30–90°';
         if (genusScore && genusScore < 55)
             return '⚠️ Genus unclear — a closer photo showing ribs/sutures may help';
         return '';
@@ -680,8 +684,10 @@
 
     function formatOutput(r) {
         const lines = [];
-        if (r.scenario === 'likely' || r.scenario === 'possible') {
-            const w = r.scenario === 'likely' ? 'Likely' : 'Possible';
+        if (r.scenario === 'likely' || r.scenario === 'possible' || r.scenario === 'low') {
+            const w = r.scenario === 'likely' ? 'Likely'
+                    : r.scenario === 'possible' ? 'Possible'
+                    : 'Low confidence';
             lines.push(`FAMILY:  ${r.top_family}     [${w} — ${r.top_family_score}% confidence]`);
             if (r.num_photos > 1) lines.push(`         Based on ${r.num_photos} photographs`);
             lines.push('', 'GENUS:');
