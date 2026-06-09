@@ -691,10 +691,13 @@
 
             try {
                 let result;
-                const isOffline = !navigator.onLine;
                 const offTier = (localStorage.getItem('ammonite_tier') || 'FREE').toUpperCase();
                 const canOffline = (offTier === 'PREMIUM' || offTier === 'ADMIN' || offTier === 'EXPERT');
-                if (isOffline && canOffline && window.offlineReady && window.offlineReady()) {
+                const modelReady = window.offlineReady && window.offlineReady();
+                const isOffline = !navigator.onLine;
+
+                if (isOffline && canOffline && modelReady) {
+                    // Definitely offline + model ready → use offline engine
                     progressIndicator.querySelector('p').textContent = '🔍 Identifying offline...';
                     result = await window.identifyOffline(selectedFiles);
                     result.family_confidence = result.top_family_score;
@@ -703,13 +706,29 @@
                 } else if (isOffline) {
                     throw new Error('NO_SIGNAL');
                 } else {
-                    const formData = new FormData();
-                    selectedFiles.forEach(f => formData.append('photos', f));
-                    formData.append('user_id', userId);
-                    const response = await fetch('/identify', {method:'POST', body:formData});
-                    if (!response.ok) throw new Error(`API error: ${response.status}`);
-                    result = await response.json();
+                    // Online — try server, fall back to offline if network fails
+                    try {
+                        const formData = new FormData();
+                        selectedFiles.forEach(f => formData.append('photos', f));
+                        formData.append('user_id', userId);
+                        const response = await fetch('/identify', {method:'POST', body:formData});
+                        if (!response.ok) throw new Error(`API error: ${response.status}`);
+                        result = await response.json();
+                    } catch (netErr) {
+                        // Network failed — fall back to offline if available
+                        if (canOffline && modelReady) {
+                            console.warn('Online request failed, falling back to offline:', netErr.message);
+                            progressIndicator.querySelector('p').textContent = '🔍 Server unreachable — identifying offline...';
+                            result = await window.identifyOffline(selectedFiles);
+                            result.family_confidence = result.top_family_score;
+                        } else {
+                            throw netErr;  // re-throw for outer catch
+                        }
+                    }
                 }
+
+                // Store for debugging (accessible from console as window._lastResult)
+                window._lastResult = result;
 
                 // Store identification_id for collection save
                 const identification_id = result.identification_id || String(Date.now());
