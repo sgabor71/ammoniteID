@@ -584,8 +584,11 @@
     <script>
     (function(){
         var uid = localStorage.getItem('ammonite_user_id');
+        var adminUid = localStorage.getItem('admin_uid');
         var tier = (localStorage.getItem('ammonite_tier') || 'FREE').toUpperCase();
-        if (uid !== '16fjKKd4XPOD8PMZhGQSHmSAdPO2' && tier !== 'ADMIN') {
+        var PERM = '16fjKKd4XPOD8PMZhGQSHmSAdPO2';
+        // Allow if: permanent admin UID (either key) OR tier is ADMIN
+        if (uid !== PERM && adminUid !== PERM && tier !== 'ADMIN') {
             document.body.innerHTML = '<div style="text-align:center;padding:4rem;font-family:Arial,sans-serif;"><h2 style="color:#c62828;">Access Denied</h2><p>Admin access only.</p><a href="/static/home.html" style="color:#2c5f2d;font-weight:bold;">← Back to Home</a></div>';
             return;
         }
