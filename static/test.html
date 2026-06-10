@@ -396,10 +396,11 @@
         .banner-out { animation: bannerSlideOut 0.4s ease forwards; }
         @keyframes bannerSlideIn  { from{transform:translateY(-110%);opacity:0;} to{transform:translateY(0);opacity:1;} }
         @keyframes bannerSlideOut { from{transform:translateY(0);opacity:1;} to{transform:translateY(-110%);opacity:0;} }
-        .ad-content { position:relative;display:flex;justify-content:space-between;align-items:center;padding:0 2rem;height:160px;white-space:nowrap;overflow:hidden; }
+        .ad-content { position:relative;display:flex;justify-content:space-between;align-items:center;padding:0 2rem;height:160px;overflow:hidden; }
         .ad-left { display:flex;align-items:center;gap:0;flex:1;min-width:0;overflow:hidden; }
         .ad-partner-name { font-size:1.1rem;font-weight:bold;color:#1a1a1a;text-decoration:none;cursor:pointer;flex-shrink:0;transition:all 0.2s; }
         .ad-partner-name:hover { text-decoration:underline;color:#2c5f2d; }
+        .ad-partner-name img.ad-logo { width:48px;height:48px;border-radius:8px;object-fit:cover;vertical-align:middle;margin-right:10px;border:2px solid rgba(255,255,255,0.8);box-shadow:0 1px 3px rgba(0,0,0,0.15); }
         .ad-bar { color:#ccc;padding:0 10px;flex-shrink:0; }
         .ad-detail { font-size:0.9rem;color:#444;font-family:Arial,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:1; }
         .ad-detail a { color:#2c5f2d;text-decoration:none; }
@@ -407,10 +408,15 @@
         .ad-more-info { padding:0.5rem 1.2rem;background:#2c5f2d;color:white;text-decoration:none;border-radius:6px;font-family:Arial,sans-serif;font-size:0.9rem;font-weight:bold;transition:all 0.3s;white-space:nowrap;flex-shrink:0;margin-left:1rem; }
         .ad-more-info:hover { background:#1e4620; }
         @media (max-width:768px) {
-            #partner-ad-banner { height:100px; top:52px; }
-            .ad-content { padding:0.6rem 1rem;height:100px; }
+            #partner-ad-banner { height:auto;min-height:70px;top:52px; }
+            .ad-content { padding:0.6rem 1rem;height:auto;flex-direction:column;align-items:flex-start;gap:6px; }
+            .ad-left { flex-wrap:wrap;gap:4px; }
+            .ad-partner-name { font-size:0.95rem; }
+            .ad-partner-name img.ad-logo { width:36px;height:36px;margin-right:8px; }
             .ad-detail { display:none; }
-            .ad-more-info { font-size:0.8rem;padding:0.4rem 0.8rem; }
+            .ad-bar { display:none; }
+            .ad-more-info { font-size:0.8rem;padding:0.4rem 0.8rem;align-self:flex-end;margin-left:0; }
+            .ad-offer { font-size:0.75rem;margin-left:0; }
         }
     </style>
 
@@ -697,7 +703,6 @@
                 const isOffline = !navigator.onLine;
 
                 if (isOffline && canOffline && modelReady) {
-                    // Definitely offline + model ready → use offline engine
                     progressIndicator.querySelector('p').textContent = '🔍 Identifying offline...';
                     result = await window.identifyOffline(selectedFiles);
                     result.family_confidence = result.top_family_score;
@@ -706,7 +711,6 @@
                 } else if (isOffline) {
                     throw new Error('NO_SIGNAL');
                 } else {
-                    // Online — try server, fall back to offline if network fails
                     try {
                         const formData = new FormData();
                         selectedFiles.forEach(f => formData.append('photos', f));
@@ -715,14 +719,13 @@
                         if (!response.ok) throw new Error(`API error: ${response.status}`);
                         result = await response.json();
                     } catch (netErr) {
-                        // Network failed — fall back to offline if available
                         if (canOffline && modelReady) {
                             console.warn('Online request failed, falling back to offline:', netErr.message);
                             progressIndicator.querySelector('p').textContent = '🔍 Server unreachable — identifying offline...';
                             result = await window.identifyOffline(selectedFiles);
                             result.family_confidence = result.top_family_score;
                         } else {
-                            throw netErr;  // re-throw for outer catch
+                            throw netErr;
                         }
                     }
                 }
@@ -901,14 +904,31 @@
             try {
                 const data = await (await fetch('/api/admin/partners')).json();
                 partners = (data.partners||[]).filter(p=>p.status==='active'&&p.active).map(p=>({name:p.name,url:p.url,email:p.email||'',phone:p.phone||'',bgColor:p.bg_color,anchor:p.anchor||p.partner_id,description:p.description||'',offer:p.offer||'',logo_emoji:p.logo_emoji||'🏪',logo_path:p.logo_path||'',display_duration:(p.display_duration||15)*1000,rotation_weight:p.rotation_weight||1}));
+                // Cache partners for offline use
+                if (partners.length) {
+                    try { localStorage.setItem('ammonite_partners_cache', JSON.stringify(partners)); } catch(e) {}
+                }
                 partners.length ? initializeAds() : (document.getElementById('partner-ad-banner').style.display='none');
-            } catch { partners=[{name:"Lyme Regis Museum",url:"https://www.lymeregismuseum.co.uk",email:"info@lymeregismuseum.co.uk",phone:"+44 1297 443370",bgColor:"rgba(255,182,193,1.0)",anchor:"lyme-regis-museum",description:"Discover millions of years of history",offer:"",logo_emoji:"🏛️",logo_path:"",display_duration:15000,rotation_weight:1}]; initializeAds(); }
+            } catch {
+                // Offline or API error — load from cache
+                try {
+                    const cached = localStorage.getItem('ammonite_partners_cache');
+                    if (cached) {
+                        partners = JSON.parse(cached);
+                        partners.length ? initializeAds() : (document.getElementById('partner-ad-banner').style.display='none');
+                    } else {
+                        document.getElementById('partner-ad-banner').style.display='none';
+                    }
+                } catch(e) {
+                    document.getElementById('partner-ad-banner').style.display='none';
+                }
+            }
         }
         function showAd(index) {
             const banner=document.getElementById('partner-ad-banner'); if(!banner||!partners[index]) return;
             const p=partners[index]; const ex=banner.querySelector('.ad-content'); if(ex) ex.remove();
             banner.style.backgroundColor=p.bgColor; localStorage.setItem('adCurrentIndex',index); localStorage.setItem('adShownTime',Date.now());
-            const logo=p.logo_path?`<img src="${p.logo_path}" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;">`:'';
+            const logo=p.logo_path?`<img src="${p.logo_path}" alt="" class="ad-logo">`:(p.logo_emoji?`<span style="font-size:2rem;margin-right:10px;">${p.logo_emoji}</span>`:'');
             const website=p.url?p.url.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,''):'';
             let details=[]; if(website) details.push(`<span class="ad-detail"><a href="${p.url}" target="_blank">${website}</a></span>`); if(p.phone) details.push(`<span class="ad-detail"><a href="tel:${p.phone}">${p.phone}</a></span>`); if(p.email) details.push(`<span class="ad-detail"><a href="mailto:${p.email}">${p.email}</a></span>`); if(p.description) details.push(`<span class="ad-detail">${p.description.length>60?p.description.slice(0,60)+'…':p.description}</span>`);
             const bar='<span class="ad-bar">|</span>'; const adEl=document.createElement('div'); adEl.className='ad-content active'; adEl.style.opacity='1';
@@ -951,13 +971,13 @@
                 const canOff = canUseOffline();
                 if (dling) return; // progress bar shown by polling
                 if (isOff && canOff && ready)
-                    showBar('#e8f5e9','#2c5f2d','📡 <strong>Offline Mode</strong> — identifying using local AI model');
+                    showBar('#e8f5e9','#2c5f2d','📡 <strong>Offline mode</strong>');
                 else if (isOff && !canOff)
                     showBar('#fff3cd','#ff9800','📵 <strong>No signal</strong> — <a href="/static/upgrade.html" style="color:#e67e22;font-weight:bold;">Upgrade for offline mode →</a>');
                 else if (isOff && canOff && !ready)
                     showBar('#fff3cd','#ff9800','📵 <strong>No signal</strong> — offline model not yet downloaded');
                 else if (!isOff && ready && canOff)
-                    showBar('#e8f5e9','#2c5f2d','✅ <strong>Online</strong> — offline mode ready as backup');
+                    showBar('#e8f5e9','#2c5f2d','✅ <strong>Online mode</strong>');
                 else if (!isOff && !ready && canOff)
                     showBar('#e3f0ff','#4A90A4','⏬ <strong>Downloading offline model</strong> — this happens once in the background');
                 else
