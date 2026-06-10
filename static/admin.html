@@ -577,22 +577,53 @@
         }
     </style>
     <script src="/static/tier-gates.js"></script>
-    <script src="/static/admin-auth.js"></script>
 </head>
 <body>
     <!-- Immediate admin gate — blocks page before content renders -->
     <script>
     (function(){
         var uid = localStorage.getItem('ammonite_user_id');
-        var adminUid = localStorage.getItem('admin_uid');
         var tier = (localStorage.getItem('ammonite_tier') || 'FREE').toUpperCase();
         var PERM = '16fjKKd4XPOD8PMZhGQSHmSAdPO2';
-        // Allow if: permanent admin UID (either key) OR tier is ADMIN
-        if (uid !== PERM && adminUid !== PERM && tier !== 'ADMIN') {
+        if (uid !== PERM && tier !== 'ADMIN') {
             document.body.innerHTML = '<div style="text-align:center;padding:4rem;font-family:Arial,sans-serif;"><h2 style="color:#c62828;">Access Denied</h2><p>Admin access only.</p><a href="/static/home.html" style="color:#2c5f2d;font-weight:bold;">← Back to Home</a></div>';
             return;
         }
     })();
+    </script>
+
+    <!-- Firebase auth verification — server-side tier check -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        const _app = initializeApp({
+            apiKey: "AIzaSyChXqOpXgpkLrn44mfIcPoTVPBk6neicBQ",
+            authDomain: "ammoniteid-f9d8e.firebaseapp.com",
+            projectId: "ammoniteid-f9d8e",
+            appId: "1:828376677091:web:e302f3ff538b78bc83e3d6"
+        });
+        const _auth = getAuth(_app);
+        onAuthStateChanged(_auth, async (user) => {
+            if (!user) {
+                document.body.innerHTML = '<div style="text-align:center;padding:4rem;font-family:Arial,sans-serif;"><h2 style="color:#c62828;">Not Logged In</h2><p>Please log in first.</p><a href="/static/login.html" style="color:#2c5f2d;font-weight:bold;">← Log In</a></div>';
+                return;
+            }
+            try {
+                const res = await fetch('/api/auth/me/' + user.uid);
+                if (!res.ok) throw new Error('API error');
+                const data = await res.json();
+                const tier = (data.tier || 'FREE').toUpperCase();
+                localStorage.setItem('ammonite_tier', tier);
+                localStorage.setItem('ammonite_user_id', user.uid);
+                if (tier !== 'ADMIN' && user.uid !== '16fjKKd4XPOD8PMZhGQSHmSAdPO2') {
+                    document.body.innerHTML = '<div style="text-align:center;padding:4rem;font-family:Arial,sans-serif;"><h2 style="color:#c62828;">Access Denied</h2><p>Admin access only.</p><a href="/static/home.html" style="color:#2c5f2d;font-weight:bold;">← Back to Home</a></div>';
+                    return;
+                }
+            } catch(e) {
+                console.error('Admin auth check failed:', e);
+                document.body.innerHTML = '<div style="text-align:center;padding:4rem;font-family:Arial,sans-serif;"><h2 style="color:#c62828;">Auth Error</h2><p>Could not verify access.</p><a href="/static/home.html" style="color:#2c5f2d;font-weight:bold;">← Back to Home</a></div>';
+            }
+        });
     </script>
     <div class="container">
         <!-- Header -->
@@ -605,7 +636,7 @@
                 <a href="/static/home.html" style="color:#2c5f2d; text-decoration:none; font-weight:bold; margin-right:15px;">← Home</a>
                 <span class="last-updated">Last updated: <span id="lastUpdate">Loading...</span></span>
                 <button class="refresh-btn" onclick="refreshData()">🔄 Refresh</button>
-                <button class="refresh-btn" onclick="adminLogout()" style="background:#c62828;margin-left:10px;">🚪 Log Out</button>
+                <button class="refresh-btn" onclick="if(confirm('Log out from admin?')){localStorage.removeItem('ammonite_tier');window.location.href='/static/home.html';}" style="background:#c62828;margin-left:10px;">🚪 Log Out</button>
             </div>
         </div>
 
