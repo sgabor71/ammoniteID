@@ -8,7 +8,7 @@
 
 'use strict';
 
-const SW_VERSION   = 'v4';
+const SW_VERSION   = 'v5';
 const CACHE_SHELL  = `ammonite-shell-${SW_VERSION}`;
 const CACHE_MODEL  = `ammonite-model-${SW_VERSION}`;
 
@@ -91,9 +91,10 @@ self.addEventListener('fetch', (event) => {
     if (url.includes('firebase'))                   return;
     if (url.includes('googleapis.com'))             return;
 
-    // Model shards handled by offline-engine.js via IndexedDB — just pass through
+    // Model shards → cache-first (immutable large files) – no longer needed, but keep as fallback
     if (url.includes('/tfjs_model/')) {
-        return;  // let the network fetch happen normally (no intercept)
+        event.respondWith(cacheFirst(event.request, CACHE_MODEL));
+        return;
     }
 
     // TFJS CDN → cache-first
