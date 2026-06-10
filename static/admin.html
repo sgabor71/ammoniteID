@@ -577,8 +577,9 @@
         }
     </style>
     <script src="/static/tier-gates.js"></script>
+    <style>body > .container { display: none; }</style>
 </head>
-<body style="visibility:hidden;">
+<body>
     <!-- Single admin gate: hide page → verify with Firebase → show or block -->
     <div id="adminBlockMsg" style="display:none; text-align:center; padding:4rem; font-family:Arial,sans-serif;">
         <h2 id="adminBlockTitle" style="color:#c62828;">Checking access...</h2>
@@ -595,9 +596,11 @@
             document.getElementById('adminBlockTitle').textContent = title;
             document.getElementById('adminBlockText').textContent = text;
             document.getElementById('adminBlockMsg').style.display = 'block';
-            // Hide all other content
-            document.querySelectorAll('body > *:not(#adminBlockMsg):not(script)').forEach(el => el.style.display = 'none');
-            document.body.style.visibility = 'visible';
+        }
+
+        function grantAccess() {
+            document.getElementById('adminBlockMsg').style.display = 'none';
+            document.querySelector('body > .container').style.display = '';
         }
 
         const _app = initializeApp({
@@ -618,7 +621,7 @@
             if (user.uid === PERM_ADMIN) {
                 localStorage.setItem('ammonite_tier', 'ADMIN');
                 localStorage.setItem('ammonite_user_id', user.uid);
-                document.body.style.visibility = 'visible';
+                grantAccess();
                 return;
             }
 
@@ -632,7 +635,7 @@
                 localStorage.setItem('ammonite_user_id', user.uid);
 
                 if (tier === 'ADMIN') {
-                    document.body.style.visibility = 'visible';
+                    grantAccess();
                 } else {
                     blockAccess('Access Denied', 'Admin access only.');
                 }
