@@ -42,6 +42,46 @@ def _migrate_users_table():
 
 _migrate_users_table()
 
+# ── Auto-migrate: add missing columns to partners table ───
+def _migrate_partners_table():
+    try:
+        conn = sqlite3.connect(str(DB_PATH))
+        c = conn.cursor()
+        c.execute("PRAGMA table_info(partners)")
+        columns = [col[1] for col in c.fetchall()]
+
+        migrations = {
+            'billing_model': "ALTER TABLE partners ADD COLUMN billing_model TEXT DEFAULT 'none'",
+            'rate_amount': "ALTER TABLE partners ADD COLUMN rate_amount REAL DEFAULT 0",
+            'description': "ALTER TABLE partners ADD COLUMN description TEXT DEFAULT ''",
+            'address': "ALTER TABLE partners ADD COLUMN address TEXT DEFAULT ''",
+            'phone': "ALTER TABLE partners ADD COLUMN phone TEXT DEFAULT ''",
+            'map_link': "ALTER TABLE partners ADD COLUMN map_link TEXT DEFAULT ''",
+            'offer': "ALTER TABLE partners ADD COLUMN offer TEXT DEFAULT ''",
+            'category': "ALTER TABLE partners ADD COLUMN category TEXT DEFAULT 'general'",
+            'tier': "ALTER TABLE partners ADD COLUMN tier TEXT DEFAULT 'free'",
+            'status': "ALTER TABLE partners ADD COLUMN status TEXT DEFAULT 'active'",
+            'logo_emoji': "ALTER TABLE partners ADD COLUMN logo_emoji TEXT DEFAULT ''",
+            'expires_at': "ALTER TABLE partners ADD COLUMN expires_at TEXT DEFAULT ''",
+            'display_duration': "ALTER TABLE partners ADD COLUMN display_duration INTEGER DEFAULT 8",
+            'rotation_weight': "ALTER TABLE partners ADD COLUMN rotation_weight INTEGER DEFAULT 1",
+        }
+
+        for col, sql in migrations.items():
+            if col not in columns:
+                try:
+                    c.execute(sql)
+                    print(f"✅ admin_api: added missing partners column '{col}'")
+                except Exception:
+                    pass
+
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"⚠️ admin_api partners migration: {e}")
+
+_migrate_partners_table()
+
 router = APIRouter()
 
 # ============================================
