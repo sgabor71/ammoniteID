@@ -673,6 +673,16 @@
     </style>
 </head>
 <body>
+    <!-- Immediate expert gate — blocks page before content renders -->
+    <script>
+    (function(){
+        var tier = (localStorage.getItem('ammonite_tier') || 'FREE').toUpperCase();
+        if (tier !== 'EXPERT' && tier !== 'ADMIN') {
+            document.body.innerHTML = '<div style="text-align:center;padding:4rem;font-family:Arial,sans-serif;"><h2 style="color:#1565c0;">Access Denied</h2><p>Expert or Admin access required.</p><a href="/static/home.html" style="color:#2c5f2d;font-weight:bold;">← Back to Home</a></div>';
+            return;
+        }
+    })();
+    </script>
 
     <!-- Navigation Header -->
     <header>
@@ -829,7 +839,7 @@
     <script src="/static/tier-gates.js"></script>
     <script src="/static/cloudinary-backup.js"></script>
 
-    <script>
+    <script type="module">
         // ── Auth gate: EXPERT+ only ───────────────────────────
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
