@@ -600,8 +600,7 @@
 
         function grantAccess() {
             document.getElementById('adminBlockMsg').style.display = 'none';
-            document.querySelector('body > .container').style.display = '';
-        }
+            document.querySelector('body > .container').style.display = 'block';        }
 
         const _app = initializeApp({
             apiKey: "AIzaSyChXqOpXgpkLrn44mfIcPoTVPBk6neicBQ",
@@ -2273,7 +2272,7 @@
         // Initialize on load
         window.addEventListener('load', () => {
             // refreshData();
-            loadExistingContent();
+            // loadExistingContent();
             
             // Set today's date for export fields
             const today = new Date().toISOString().split('T')[0];
