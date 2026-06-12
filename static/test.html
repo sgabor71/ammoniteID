@@ -884,8 +884,15 @@
                 } catch(e) { console.warn('Could not save to queue:', e); }
 
             } catch(error) {
-                if (error.message === 'NO_SIGNAL_FREE') {
+                const isNetworkError = error.message === 'Failed to fetch' || error.message.includes('ERR_INTERNET') || error.message.includes('NetworkError');
+                const offTierCheck = (localStorage.getItem('ammonite_tier') || 'FREE').toUpperCase();
+                const isFreeUser = !['PREMIUM','ADMIN','EXPERT'].includes(offTierCheck);
+
+                if (error.message === 'NO_SIGNAL_FREE' || (isNetworkError && isFreeUser)) {
                     alert('📵 No internet signal.\n\nFree users need internet to identify fossils.\n\n⭐ Upgrade to Premium for offline identification!');
+                    // Update the offline bar
+                    const bar = document.getElementById('offlineBar');
+                    if (bar) { bar.style.display='block'; bar.style.background='#fff3cd'; bar.style.borderLeft='4px solid #ff9800'; bar.innerHTML='📵 <strong>No signal</strong> — <a href="/static/upgrade.html" style="color:#e67e22;font-weight:bold;">Upgrade for offline mode →</a>'; }
                 } else if (error.message === 'NO_SIGNAL') {
                     alert('📵 No internet signal.\n\nOffline model not downloaded yet.\n\nTake photos now and identify when back online.');
                 } else {
