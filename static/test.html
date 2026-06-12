@@ -884,7 +884,8 @@
                 } catch(e) { console.warn('Could not save to queue:', e); }
 
             } catch(error) {
-                const isNetworkError = error.message === 'Failed to fetch' || error.message.includes('ERR_INTERNET') || error.message.includes('NetworkError');
+                const msg = error.message || '';
+                const isNetworkError = msg === 'Failed to fetch' || msg === 'Load failed' || msg.includes('NetworkError') || msg.includes('ERR_INTERNET') || msg.includes('network') || msg.includes('abort');
                 const offTierCheck = (localStorage.getItem('ammonite_tier') || 'FREE').toUpperCase();
                 const isFreeUser = !['PREMIUM','ADMIN','EXPERT'].includes(offTierCheck);
 
@@ -895,8 +896,12 @@
                     if (bar) { bar.style.display='block'; bar.style.background='#fff3cd'; bar.style.borderLeft='4px solid #ff9800'; bar.innerHTML='📵 <strong>No signal</strong> — <a href="/static/upgrade.html" style="color:#e67e22;font-weight:bold;">Upgrade for offline mode →</a>'; }
                 } else if (error.message === 'NO_SIGNAL') {
                     alert('📵 No internet signal.\n\nOffline model not downloaded yet.\n\nTake photos now and identify when back online.');
+                } else if (isNetworkError) {
+                    alert('📵 No internet signal.\n\nPlease check your connection and try again.');
+                    const bar = document.getElementById('offlineBar');
+                    if (bar) { bar.style.display='block'; bar.style.background='#fff3cd'; bar.style.borderLeft='4px solid #ff9800'; bar.innerHTML='📵 <strong>No signal</strong>'; }
                 } else {
-                    alert('Error identifying fossil. Please check your connection and try again.');
+                    alert('Error identifying fossil. Please try again.');
                 }
                 document.getElementById('progressIndicator').style.display = 'none';
                 document.getElementById('submitBtn').disabled = false;
@@ -956,6 +961,7 @@
     <script>
         (function () {
             const TIERS = ['PREMIUM', 'ADMIN', 'EXPERT'];
+            let _actuallyOffline = !navigator.onLine; // fallback initial value
             function canUseOffline() {
                 return TIERS.includes((localStorage.getItem('ammonite_tier') || 'FREE').toUpperCase());
             }
@@ -971,12 +977,28 @@
                 const el = document.getElementById('offlineBar');
                 if (el) el.style.display = 'none';
             }
-            function updateOfflineStatus() {
-                const isOff  = !navigator.onLine;
+            // Real connectivity check — fetch a tiny endpoint with timeout
+            async function checkConnectivity() {
+                try {
+                    const controller = new AbortController();
+                    const timeout = setTimeout(() => controller.abort(), 5000);
+                    await fetch('/api/features', { method: 'GET', signal: controller.signal, cache: 'no-store' });
+                    clearTimeout(timeout);
+                    _actuallyOffline = false;
+                } catch (e) {
+                    _actuallyOffline = true;
+                }
+                updateBar();
+            }
+            // Expose for identify handler
+            window._isActuallyOffline = () => _actuallyOffline;
+
+            function updateBar() {
+                const isOff  = _actuallyOffline;
                 const ready  = window.offlineReady && window.offlineReady();
                 const dling  = window.offlineDownloading && window.offlineDownloading();
                 const canOff = canUseOffline();
-                if (dling) return; // progress bar shown by polling
+                if (dling) return;
                 if (isOff && canOff && ready)
                     showBar('#e8f5e9','#2c5f2d','📡 <strong>Offline mode</strong>');
                 else if (isOff && !canOff)
@@ -995,18 +1017,21 @@
             function pollDuringDownload() {
                 clearTimeout(_poll);
                 if (window.offlineDownloading && window.offlineDownloading()) {
-                    updateOfflineStatus();
+                    updateBar();
                     _poll = setTimeout(pollDuringDownload, 1500);
                 } else {
-                    updateOfflineStatus();
+                    updateBar();
                 }
             }
-            window.addEventListener('online',         updateOfflineStatus);
-            window.addEventListener('offline',        updateOfflineStatus);
-            window.addEventListener('offline-ready',  updateOfflineStatus);
+            // Listen for browser events AND do real check
+            window.addEventListener('online',  () => { _actuallyOffline = false; updateBar(); });
+            window.addEventListener('offline', () => { _actuallyOffline = true;  updateBar(); });
+            window.addEventListener('offline-ready', updateBar);
             document.addEventListener('DOMContentLoaded', () => {
-                updateOfflineStatus();
+                checkConnectivity(); // real check on load
                 setTimeout(pollDuringDownload, 2000);
+                // Re-check connectivity every 30 seconds
+                setInterval(checkConnectivity, 30000);
             });
         })();
     </script>
