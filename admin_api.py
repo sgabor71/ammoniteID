@@ -42,46 +42,6 @@ def _migrate_users_table():
 
 _migrate_users_table()
 
-# ── Auto-migrate: add missing columns to partners table ───
-def _migrate_partners_table():
-    try:
-        conn = sqlite3.connect(str(DB_PATH))
-        c = conn.cursor()
-        c.execute("PRAGMA table_info(partners)")
-        columns = [col[1] for col in c.fetchall()]
-
-        migrations = {
-            'billing_model': "ALTER TABLE partners ADD COLUMN billing_model TEXT DEFAULT 'none'",
-            'rate_amount': "ALTER TABLE partners ADD COLUMN rate_amount REAL DEFAULT 0",
-            'description': "ALTER TABLE partners ADD COLUMN description TEXT DEFAULT ''",
-            'address': "ALTER TABLE partners ADD COLUMN address TEXT DEFAULT ''",
-            'phone': "ALTER TABLE partners ADD COLUMN phone TEXT DEFAULT ''",
-            'map_link': "ALTER TABLE partners ADD COLUMN map_link TEXT DEFAULT ''",
-            'offer': "ALTER TABLE partners ADD COLUMN offer TEXT DEFAULT ''",
-            'category': "ALTER TABLE partners ADD COLUMN category TEXT DEFAULT 'general'",
-            'tier': "ALTER TABLE partners ADD COLUMN tier TEXT DEFAULT 'free'",
-            'status': "ALTER TABLE partners ADD COLUMN status TEXT DEFAULT 'active'",
-            'logo_emoji': "ALTER TABLE partners ADD COLUMN logo_emoji TEXT DEFAULT ''",
-            'expires_at': "ALTER TABLE partners ADD COLUMN expires_at TEXT DEFAULT ''",
-            'display_duration': "ALTER TABLE partners ADD COLUMN display_duration INTEGER DEFAULT 8",
-            'rotation_weight': "ALTER TABLE partners ADD COLUMN rotation_weight INTEGER DEFAULT 1",
-        }
-
-        for col, sql in migrations.items():
-            if col not in columns:
-                try:
-                    c.execute(sql)
-                    print(f"✅ admin_api: added missing partners column '{col}'")
-                except Exception:
-                    pass
-
-        conn.commit()
-        conn.close()
-    except Exception as e:
-        print(f"⚠️ admin_api partners migration: {e}")
-
-_migrate_partners_table()
-
 router = APIRouter()
 
 # ============================================
@@ -727,5 +687,110 @@ async def update_user_tier(uid: str, body: TierUpdate):
     ))
     conn.commit()
     conn.close()
+
+
+# ── SOFT DELETE & RESTORE USERS ──────────────────────────────
+@router.post("/users/{uid}/delete")
+async def soft_delete_user(uid: str, current_admin_id: str = Depends(get_admin)):
+    """Mark user as deleted (soft delete, recoverable)"""
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    
+    # Prevent admins from deleting themselves
+    c.execute("SELECT firebase_uid FROM users WHERE user_id = ? OR firebase_uid = ?", (current_admin_id, current_admin_id))
+    admin_user = c.fetchone()
+    if admin_user and admin_user[0] == uid:
+        conn.close()
+        raise HTTPException(status_code=400, detail="Cannot delete your own account")
+    
+    c.execute("""
+        UPDATE users 
+        SET status='deleted', deleted_at=datetime('now'), deleted_by_admin_id=?
+        WHERE firebase_uid = ?
+    """, (current_admin_id, uid))
+    
+    if c.rowcount == 0:
+        conn.close()
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    conn.commit()
+    conn.close()
+    return {"detail": "User marked as deleted. Can be restored anytime."}
+
+
+@router.post("/users/{uid}/restore")
+async def restore_user(uid: str, current_admin_id: str = Depends(get_admin)):
+    """Restore a soft-deleted user"""
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    
+    c.execute("""
+        UPDATE users 
+        SET status='active', deleted_at=NULL, deleted_by_admin_id=NULL
+        WHERE firebase_uid = ? AND status='deleted'
+    """, (uid,))
+    
+    if c.rowcount == 0:
+        conn.close()
+        raise HTTPException(status_code=404, detail="User not found or not deleted")
+    
+    conn.commit()
+    conn.close()
+    return {"detail": "User restored successfully"}
+
+
+@router.delete("/users/{uid}/permanent")
+async def permanently_delete_user(uid: str, confirm: bool = False, current_admin_id: str = Depends(get_admin)):
+    """Permanently delete a user (cannot be undone)"""
+    if not confirm:
+        raise HTTPException(status_code=400, detail="Confirmation required. Set confirm=true")
+    
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    
+    # Log the action before deletion
+    c.execute("""
+        INSERT INTO audit_log (action, admin_id, target_user_id, details, timestamp)
+        VALUES (?, ?, ?, ?, datetime('now'))
+    """, ('permanently_delete_user', current_admin_id, uid, f'Permanently deleted user {uid}'))
+    
+    c.execute("DELETE FROM users WHERE firebase_uid = ?", (uid,))
+    
+    if c.rowcount == 0:
+        conn.close()
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    conn.commit()
+    conn.close()
+    return {"detail": "User permanently deleted"}
+
+
+@router.get("/users/deleted")
+async def get_deleted_users(current_admin_id: str = Depends(get_admin)):
+    """Get list of soft-deleted users (recoverable)"""
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    
+    c.execute("""
+        SELECT firebase_uid, email, display_name, tier, created_at, deleted_at, deleted_by_admin_id
+        FROM users
+        WHERE status = 'deleted'
+        ORDER BY deleted_at DESC
+    """)
+    
+    deleted_users = []
+    for row in c.fetchall():
+        deleted_users.append({
+            'uid': row[0],
+            'email': row[1],
+            'display_name': row[2],
+            'tier': row[3],
+            'created_at': row[4],
+            'deleted_at': row[5],
+            'deleted_by': row[6]
+        })
+    
+    conn.close()
+    return {'deleted_users': deleted_users}
 
     return {"status": "ok", "uid": uid, "tier": tier}
