@@ -689,25 +689,19 @@ async def update_user_tier(uid: str, body: TierUpdate):
     conn.close()
 
 
+
 # ── SOFT DELETE & RESTORE USERS ──────────────────────────────
-@router.post("/users/{uid}/delete")
-async def soft_delete_user(uid: str, current_admin_id: str = Depends(get_admin)):
+@router.post("/api/admin/users/{uid}/delete")
+async def soft_delete_user(uid: str):
     """Mark user as deleted (soft delete, recoverable)"""
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    
-    # Prevent admins from deleting themselves
-    c.execute("SELECT firebase_uid FROM users WHERE user_id = ? OR firebase_uid = ?", (current_admin_id, current_admin_id))
-    admin_user = c.fetchone()
-    if admin_user and admin_user[0] == uid:
-        conn.close()
-        raise HTTPException(status_code=400, detail="Cannot delete your own account")
     
     c.execute("""
         UPDATE users 
         SET status='deleted', deleted_at=datetime('now'), deleted_by_admin_id=?
         WHERE firebase_uid = ?
-    """, (current_admin_id, uid))
+    """, ('admin', uid))
     
     if c.rowcount == 0:
         conn.close()
@@ -718,8 +712,8 @@ async def soft_delete_user(uid: str, current_admin_id: str = Depends(get_admin))
     return {"detail": "User marked as deleted. Can be restored anytime."}
 
 
-@router.post("/users/{uid}/restore")
-async def restore_user(uid: str, current_admin_id: str = Depends(get_admin)):
+@router.post("/api/admin/users/{uid}/restore")
+async def restore_user(uid: str):
     """Restore a soft-deleted user"""
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
@@ -739,20 +733,14 @@ async def restore_user(uid: str, current_admin_id: str = Depends(get_admin)):
     return {"detail": "User restored successfully"}
 
 
-@router.delete("/users/{uid}/permanent")
-async def permanently_delete_user(uid: str, confirm: bool = False, current_admin_id: str = Depends(get_admin)):
+@router.delete("/api/admin/users/{uid}/permanent")
+async def permanently_delete_user(uid: str, confirm: bool = False):
     """Permanently delete a user (cannot be undone)"""
     if not confirm:
         raise HTTPException(status_code=400, detail="Confirmation required. Set confirm=true")
     
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    
-    # Log the action before deletion
-    c.execute("""
-        INSERT INTO audit_log (action, admin_id, target_user_id, details, timestamp)
-        VALUES (?, ?, ?, ?, datetime('now'))
-    """, ('permanently_delete_user', current_admin_id, uid, f'Permanently deleted user {uid}'))
     
     c.execute("DELETE FROM users WHERE firebase_uid = ?", (uid,))
     
@@ -765,8 +753,8 @@ async def permanently_delete_user(uid: str, confirm: bool = False, current_admin
     return {"detail": "User permanently deleted"}
 
 
-@router.get("/users/deleted")
-async def get_deleted_users(current_admin_id: str = Depends(get_admin)):
+@router.get("/api/admin/users/deleted")
+async def get_deleted_users():
     """Get list of soft-deleted users (recoverable)"""
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
@@ -792,5 +780,3 @@ async def get_deleted_users(current_admin_id: str = Depends(get_admin)):
     
     conn.close()
     return {'deleted_users': deleted_users}
-
-    return {"status": "ok", "uid": uid, "tier": tier}
