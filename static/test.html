@@ -398,17 +398,19 @@
         @keyframes bannerSlideOut { from{transform:translateY(0);opacity:1;} to{transform:translateY(-110%);opacity:0;} }
         .ad-content { position:relative;display:flex;align-items:center;padding:0 2rem;height:160px;overflow:hidden;gap:1rem; }
         .ad-left { display:flex;align-items:center;gap:1rem;flex:1;min-width:0; }
-        .ad-partner-info { display:flex;flex-direction:column;gap:2px; }
-        .ad-partner-name { font-size:1.4rem;font-weight:bold;color:#1a1a1a;text-decoration:none;cursor:pointer;transition:all 0.2s; }
+        .ad-partner-info { display:flex;flex-direction:column;gap:4px; }
+        .ad-partner-name { font-size:1.6rem;font-weight:bold;color:#1a1a1a;text-decoration:none;cursor:pointer;transition:all 0.2s; }
         .ad-partner-name:hover { text-decoration:underline;color:#2c5f2d; }
-        .ad-partner-name img.ad-logo { width:48px;height:48px;border-radius:8px;object-fit:cover;vertical-align:middle;margin-right:10px;border:2px solid rgba(255,255,255,0.8);box-shadow:0 1px 3px rgba(0,0,0,0.15); }
-        .ad-description { font-size:1rem;color:#444;font-family:Arial,sans-serif;line-height:1.4; }
+        img.ad-logo { width:50px;height:50px;border-radius:8px;object-fit:cover;border:2px solid rgba(255,255,255,0.8);box-shadow:0 1px 3px rgba(0,0,0,0.15);flex-shrink:0; }
+        .ad-description { font-size:1.1rem;color:#333;font-family:Arial,sans-serif;line-height:1.4; }
+        .ad-offer { font-size:1rem;color:#2c5f2d;font-weight:bold;margin-top:2px; }
         @media (max-width:768px) {
             #partner-ad-banner { height:auto;min-height:70px;top:52px; }
             .ad-content { padding:0.8rem 1rem;height:auto;gap:0.8rem; }
-            .ad-partner-name { font-size:1.1rem; }
-            .ad-partner-name img.ad-logo { width:36px;height:36px;margin-right:8px; }
-            .ad-description { font-size:0.85rem; }
+            .ad-partner-name { font-size:1.2rem; }
+            img.ad-logo { width:40px;height:40px; }
+            .ad-description { font-size:0.95rem; }
+            .ad-offer { font-size:0.85rem; }
         }
     </style>
 
@@ -935,7 +937,7 @@
             const logo=p.logo_path?`<img src="${p.logo_path}" alt="" class="ad-logo">`:(p.logo_emoji?`<span style="font-size:2.5rem;flex-shrink:0;">${p.logo_emoji}</span>`:'');
             const link=p.url||'/static/partners.html#'+p.anchor;
             const adEl=document.createElement('div'); adEl.className='ad-content active'; adEl.style.opacity='1';
-            adEl.innerHTML=`<div class="ad-left">${logo}<div class="ad-partner-info"><a href="${link}" target="_blank" class="ad-partner-name">${p.name}</a>${p.description?`<span class="ad-description">${p.description}</span>`:''}</div></div>`;
+            adEl.innerHTML=`<div class="ad-left">${logo}<div class="ad-partner-info"><a href="${link}" target="_blank" class="ad-partner-name">${p.name}</a>${p.description?`<span class="ad-description">${p.description}</span>`:''}${p.offer?`<span class="ad-offer">🎁 ${p.offer}</span>`:''}</div></div>`;
             banner.appendChild(adEl);
             if(!bannerSlid){banner.classList.remove('banner-in','banner-out');requestAnimationFrame(()=>banner.classList.add('banner-in'));bannerSlid=true;}
         }
