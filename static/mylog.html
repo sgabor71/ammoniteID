@@ -167,22 +167,24 @@
         .row-checkbox { width: 16px; height: 16px; accent-color: #2c5f2d; cursor: pointer; }
         .sync-toast { position: fixed; bottom: 20px; right: 20px; background: #2c5f2d; color: white; padding: 10px 20px; border-radius: 30px; font-family: Arial; font-size: 0.9rem; z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
         .sync-toast.show { opacity: 1; }
-        #partner-ad-banner { position: sticky; top: 70px; z-index: 99; height: 160px; overflow: hidden; transform: translateY(-110%); opacity: 0; }
-        @keyframes bannerSlideIn { from { transform: translateY(-110%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes bannerSlideOut { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-110%); opacity: 0; } }
-        .banner-in { animation: bannerSlideIn 0.6s cubic-bezier(0.22,1,0.36,1) forwards; }
-        .banner-out { animation: bannerSlideOut 0.4s ease forwards; }
-        .ad-content { display: flex; align-items: center; justify-content: space-between; gap: 1rem; height: 160px; padding: 1rem 2rem; }
-        .ad-left { display: flex; align-items: center; gap: 0; flex: 1; min-width: 0; overflow: hidden; }
-        .ad-partner-name { font-size: 1.1rem; font-weight: bold; color: #1a1a1a; text-decoration: none; cursor: pointer; flex-shrink: 0; }
-        .ad-detail { font-family: Arial, sans-serif; font-size: 0.9rem; font-weight: bold; color: #333; overflow: hidden; text-overflow: ellipsis; }
-        .ad-bar { color: rgba(0,0,0,0.35); padding: 0 13px; flex-shrink: 0; }
-        .ad-offer { margin-left: 14px; font-family: Arial, sans-serif; font-size: 0.88rem; font-weight: bold; color: #1e4620; background: rgba(255,255,255,0.7); padding: 3px 10px; border-radius: 6px; flex-shrink: 0; }
-        .ad-more-info { flex-shrink: 0; padding: 0.5rem 1.1rem; background: #2c5f2d; color: white; text-decoration: none; border-radius: 8px; font-family: Arial, sans-serif; font-size: 0.9rem; font-weight: bold; transition: all 0.3s; }
-        @media (max-width: 768px) { .ad-content { padding: 0 1rem; } .ad-detail { font-size: 0.78rem; } }
+
+        /* Partner banner container - minimal styling */
+        #partner-ad-banner {
+            position: sticky;
+            top: 70px;
+            z-index: 99;
+            overflow: hidden;
+        }
+        @media (max-width: 768px) {
+            #partner-ad-banner {
+                top: 52px;
+            }
+        }
     </style>
 </head>
 <body>
+
+<div id="partner-ad-banner"></div>
 
 <nav>
     <div class="container">
@@ -211,8 +213,6 @@
         <div id="mobileAuthLinks"><a href="/static/login.html">🔑 Log In</a><a href="/static/login.html">✏️ Sign Up</a></div>
     </div>
 </nav>
-
-<div id="partner-ad-banner"></div>
 
 <div id="premiumGate" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center;">
     <div style="background:white; border-radius:16px; padding:40px; max-width:420px; width:90%; text-align:center;">
@@ -313,28 +313,6 @@
 
 <div id="syncToast" class="sync-toast"></div>
 
-<script>
-    let partners = [], adRotationTimer = null, rotationIndex = 0, rotationList = [];
-    async function loadAdPartners() {
-        try {
-            const res = await fetch('/api/admin/partners');
-            const data = await res.json();
-            partners = (data.partners || []).filter(p => p.status === 'active' && p.active).map(p => ({
-                name: p.name, url: p.url, email: p.email || '', phone: p.phone || '',
-                bgColor: p.bg_color, anchor: p.anchor || p.partner_id,
-                description: p.description || '', offer: p.offer || '',
-                logo_path: p.logo_path || '', display_duration: (p.display_duration || 15) * 1000,
-                rotation_weight: p.rotation_weight || 1
-            }));
-            if (partners.length) initializeAds(); else document.getElementById('partner-ad-banner').style.display = 'none';
-        } catch(e) { console.error(e); }
-    }
-    function showAd(index) { /* same */ }
-    function buildRotationList() { let l=[]; partners.forEach((p,i)=>{for(let w=0;w<(p.rotation_weight||1);w++)l.push(i);}); return l; }
-    function rotateAd() { /* same */ }
-    function initializeAds() { /* same */ }
-    window.addEventListener('load', loadAdPartners);
-</script>
 <script src="/static/ad-tracking.js"></script>
 
 <script>
@@ -933,5 +911,9 @@
         document.addEventListener('click', (e) => { if (!mobileMenu.contains(e.target) && !hamburger.contains(e.target)) { hamburger.classList.remove('open'); mobileMenu.classList.remove('open'); } });
     }
 </script>
+
+<!-- Partner banner script (external) -->
+<script src="/static/partner-banner.js"></script>
+
 </body>
 </html>
