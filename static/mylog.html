@@ -7,8 +7,8 @@
     <script src="/static/tier-gates.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Georgia', 'Merriweather', serif; background: #F5F1E8; color: #000000; line-height: 1.6; background-image: url('background.jpg'); background-size: cover; background-attachment: fixed; background-position: center; min-height: 100vh; }
-        nav { background: rgba(255,255,255,0.97); backdrop-filter: blur(10px); padding: 1.2rem 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: sticky; top: 0; z-index: 1000; }
+        body { font-family: 'Georgia', 'Merriweather', serif; background: #F5F1E8; color: #000000; line-height: 1.6; background-image: url('background.jpg'); background-size: cover; background-attachment: fixed; background-position: center; min-height: 100vh; padding-top: 70px; }
+        nav { background: rgba(255,255,255,0.97); backdrop-filter: blur(10px); padding: 1.2rem 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
         nav .container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; }
         nav .logo { font-size: 1.8rem; font-weight: bold; color: #2c5f2d; text-decoration: none; }
         nav .nav-links { display: flex; gap: 1.5rem; list-style: none; flex-wrap: nowrap; margin: 0; padding: 0; flex: 1; justify-content: center; }
@@ -75,7 +75,7 @@
         .btn-report { background: #ff9800; color: white; }
         .btn-share { background: #2196F3; color: white; }
         .btn-delete-detail { background: #dc3545; color: white; }
-        .stats-sidebar { width: 350px; position: sticky; top: 100px; max-height: calc(100vh - 120px); overflow-y: auto; }
+        .stats-sidebar { width: 350px; position: sticky; top: 80px; max-height: calc(100vh - 100px); overflow-y: auto; }
         .stats-sidebar.collapsed { width: auto; min-width: 140px; }
         .stats-sidebar.collapsed .stats-content { display: none; }
         .stats-toggle { background: rgba(255,255,255,0.95); padding: 1rem; border-radius: 12px; text-align: center; cursor: pointer; margin-bottom: 1rem; }
@@ -111,7 +111,8 @@
         .hamburger-btn { display: none; }
         .mobile-menu { display: none; }
         @media (max-width: 768px) {
-            nav { padding: 0.6rem 1rem !important; position: relative; }
+            nav { padding: 0.6rem 1rem !important; position: fixed; }
+            body { padding-top: 52px !important; }
             nav .container { flex-wrap: nowrap !important; gap: 0.5rem !important; }
             nav .logo { font-size: 1.2rem !important; }
             nav .nav-links { display: none !important; }
@@ -168,23 +169,33 @@
         .sync-toast { position: fixed; bottom: 20px; right: 20px; background: #2c5f2d; color: white; padding: 10px 20px; border-radius: 30px; font-family: Arial; font-size: 0.9rem; z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
         .sync-toast.show { opacity: 1; }
 
-        /* Partner banner container - minimal styling */
-        #partner-ad-banner {
-            position: sticky;
-            top: 70px;
-            z-index: 99;
-            overflow: hidden;
-        }
+    </style>
+    <style>
+        /* Tabbed detail view */
+        .detail-tabs { display: flex; gap: 0; margin-bottom: 1rem; border-radius: 8px; overflow: hidden; border: 2px solid #2c5f2d; }
+        .detail-tab { flex: 1; padding: 10px 16px; background: #f0f5f0; color: #2c5f2d; border: none; cursor: pointer; font-family: Arial, sans-serif; font-weight: 700; font-size: 0.9rem; transition: all 0.2s; text-align: center; border-right: 1px solid #d0ddd0; }
+        .detail-tab:last-child { border-right: none; }
+        .detail-tab.active { background: #2c5f2d; color: white; }
+        .detail-tab:hover:not(.active) { background: #dce8dc; }
+        .detail-tab-content { display: none; }
+        .detail-tab-content.active { display: block; animation: tabFadeIn 0.3s ease; }
+        @keyframes tabFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        /* Wikipedia / Learn More tab */
+        .wiki-summary { background: white; padding: 1.2rem; border-radius: 10px; border-left: 4px solid #2c5f2d; margin-bottom: 1rem; line-height: 1.6; font-family: Arial, sans-serif; font-size: 0.95rem; color: #333; }
+        .wiki-link { display: inline-block; padding: 0.6rem 1.2rem; background: #2c5f2d; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 0.9rem; transition: all 0.3s; }
+        .wiki-link:hover { background: #1e4620; transform: translateY(-2px); }
+        .wiki-loading { text-align: center; padding: 2rem; color: #999; font-family: Arial; }
+        .wiki-error { text-align: center; padding: 1.5rem; color: #666; font-family: Arial; }
+        .wiki-error a { color: #2c5f2d; font-weight: bold; }
+        /* Mobile icon labels */
+        .card-actions button { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .card-actions .icon-label { font-size: 0.65rem; font-family: Arial, sans-serif; color: #666; font-weight: 600; }
         @media (max-width: 768px) {
-            #partner-ad-banner {
-                top: 52px;
-            }
+            .detail-tab { font-size: 0.8rem; padding: 8px 10px; }
         }
     </style>
 </head>
 <body>
-
-<div id="partner-ad-banner"></div>
 
 <nav>
     <div class="container">
@@ -213,6 +224,8 @@
         <div id="mobileAuthLinks"><a href="/static/login.html">🔑 Log In</a><a href="/static/login.html">✏️ Sign Up</a></div>
     </div>
 </nav>
+
+<div id="partner-ad-banner"></div>
 
 <div id="premiumGate" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center;">
     <div style="background:white; border-radius:16px; padding:40px; max-width:420px; width:90%; text-align:center;">
@@ -721,23 +734,37 @@
                     ? `<div class="genus-breakdown-compact"><h4>Genera Likelihood</h4>${fossil.genusBreakdown.map((g,i) => `<div class="genus-item-compact ${i===0?'top':''}">${g.genus} — ${g.percentage}%</div>`).join('')}</div>`
                     : '';
                 detailTr.innerHTML = `<td colspan="9"><div class="expanded-content">
-                    ${photosHtml}
-                    <div class="detail-info">
-                        <div class="detail-item"><strong>Family</strong>${fossil.family}</div>
-                        <div class="detail-item"><strong>Genus</strong>${fossil.genus}</div>
-                        <div class="detail-item"><strong>Confidence</strong>${fossil.confidence}%</div>
-                        <div class="detail-item"><strong>Date</strong>${new Date(fossil.date).toLocaleDateString()}</div>
+                    <div class="detail-tabs">
+                        <button class="detail-tab active" onclick="switchDetailTab(this, 'id-${fossil.id}')">🔍 ID Result</button>
+                        <button class="detail-tab" onclick="switchDetailTab(this, 'details-${fossil.id}')">📋 Details</button>
+                        <button class="detail-tab" onclick="switchDetailTab(this, 'wiki-${fossil.id}')">📚 Learn More</button>
                     </div>
-                    <div class="detail-notes"><label>Personal Notes:</label><textarea onblur="saveNotes('${fossil.id}', this.value)">${fossil.notes || ''}</textarea></div>
-                    ${genusHtml}
-                    <div class="detail-actions">
-                        <button class="btn-favorite" onclick="toggleFavorite('${fossil.id}')">${fossil.favorite ? '☆ Unfavorite' : '☆ Favorite'}</button>
-                        <button class="btn-keep" onclick="toggleKeepForever('${fossil.id}')">${fossil.keepForever ? '✓ Keep Forever' : '☐ Keep Forever'}</button>
-                        <button class="btn-share" onclick="openShareModal('${fossil.id}')">📤 Share</button>
-                        <button class="btn-delete-detail" onclick="deleteFossil('${fossil.id}')">🗑️ Delete</button>
+                    <div class="detail-tab-content active" id="id-${fossil.id}">
+                        <div class="detail-info">
+                            <div class="detail-item"><strong>Family</strong>${fossil.family}</div>
+                            <div class="detail-item"><strong>Genus</strong>${fossil.genus}</div>
+                            <div class="detail-item"><strong>Confidence</strong>${fossil.confidence}%</div>
+                            <div class="detail-item"><strong>Date</strong>${new Date(fossil.date).toLocaleDateString()}</div>
+                        </div>
+                        ${genusHtml}
+                    </div>
+                    <div class="detail-tab-content" id="details-${fossil.id}">
+                        ${photosHtml}
+                        <div class="detail-notes"><label>Personal Notes:</label><textarea onblur="saveNotes('${fossil.id}', this.value)">${fossil.notes || ''}</textarea></div>
+                        <div class="detail-actions">
+                            <button class="btn-favorite" onclick="toggleFavorite('${fossil.id}')">${fossil.favorite ? '☆ Unfavorite' : '⭐ Favorite'}</button>
+                            <button class="btn-keep" onclick="toggleKeepForever('${fossil.id}')">${fossil.keepForever ? '✓ Keep Forever' : '📌 Keep Forever'}</button>
+                            <button class="btn-share" onclick="openShareModal('${fossil.id}')">📤 Share</button>
+                            <button class="btn-delete-detail" onclick="deleteFossil('${fossil.id}')">🗑️ Delete</button>
+                        </div>
+                    </div>
+                    <div class="detail-tab-content" id="wiki-${fossil.id}">
+                        <div class="wiki-loading" id="wikiLoad-${fossil.id}">Loading Wikipedia info for <strong>${fossil.genus || fossil.family}</strong>...</div>
+                        <div id="wikiContent-${fossil.id}"></div>
                     </div>
                 </div></td>`;
                 tbody.appendChild(detailTr);
+                fetchWikipedia(fossil.genus || fossil.family, 'wikiLoad-' + fossil.id, 'wikiContent-' + fossil.id);
             }
 
             // Mobile card - ALL IDs QUOTED
@@ -759,22 +786,35 @@
                     </div>
                 </div>
                 <div class="card-actions">
-                    <button onclick="toggleFavorite('${fossil.id}')">${fossil.favorite ? '⭐' : '☆'}</button>
-                    <button onclick="toggleKeepForever('${fossil.id}')">${fossil.keepForever ? '📌' : '📎'}</button>
-                    <button onclick="openShareModal('${fossil.id}')">📤</button>
-                    <button onclick="deleteFossil('${fossil.id}')">🗑️</button>
+                    <button onclick="toggleFavorite('${fossil.id}')">${fossil.favorite ? '⭐' : '☆'}<span class="icon-label">Favorite</span></button>
+                    <button onclick="toggleKeepForever('${fossil.id}')">${fossil.keepForever ? '📌' : '📎'}<span class="icon-label">Keep</span></button>
+                    <button onclick="openShareModal('${fossil.id}')">📤<span class="icon-label">Share</span></button>
+                    <button onclick="deleteFossil('${fossil.id}')">🗑️<span class="icon-label">Delete</span></button>
                 </div>
                 <button class="card-expand-btn" onclick="toggleCardExpand('${fossil.id}', this)">${expandedRow === fossil.id ? '▲ Hide Details' : '▼ Show Details'}</button>
                 <div class="card-expanded ${expandedRow === fossil.id ? 'open' : ''}" id="card-exp-${fossil.id}">
-                    ${fossil.photos?.length > 1 ? `<div class="card-expanded-photos">${fossil.photos.map(p => `<img src="${p}" onclick="openZoom('${p}')">`).join('')}</div>` : ''}
-                    <div class="card-detail-grid">
-                        <div class="card-detail-item"><strong>Family</strong><span>${fossil.family}</span></div>
-                        <div class="card-detail-item"><strong>Genus</strong><span>${fossil.genus}</span></div>
-                        <div class="card-detail-item"><strong>Confidence</strong><span>${fossil.confidence}%</span></div>
-                        <div class="card-detail-item"><strong>Date</strong><span>${new Date(fossil.date).toLocaleDateString()}</span></div>
+                    <div class="detail-tabs">
+                        <button class="detail-tab active" onclick="switchDetailTab(this, 'mob-id-${fossil.id}')">🔍 Result</button>
+                        <button class="detail-tab" onclick="switchDetailTab(this, 'mob-details-${fossil.id}')">📋 Details</button>
+                        <button class="detail-tab" onclick="switchDetailTab(this, 'mob-wiki-${fossil.id}')">📚 Learn</button>
                     </div>
-                    ${genusBreakHtml}
-                    <div class="card-notes"><textarea onblur="saveNotes('${fossil.id}', this.value)">${fossil.notes || ''}</textarea></div>
+                    <div class="detail-tab-content active" id="mob-id-${fossil.id}">
+                        <div class="card-detail-grid">
+                            <div class="card-detail-item"><strong>Family</strong><span>${fossil.family}</span></div>
+                            <div class="card-detail-item"><strong>Genus</strong><span>${fossil.genus}</span></div>
+                            <div class="card-detail-item"><strong>Confidence</strong><span>${fossil.confidence}%</span></div>
+                            <div class="card-detail-item"><strong>Date</strong><span>${new Date(fossil.date).toLocaleDateString()}</span></div>
+                        </div>
+                        ${genusBreakHtml}
+                    </div>
+                    <div class="detail-tab-content" id="mob-details-${fossil.id}">
+                        ${fossil.photos?.length > 1 ? `<div class="card-expanded-photos">${fossil.photos.map(p => `<img src="${p}" onclick="openZoom('${p}')">`).join('')}</div>` : ''}
+                        <div class="card-notes"><textarea placeholder="Add personal notes..." onblur="saveNotes('${fossil.id}', this.value)">${fossil.notes || ''}</textarea></div>
+                    </div>
+                    <div class="detail-tab-content" id="mob-wiki-${fossil.id}">
+                        <div class="wiki-loading" id="mobWikiLoad-${fossil.id}">Loading info for <strong>${fossil.genus || fossil.family}</strong>...</div>
+                        <div id="mobWikiContent-${fossil.id}"></div>
+                    </div>
                 </div>
             `;
             mobileCards.appendChild(card);
@@ -790,6 +830,75 @@
         expandedRow = expandedRow === id ? null : id;
         renderData();
     }
+
+    // ── Tab switching ─────────────────────────────────────
+    window.switchDetailTab = function(btn, contentId) {
+        const tabBar = btn.parentElement;
+        const container = tabBar.parentElement;
+        tabBar.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        container.querySelectorAll('.detail-tab-content').forEach(c => c.classList.remove('active'));
+        const target = document.getElementById(contentId);
+        if (target) target.classList.add('active');
+        // Trigger Wikipedia fetch if Learn More tab
+        if (contentId.includes('wiki')) {
+            const loadEl = target.querySelector('.wiki-loading');
+            const contentEl = target.querySelector('[id*="WikiContent"], [id*="wikiContent"]');
+            if (loadEl && loadEl.style.display !== 'none' && contentEl) {
+                const genus = loadEl.querySelector('strong')?.textContent;
+                if (genus) fetchWikipedia(genus, loadEl.id, contentEl.id);
+            }
+        }
+    };
+
+    // ── Wikipedia integration ─────────────────────────────
+    const wikiCache = {};
+    window.fetchWikipedia = async function(term, loadId, contentId) {
+        if (!term || !contentId) return;
+        const loadEl = document.getElementById(loadId);
+        const contentEl = document.getElementById(contentId);
+        if (!contentEl) return;
+        if (contentEl.innerHTML) { if (loadEl) loadEl.style.display = 'none'; return; }
+
+        // Check cache
+        const cacheKey = term.toLowerCase().replace(/\s+/g, '_');
+        if (wikiCache[cacheKey]) {
+            if (loadEl) loadEl.style.display = 'none';
+            contentEl.innerHTML = wikiCache[cacheKey];
+            return;
+        }
+
+        // Try genus first, then family
+        const searches = [term];
+        if (term.includes(' ')) searches.push(term.split(' ')[0]);
+
+        for (const q of searches) {
+            try {
+                const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(q)}`;
+                const res = await fetch(url);
+                if (!res.ok) continue;
+                const data = await res.json();
+                if (data.type === 'disambiguation' || !data.extract) continue;
+
+                const thumb = data.thumbnail ? `<img src="${data.thumbnail.source}" alt="" style="float:right;margin:0 0 1rem 1rem;width:120px;border-radius:8px;border:2px solid #e0e0e0;">` : '';
+                const html = `
+                    ${thumb}
+                    <div class="wiki-summary">${data.extract}</div>
+                    <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(data.title)}" target="_blank" class="wiki-link">📖 Read full article on Wikipedia →</a>
+                `;
+                wikiCache[cacheKey] = html;
+                if (loadEl) loadEl.style.display = 'none';
+                contentEl.innerHTML = html;
+                return;
+            } catch (e) { continue; }
+        }
+
+        // Nothing found
+        if (loadEl) loadEl.style.display = 'none';
+        const fallbackHtml = `<div class="wiki-error"><p>No Wikipedia article found for "<strong>${term}</strong>"</p><a href="https://en.wikipedia.org/w/index.php?search=${encodeURIComponent(term + ' ammonite')}" target="_blank">🔍 Search Wikipedia manually →</a></div>`;
+        wikiCache[cacheKey] = fallbackHtml;
+        contentEl.innerHTML = fallbackHtml;
+    };
 
     function initCarousel(carouselId) {
         const track = document.getElementById(`track-${carouselId}`);
