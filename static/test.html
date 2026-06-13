@@ -248,6 +248,19 @@
             #cameraVideo { max-height: 45vh; }
             .camera-controls .btn { padding: 0.85rem 1.2rem; font-size: 0.95rem; }
         }
+
+        /* Partner banner container - minimal styling */
+        #partner-ad-banner {
+            position: sticky;
+            top: 70px;
+            z-index: 99;
+            overflow: hidden;
+        }
+        @media (max-width: 768px) {
+            #partner-ad-banner {
+                top: 52px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -388,31 +401,6 @@
         </div>
     </div>
     <canvas id="canvas" style="display:none;"></canvas>
-
-    <!-- AD BANNER STYLES -->
-    <style>
-        #partner-ad-banner { position:sticky;top:70px;z-index:99;overflow:hidden;height:160px;box-shadow:0 4px 8px rgba(0,0,0,0.1);transform:translateY(-110%);opacity:0; }
-        .banner-in  { animation: bannerSlideIn  0.6s cubic-bezier(0.22,1,0.36,1) forwards; }
-        .banner-out { animation: bannerSlideOut 0.4s ease forwards; }
-        @keyframes bannerSlideIn  { from{transform:translateY(-110%);opacity:0;} to{transform:translateY(0);opacity:1;} }
-        @keyframes bannerSlideOut { from{transform:translateY(0);opacity:1;} to{transform:translateY(-110%);opacity:0;} }
-        .ad-content { position:relative;display:flex;align-items:center;padding:0 2rem;height:160px;overflow:hidden;gap:1rem; }
-        .ad-left { display:flex;align-items:center;gap:1rem;flex:1;min-width:0; }
-        .ad-partner-info { display:flex;flex-direction:column;gap:4px; }
-        .ad-partner-name { font-size:1.6rem;font-weight:bold;color:#1a1a1a;text-decoration:none;cursor:pointer;transition:all 0.2s; }
-        .ad-partner-name:hover { text-decoration:underline;color:#2c5f2d; }
-        img.ad-logo { width:50px;height:50px;border-radius:8px;object-fit:cover;border:2px solid rgba(255,255,255,0.8);box-shadow:0 1px 3px rgba(0,0,0,0.15);flex-shrink:0; }
-        .ad-description { font-size:1.1rem;color:#333;font-family:Arial,sans-serif;line-height:1.4; }
-        .ad-offer { font-size:1rem;color:#2c5f2d;font-weight:bold;margin-top:2px; }
-        @media (max-width:768px) {
-            #partner-ad-banner { height:auto;min-height:70px;top:52px; }
-            .ad-content { padding:0.8rem 1rem;height:auto;gap:0.8rem; }
-            .ad-partner-name { font-size:1.2rem; }
-            img.ad-logo { width:40px;height:40px; }
-            .ad-description { font-size:0.95rem; }
-            .ad-offer { font-size:0.85rem; }
-        }
-    </style>
 
     <!-- HAMBURGER SCRIPT -->
     <script>
@@ -903,50 +891,6 @@
         });
     </script>
 
-    <!-- AD BANNER SCRIPT -->
-    <script>
-        let partners=[], bannerSlid=false;
-        async function loadAdPartners() {
-            try {
-                const data = await (await fetch('/api/admin/partners')).json();
-                partners = (data.partners||[]).filter(p=>p.status==='active'&&p.active).map(p=>({name:p.name,url:p.url,email:p.email||'',phone:p.phone||'',bgColor:p.bg_color,anchor:p.anchor||p.partner_id,description:p.description||'',offer:p.offer||'',logo_emoji:p.logo_emoji||'🏪',logo_path:p.logo_path||'',display_duration:(p.display_duration||15)*1000,rotation_weight:p.rotation_weight||1}));
-                // Cache partners for offline use
-                if (partners.length) {
-                    try { localStorage.setItem('ammonite_partners_cache', JSON.stringify(partners)); } catch(e) {}
-                }
-                partners.length ? initializeAds() : (document.getElementById('partner-ad-banner').style.display='none');
-            } catch {
-                // Offline or API error — load from cache
-                try {
-                    const cached = localStorage.getItem('ammonite_partners_cache');
-                    if (cached) {
-                        partners = JSON.parse(cached);
-                        partners.length ? initializeAds() : (document.getElementById('partner-ad-banner').style.display='none');
-                    } else {
-                        document.getElementById('partner-ad-banner').style.display='none';
-                    }
-                } catch(e) {
-                    document.getElementById('partner-ad-banner').style.display='none';
-                }
-            }
-        }
-        function showAd(index) {
-            const banner=document.getElementById('partner-ad-banner'); if(!banner||!partners[index]) return;
-            const p=partners[index]; const ex=banner.querySelector('.ad-content'); if(ex) ex.remove();
-            banner.style.backgroundColor=p.bgColor; localStorage.setItem('adCurrentIndex',index); localStorage.setItem('adShownTime',Date.now());
-            const logo=p.logo_path?`<img src="${p.logo_path}" alt="" class="ad-logo">`:(p.logo_emoji?`<span style="font-size:2.5rem;flex-shrink:0;">${p.logo_emoji}</span>`:'');
-            const link=p.url||'/static/partners.html#'+p.anchor;
-            const adEl=document.createElement('div'); adEl.className='ad-content active'; adEl.style.opacity='1';
-            adEl.innerHTML=`<div class="ad-left">${logo}<div class="ad-partner-info"><a href="${link}" target="_blank" class="ad-partner-name">${p.name}</a>${p.description?`<span class="ad-description">${p.description}</span>`:''}${p.offer?`<span class="ad-offer">🎁 ${p.offer}</span>`:''}</div></div>`;
-            banner.appendChild(adEl);
-            if(!bannerSlid){banner.classList.remove('banner-in','banner-out');requestAnimationFrame(()=>banner.classList.add('banner-in'));bannerSlid=true;}
-        }
-        let rotationList=[],rotationPosition=0,adRotationInterval;
-        function buildRotationList(){let l=[];partners.forEach((p,i)=>{for(let w=0;w<(p.rotation_weight||1);w++)l.push(i);});return l;}
-        function rotateAd(){if(!rotationList.length)return;rotationPosition=(rotationPosition+1)%rotationList.length;const pi=rotationList[rotationPosition];clearTimeout(adRotationInterval);const ac=document.getElementById('partner-ad-banner')?.querySelector('.ad-content');if(ac){ac.style.transition='opacity 0.25s';ac.style.opacity='0';}setTimeout(()=>showAd(pi),260);adRotationInterval=setTimeout(rotateAd,partners[pi].display_duration||15000);}
-        function initializeAds(){if(!partners.length){document.getElementById('partner-ad-banner').style.display='none';return;}rotationList=buildRotationList();const si=parseInt(localStorage.getItem('adCurrentIndex')||'0');const st=parseInt(localStorage.getItem('adShownTime')||'0');const elapsed=Date.now()-st;let sp=rotationList.indexOf(si);if(sp===-1)sp=0;const cp=partners[rotationList[sp]]||partners[0];const remaining=Math.max((cp.display_duration||15000)-elapsed,1000);rotationPosition=sp;showAd(rotationList[sp]);if(partners.length>1)adRotationInterval=setTimeout(rotateAd,remaining);}
-        window.addEventListener('load',loadAdPartners);
-    </script>
     <script src="/static/ad-tracking.js"></script>
     <script src="/static/feature-gate.js"></script>
 
@@ -1028,6 +972,9 @@
             });
         })();
     </script>
+
+    <!-- Partner banner script (external) -->
+    <script src="/static/partner-banner.js"></script>
 
 </body>
 </html>
