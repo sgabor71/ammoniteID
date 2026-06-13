@@ -188,6 +188,18 @@ def init_db():
         c.execute("ALTER TABLE users ADD COLUMN updated_at TEXT DEFAULT ''")
         print("✅ Added updated_at column to users table")
 
+    if 'status' not in existing_cols:
+        c.execute("ALTER TABLE users ADD COLUMN status TEXT DEFAULT 'active'")
+        print("✅ Added status column to users table (soft delete support)")
+
+    if 'deleted_at' not in existing_cols:
+        c.execute("ALTER TABLE users ADD COLUMN deleted_at TEXT")
+        print("✅ Added deleted_at column to users table")
+
+    if 'deleted_by_admin_id' not in existing_cols:
+        c.execute("ALTER TABLE users ADD COLUMN deleted_by_admin_id TEXT")
+        print("✅ Added deleted_by_admin_id column to users table")
+
     # ── Migration: copy old data into tier column ─────────────
     # Only update rows where tier is NULL or still 'FREE' from default
     # Admins first (highest priority)
@@ -342,6 +354,18 @@ def init_db():
             rule        TEXT NOT NULL DEFAULT 'premium',
             description TEXT,
             updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
+    # ── Audit log table (track admin actions) ─────────────────
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS audit_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            action TEXT,
+            admin_id TEXT,
+            target_user_id TEXT,
+            details TEXT,
+            timestamp TEXT
         )
     ''')
 
