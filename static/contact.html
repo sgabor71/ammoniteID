@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact - AmmoniteID</title>
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#2c5f2d">
     <script src="/static/tier-gates.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Georgia', 'Merriweather', serif; background: #F5F1E8; color: #1a1a1a; line-height: 1.6; background-image: url('background.jpg'); background-size: cover; background-attachment: fixed; background-position: center; min-height: 100vh; }
         nav { background: rgba(255,255,255,0.97); backdrop-filter: blur(10px); padding: 1.2rem 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: sticky; top: 0; z-index: 1000; }
-        nav .container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        nav .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
         nav .logo { font-size: 1.8rem; font-weight: bold; color: #2c5f2d; text-decoration: none; }
         nav .nav-links { display: flex; gap: 1.5rem; list-style: none; flex-wrap: nowrap; flex: 1; justify-content: center; }
         nav .nav-links a { color: #5D4E3A; text-decoration: none; font-size: 1.1rem; font-weight: bold; font-family: 'Arial', sans-serif; transition: all 0.3s; padding-bottom: 3px; border-bottom: 3px solid transparent; }
@@ -18,15 +20,199 @@
         .auth-buttons { display: flex; gap: 1rem; }
         .btn-outline { padding: 0.6rem 1.5rem; border: 2px solid #2c5f2d; background: linear-gradient(135deg, #2c5f2d 0%, #1e4620 100%); color: white; border-radius: 8px; text-decoration: none; font-family: 'Arial', sans-serif; font-size: 1.1rem; font-weight: bold; transition: all 0.3s; cursor: pointer; box-shadow: 0 2px 8px rgba(44,95,45,0.3); }
         .btn-outline:hover { background: linear-gradient(135deg, #1e4620 0%, #2c5f2d 100%); transform: translateY(-2px); }
-        .container { max-width: 800px; margin: 0 auto; padding: 2rem; }
-        .card { background: rgba(255,255,255,0.97); border-radius: 16px; padding: 2.5rem; box-shadow: 0 8px 32px rgba(0,0,0,0.1); margin-bottom: 2rem; }
-        .card h1 { color: #2c5f2d; font-size: 2.5rem; margin-bottom: 1rem; }
-        .card h2 { color: #2c5f2d; font-size: 1.6rem; margin-bottom: 1rem; }
-        .card p { color: #1a1a1a; font-size: 1.05rem; margin-bottom: 1rem; line-height: 1.8; font-family: 'Arial', sans-serif; }
-        .contact-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(44,95,45,0.06); border-radius: 10px; margin-bottom: 1rem; border-left: 4px solid #2c5f2d; font-family: 'Arial', sans-serif; }
-        .contact-item a { color: #2c5f2d; text-decoration: none; font-weight: bold; }
-        .contact-item a:hover { text-decoration: underline; }
-        .contact-icon { font-size: 1.5rem; flex-shrink: 0; }
+
+        /* Partner banner container */
+        #partner-ad-banner { position: sticky; top: 70px; z-index: 99; overflow: hidden; }
+
+        /* ── Page Container ── */
+        .page-container { max-width: 800px; margin: 0 auto; padding: 2rem; }
+
+        /* ── Header Card ── */
+        .header-card {
+            background: rgba(255,255,255,0.97); border-radius: 16px; padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1); margin-bottom: 2rem; text-align: center;
+        }
+        .header-card h1 { color: #2c5f2d; font-size: 2.4rem; margin-bottom: 0.5rem; }
+        .header-card p { color: #5D4E3A; font-size: 1.1rem; font-family: 'Arial', sans-serif; }
+
+        /* ── Option Cards ── */
+        .options-row {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;
+        }
+        .option-card {
+            background: rgba(255,255,255,0.97); border-radius: 16px; padding: 2rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08); cursor: pointer;
+            border: 3px solid transparent; transition: all 0.3s ease; text-align: center;
+        }
+        .option-card:hover {
+            transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            border-color: #2c5f2d;
+        }
+        .option-card.selected {
+            border-color: #2c5f2d; background: rgba(44,95,45,0.04);
+            box-shadow: 0 8px 24px rgba(44,95,45,0.15);
+        }
+        .option-icon { font-size: 3rem; margin-bottom: 0.8rem; display: block; }
+        .option-card h2 { color: #2c5f2d; font-size: 1.4rem; margin-bottom: 0.5rem; }
+        .option-card p { color: #5D4E3A; font-size: 0.95rem; font-family: 'Arial', sans-serif; line-height: 1.5; }
+
+        /* ── Form Panels ── */
+        .form-panel {
+            display: none; background: rgba(255,255,255,0.97); border-radius: 16px;
+            padding: 2.5rem; box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            animation: slideIn 0.35s ease-out;
+        }
+        .form-panel.visible { display: block; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+        .form-panel h2 { color: #2c5f2d; font-size: 1.8rem; margin-bottom: 0.5rem; }
+        .form-panel .form-subtitle { color: #5D4E3A; font-family: 'Arial', sans-serif; margin-bottom: 1.5rem; font-size: 0.95rem; }
+
+        /* ── Section Headers ── */
+        .section-label {
+            font-size: 0.85rem; font-weight: bold; color: #8B7355; text-transform: uppercase;
+            letter-spacing: 0.08em; margin: 2rem 0 1rem; padding-bottom: 0.4rem;
+            border-bottom: 2px solid #e8e0d4; font-family: 'Arial', sans-serif;
+        }
+        .section-label:first-of-type { margin-top: 0; }
+
+        /* ── Form Fields ── */
+        .field { margin-bottom: 1.2rem; }
+        .field label {
+            display: block; font-size: 0.95rem; font-weight: bold; color: #2c5f2d;
+            margin-bottom: 0.3rem; font-family: 'Arial', sans-serif;
+        }
+        .field label .required { color: #c0392b; }
+        .field .hint {
+            display: block; font-size: 0.82rem; color: #8B7355; margin-bottom: 0.35rem;
+            font-family: 'Arial', sans-serif; font-style: italic;
+        }
+        .field input[type="text"],
+        .field input[type="email"],
+        .field input[type="url"],
+        .field input[type="tel"],
+        .field input[type="date"],
+        .field input[type="number"],
+        .field input[type="color"],
+        .field textarea,
+        .field select {
+            width: 100%; padding: 0.75rem 1rem; border: 2px solid #d5cfc6;
+            border-radius: 10px; font-size: 1rem; font-family: 'Arial', sans-serif;
+            background: #faf8f5; transition: border-color 0.2s, box-shadow 0.2s;
+            color: #1a1a1a;
+        }
+        .field input:focus, .field textarea:focus, .field select:focus {
+            outline: none; border-color: #2c5f2d; box-shadow: 0 0 0 3px rgba(44,95,45,0.12);
+            background: white;
+        }
+        .field textarea { min-height: 100px; resize: vertical; }
+        .char-count { text-align: right; font-size: 0.78rem; color: #999; font-family: 'Arial', sans-serif; }
+        .char-count.over { color: #c0392b; font-weight: bold; }
+
+        /* ── Radio Groups ── */
+        .radio-group { display: flex; flex-direction: column; gap: 0.6rem; }
+        .radio-option {
+            display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem;
+            background: #faf8f5; border: 2px solid #e8e0d4; border-radius: 10px;
+            cursor: pointer; transition: all 0.2s; font-family: 'Arial', sans-serif;
+        }
+        .radio-option:hover { border-color: #2c5f2d; background: rgba(44,95,45,0.03); }
+        .radio-option input[type="radio"] { accent-color: #2c5f2d; width: 18px; height: 18px; flex-shrink: 0; }
+        .radio-option .radio-label { font-weight: 600; color: #1a1a1a; }
+        .radio-option .radio-desc { font-size: 0.85rem; color: #8B7355; }
+
+        /* ── Date row ── */
+        .date-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.5rem; }
+        #dateFields { display: none; margin-top: 0.5rem; }
+
+        /* ── Color picker ── */
+        .color-row { display: flex; align-items: center; gap: 1rem; }
+        .color-row input[type="color"] { width: 50px; height: 40px; padding: 2px; border: 2px solid #d5cfc6; border-radius: 8px; cursor: pointer; }
+        .color-row input[type="text"] { flex: 1; }
+
+        /* ── Category select ── */
+        .category-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;
+        }
+        .category-option {
+            display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 0.8rem;
+            background: #faf8f5; border: 2px solid #e8e0d4; border-radius: 10px;
+            cursor: pointer; transition: all 0.2s; font-family: 'Arial', sans-serif; font-size: 0.9rem;
+        }
+        .category-option:hover { border-color: #2c5f2d; }
+        .category-option input[type="radio"] { accent-color: #2c5f2d; }
+        .category-option.other-option { grid-column: 1 / -1; }
+        .category-option.other-option input[type="text"] {
+            flex: 1; padding: 0.4rem 0.6rem; border: 1px solid #d5cfc6; border-radius: 6px;
+            font-size: 0.9rem; font-family: 'Arial', sans-serif;
+        }
+
+        /* ── File upload ── */
+        .file-upload-area {
+            border: 2px dashed #d5cfc6; border-radius: 12px; padding: 1.5rem;
+            text-align: center; cursor: pointer; transition: all 0.2s; background: #faf8f5;
+        }
+        .file-upload-area:hover { border-color: #2c5f2d; background: rgba(44,95,45,0.03); }
+        .file-upload-area input[type="file"] { display: none; }
+        .file-upload-area .upload-icon { font-size: 2rem; margin-bottom: 0.3rem; }
+        .file-upload-area p { font-family: 'Arial', sans-serif; font-size: 0.9rem; color: #5D4E3A; }
+        .file-upload-area .file-specs { font-size: 0.8rem; color: #999; margin-top: 0.3rem; }
+        .logo-preview { margin-top: 0.8rem; display: none; }
+        .logo-preview img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 2px solid #2c5f2d; }
+
+        /* ── Legal checkboxes ── */
+        .legal-section { margin-top: 1.5rem; }
+        .checkbox-item {
+            display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.5rem 0;
+            font-family: 'Arial', sans-serif; font-size: 0.92rem; color: #333;
+        }
+        .checkbox-item input[type="checkbox"] { accent-color: #2c5f2d; width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; }
+
+        /* ── Captcha ── */
+        .captcha-box {
+            background: #f0ece4; border-radius: 12px; padding: 1.2rem 1.5rem;
+            display: flex; align-items: center; gap: 1rem; margin: 1.2rem 0;
+            border: 2px solid #d5cfc6;
+        }
+        .captcha-box .captcha-question {
+            font-family: 'Georgia', serif; font-size: 1.1rem; font-weight: bold;
+            color: #2c5f2d; white-space: nowrap;
+        }
+        .captcha-box input {
+            width: 80px; padding: 0.5rem 0.8rem; border: 2px solid #d5cfc6;
+            border-radius: 8px; font-size: 1rem; text-align: center;
+            font-family: 'Arial', sans-serif; background: white;
+        }
+        .captcha-box input:focus { outline: none; border-color: #2c5f2d; }
+        .captcha-box .captcha-refresh {
+            background: none; border: none; font-size: 1.3rem; cursor: pointer;
+            padding: 0.3rem; border-radius: 6px; transition: transform 0.2s;
+        }
+        .captcha-box .captcha-refresh:hover { transform: rotate(180deg); }
+
+        /* ── Honeypot (hidden from humans) ── */
+        .hp-field { position: absolute; left: -9999px; opacity: 0; height: 0; width: 0; overflow: hidden; }
+
+        /* ── Submit button ── */
+        .submit-btn {
+            display: block; width: 100%; padding: 1rem; margin-top: 1.5rem;
+            background: linear-gradient(135deg, #2c5f2d 0%, #1e4620 100%);
+            color: white; font-size: 1.15rem; font-weight: bold; border: none;
+            border-radius: 12px; cursor: pointer; font-family: 'Arial', sans-serif;
+            transition: all 0.3s; box-shadow: 0 4px 12px rgba(44,95,45,0.3);
+        }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(44,95,45,0.4); }
+        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        /* ── Success / Error messages ── */
+        .form-message {
+            display: none; padding: 1.2rem 1.5rem; border-radius: 12px;
+            margin-top: 1rem; font-family: 'Arial', sans-serif; font-size: 1rem; line-height: 1.5;
+        }
+        .form-message.success { display: block; background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .form-message.error { display: block; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+        /* ── Footer ── */
         footer { background: rgba(61,48,39,0.95); color: #E8DCC8; padding: 3rem 2rem 1rem; margin-top: 2rem; }
         footer .container { max-width: 1200px; margin: 0 auto; }
         .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-bottom: 2rem; }
@@ -35,65 +221,56 @@
         .footer-section a:hover { color: #8B7355; }
         .footer-bottom { text-align: center; padding-top: 2rem; border-top: 1px solid #5D4E3A; color: #A89A87; font-size: 0.9rem; }
 
-        /* Partner banner container - minimal styling */
-        #partner-ad-banner {
-            position: sticky;
-            top: 70px;
-            z-index: 99;
-            overflow: hidden;
-        }
-        @media (max-width: 768px) {
-            #partner-ad-banner {
-                top: 52px;
-            }
-        }
-    
         /* ── HAMBURGER (MOBILE ONLY) ── */
         .hamburger-btn { display: none; }
         .mobile-menu   { display: none; }
 
         @media (max-width: 768px) {
             nav { padding: 0.6rem 1rem !important; position: relative; }
-            nav .container, nav .nav-container { flex-wrap: nowrap !important; gap: 0.5rem !important; }
+            nav .nav-container { flex-wrap: nowrap !important; gap: 0.5rem !important; }
             nav .logo { font-size: 1.2rem !important; }
-            nav .nav-links, nav .nav-menu { display: none !important; }
+            nav .nav-links { display: none !important; }
             .auth-buttons .btn-outline { padding: 0.35rem 0.7rem !important; font-size: 0.8rem !important; }
-            .auth-buttons { gap: 0.4rem !important; }
-
             .hamburger-btn {
-                display: flex !important; flex-direction: column; justify-content: center;
-                gap: 5px; background: none; border: none; cursor: pointer;
-                padding: 6px; margin-left: 6px; flex-shrink: 0;
+                display: flex; flex-direction: column; gap: 5px; background: none;
+                border: none; cursor: pointer; padding: 6px; z-index: 1001;
             }
             .hamburger-btn span { display: block; width: 22px; height: 2.5px; background: #2c5f2d; border-radius: 2px; transition: all 0.3s ease; }
             .hamburger-btn.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 8px); }
             .hamburger-btn.open span:nth-child(2) { opacity: 0; }
             .hamburger-btn.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -8px); }
-
             .mobile-menu {
-                display: none; flex-direction: column;
-                position: absolute; top: 100%; left: 0; right: 0;
-                background: rgba(255,255,255,0.99);
-                box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-                z-index: 1050; padding: 0.3rem 0;
+                display: none; flex-direction: column; background: white;
+                border-top: 2px solid #f0ece4; padding: 0; margin: 0;
+                box-shadow: 0 8px 16px rgba(0,0,0,0.1);
             }
-            .mobile-menu.open { display: flex !important; }
+            .mobile-menu.open { display: flex; }
             .mobile-menu a, .mobile-menu button {
-                padding: 0.85rem 1.5rem; color: #5D4E3A; text-decoration: none;
-                font-family: 'Arial',sans-serif; font-weight: bold; font-size: 0.95rem;
-                border: none; background: none; text-align: left; cursor: pointer;
+                text-align: left; padding: 14px 20px; color: #5D4E3A; text-decoration: none;
+                font-weight: bold; font-size: 1rem; font-family: 'Arial', sans-serif;
+                background: none; border: none; cursor: pointer;
                 border-bottom: 1px solid #f0ece4; display: block; width: 100%;
             }
             .mobile-menu a:hover, .mobile-menu button:hover { background: #f5f1e8; color: #2c5f2d; }
-            .mobile-menu a:last-child, .mobile-menu button:last-child { border-bottom: none; }
-        }
 
+            #partner-ad-banner { top: 52px; }
+            .page-container { padding: 1rem; }
+            .header-card { padding: 1.5rem; }
+            .header-card h1 { font-size: 1.8rem; }
+            .options-row { grid-template-columns: 1fr; gap: 1rem; }
+            .option-icon { font-size: 2.4rem; }
+            .form-panel { padding: 1.5rem; }
+            .form-panel h2 { font-size: 1.4rem; }
+            .date-row { grid-template-columns: 1fr; }
+            .category-grid { grid-template-columns: 1fr; }
+            .captcha-box { flex-wrap: wrap; gap: 0.5rem; }
+        }
     </style>
 </head>
 <body>
 
     <nav>
-        <div class="container">
+        <div class="nav-container">
             <a href="/static/home.html" class="logo">AmmoniteID</a>
             <ul class="nav-links">
                 <li><a href="/static/home.html">Home</a></li>
@@ -107,13 +284,10 @@
                 <a href="/static/login.html" class="btn-outline">Log In</a>
                 <a href="/static/login.html" class="btn-outline">Sign Up</a>
             </div>
-            <!-- Hamburger (mobile only) -->
             <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu">
                 <span></span><span></span><span></span>
             </button>
         </div>
-    
-        <!-- Mobile dropdown -->
         <div class="mobile-menu" id="mobileMenu">
             <a href="/static/home.html">🏠 Home</a>
             <a href="/static/test.html">🔍 Identify</a>
@@ -130,33 +304,250 @@
 
     <div id="partner-ad-banner"></div>
 
-    <div class="container">
+    <div class="page-container">
 
-        <div class="card">
-            <h1>Contact Us</h1>
-            <p id="contactIntro">Have a question, spotted an error in an identification, or want to get involved? We'd love to hear from you.</p>
+        <!-- ─── Header ─── -->
+        <div class="header-card">
+            <h1>Get in Touch</h1>
+            <p>Choose an option below to reach us</p>
         </div>
 
-        <div class="card">
-            <h2>Get in Touch</h2>
-            <div id="contactDetails">
-                <div class="contact-item"><span class="contact-icon">📧</span><div><strong>Email</strong><br><a id="contactEmail" href="mailto:hello@ammoniteid.co.uk">hello@ammoniteid.co.uk</a></div></div>
+        <!-- ─── Two Options ─── -->
+        <div class="options-row">
+            <div class="option-card" id="optContact" onclick="showForm('contact')">
+                <span class="option-icon">📬</span>
+                <h2>Contact Us</h2>
+                <p>Questions, feedback, or just want to say hello? Send us a message.</p>
+            </div>
+            <div class="option-card" id="optPartner" onclick="showForm('partner')">
+                <span class="option-icon">📢</span>
+                <h2>Advertise with Us</h2>
+                <p>Set up a partner ad campaign in the AmmoniteID app.</p>
             </div>
         </div>
 
-        <div class="card">
-            <h2>Report an Identification Error</h2>
-            <p>If you're a Premium user and believe an identification was incorrect, you can report it from the <strong>My Fossil Collection</strong> page using the Report button on any saved fossil. Our expert team reviews all flagged identifications.</p>
-            <a href="/static/mylog.html" style="display:inline-block;margin-top:1rem;padding:0.75rem 1.75rem;background:#2c5f2d;color:white;text-decoration:none;border-radius:10px;font-family:'Arial',sans-serif;font-weight:bold;">Go to My Collection →</a>
+        <!-- ══════════════════════════════════════════ -->
+        <!-- CONTACT US FORM                           -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="form-panel" id="contactForm">
+            <h2>Send Us a Message</h2>
+            <p class="form-subtitle">We'll get back to you as soon as we can.</p>
+
+            <form id="contactFormEl" onsubmit="submitContact(event)">
+                <!-- Honeypot -->
+                <div class="hp-field" aria-hidden="true">
+                    <label for="c_hp">Leave this blank</label>
+                    <input type="text" id="c_hp" name="website_url_verify" tabindex="-1" autocomplete="off">
+                </div>
+
+                <div class="field">
+                    <label>Your Name <span class="required">*</span></label>
+                    <input type="text" id="c_name" required maxlength="100" placeholder="Jane Smith">
+                </div>
+                <div class="field">
+                    <label>Email Address <span class="required">*</span></label>
+                    <input type="email" id="c_email" required placeholder="jane@example.com">
+                </div>
+                <div class="field">
+                    <label>Subject</label>
+                    <input type="text" id="c_subject" maxlength="200" placeholder="What is this about?">
+                </div>
+                <div class="field">
+                    <label>Message <span class="required">*</span></label>
+                    <textarea id="c_message" required maxlength="5000" placeholder="Your message..."></textarea>
+                    <div class="char-count" id="c_msgCount">0 / 5000</div>
+                </div>
+
+                <!-- Captcha -->
+                <div class="captcha-box">
+                    <span class="captcha-question" id="c_captchaQ">Loading...</span>
+                    <span style="font-family:'Arial',sans-serif;color:#5D4E3A;">=</span>
+                    <input type="number" id="c_captchaA" placeholder="?" required>
+                    <button type="button" class="captcha-refresh" onclick="loadCaptcha('contact')" title="New question">🔄</button>
+                </div>
+                <input type="hidden" id="c_captchaToken">
+                <input type="hidden" id="c_captchaQHidden">
+
+                <button type="submit" class="submit-btn" id="c_submitBtn">Send Message</button>
+                <div id="c_message_result" class="form-message"></div>
+            </form>
         </div>
 
-        <div class="card">
-            <h2>Partner With Us</h2>
-            <p>Are you a museum, fossil shop, geological society, or related business? We're always looking for partners. Get in touch to discuss advertising and partnership opportunities.</p>
-            <a href="/static/partners.html" style="display:inline-block;margin-top:1rem;padding:0.75rem 1.75rem;background:#5D4E3A;color:white;text-decoration:none;border-radius:10px;font-family:'Arial',sans-serif;font-weight:bold;">View Partners →</a>
+        <!-- ══════════════════════════════════════════ -->
+        <!-- PARTNER AD CAMPAIGN FORM                  -->
+        <!-- ══════════════════════════════════════════ -->
+        <div class="form-panel" id="partnerForm">
+            <h2>Partner Ad Campaign</h2>
+            <p class="form-subtitle">Complete this form to set up your ad in the AmmoniteID app. We'll review your submission and get back to you.</p>
+
+            <form id="partnerFormEl" onsubmit="submitPartner(event)" enctype="multipart/form-data">
+                <!-- Honeypot -->
+                <div class="hp-field" aria-hidden="true">
+                    <label for="p_hp">Leave this blank</label>
+                    <input type="text" id="p_hp" name="website_url_verify" tabindex="-1" autocomplete="off">
+                </div>
+
+                <!-- ── BUSINESS INFORMATION ── -->
+                <div class="section-label">Business Information</div>
+
+                <div class="field">
+                    <label>Business Name <span class="required">*</span></label>
+                    <span class="hint">Name your customers will see (max 50 characters)</span>
+                    <input type="text" id="p_name" required maxlength="50" placeholder="e.g. Fossil Paradise Museum">
+                    <div class="char-count" id="p_nameCount">0 / 50</div>
+                </div>
+                <div class="field">
+                    <label>Website URL <span class="required">*</span></label>
+                    <input type="url" id="p_url" required placeholder="https://fossilmuseum.com">
+                </div>
+                <div class="field">
+                    <label>Email Address <span class="required">*</span></label>
+                    <input type="email" id="p_email" required placeholder="ads@fossilmuseum.com">
+                </div>
+                <div class="field">
+                    <label>Phone Number <span style="color:#999;font-weight:normal;">(optional)</span></label>
+                    <input type="tel" id="p_phone" placeholder="01onal 123456">
+                </div>
+                <div class="field">
+                    <label>Business Address <span style="color:#999;font-weight:normal;">(optional)</span></label>
+                    <input type="text" id="p_address" placeholder="123 Fossil Lane, Whitby, YO21 3PU">
+                </div>
+
+                <!-- ── AD CONTENT ── -->
+                <div class="section-label">Ad Content</div>
+
+                <div class="field">
+                    <label>Short Description <span class="required">*</span></label>
+                    <span class="hint">1-2 short sentences about your business (max 150 characters)</span>
+                    <textarea id="p_desc" required maxlength="150" rows="2" placeholder="e.g. Great museum dedicated to British fossils. Educational tours, shop, café — fun for all ages."></textarea>
+                    <div class="char-count" id="p_descCount">0 / 150</div>
+                </div>
+
+                <div class="field">
+                    <label>Logo / Business Symbol</label>
+                    <div class="file-upload-area" onclick="document.getElementById('p_logo').click()">
+                        <div class="upload-icon">📁</div>
+                        <p>Click to upload your logo</p>
+                        <p class="file-specs">PNG or JPG · Will be resized to 50×50px</p>
+                        <input type="file" id="p_logo" accept=".png,.jpg,.jpeg" onchange="previewLogo(this)">
+                    </div>
+                    <div class="logo-preview" id="logoPreview"></div>
+                </div>
+
+                <div class="field">
+                    <label>Special Offer / Call-to-Action <span style="color:#999;font-weight:normal;">(optional)</span></label>
+                    <span class="hint">e.g. 15% off — use code AmmoniteID</span>
+                    <input type="text" id="p_offer" maxlength="100" placeholder="Your special offer for AmmoniteID users">
+                </div>
+
+                <!-- ── AD DESIGN ── -->
+                <div class="section-label">Ad Design</div>
+
+                <div class="field">
+                    <label>Banner Background Colour</label>
+                    <span class="hint">Leave blank for default. Choose a colour that matches your brand.</span>
+                    <div class="color-row">
+                        <input type="color" id="p_colorPicker" value="#F5F1E8" onchange="document.getElementById('p_color').value=this.value">
+                        <input type="text" id="p_color" placeholder="#F5F1E8 (default)" maxlength="7" onchange="try{document.getElementById('p_colorPicker').value=this.value}catch(e){}">
+                    </div>
+                </div>
+
+                <!-- ── CAMPAIGN SETTINGS ── -->
+                <div class="section-label">Campaign Settings</div>
+
+                <div class="field">
+                    <label>How Long Should Your Ad Show? <span class="required">*</span></label>
+                    <div class="radio-group">
+                        <label class="radio-option" onclick="document.getElementById('dateFields').style.display='none'">
+                            <input type="radio" name="duration" value="indefinite" checked>
+                            <div><span class="radio-label">Monthly subscription (indefinite)</span><br><span class="radio-desc">Cheapest option — runs until cancelled</span></div>
+                        </label>
+                        <label class="radio-option" onclick="document.getElementById('dateFields').style.display='block'">
+                            <input type="radio" name="duration" value="limited">
+                            <div><span class="radio-label">Limited time</span><br><span class="radio-desc">Runs between specific dates</span></div>
+                        </label>
+                    </div>
+                    <div id="dateFields">
+                        <div class="date-row">
+                            <div class="field" style="margin-bottom:0">
+                                <label style="font-size:0.85rem">Start Date</label>
+                                <input type="date" id="p_startDate">
+                            </div>
+                            <div class="field" style="margin-bottom:0">
+                                <label style="font-size:0.85rem">End Date</label>
+                                <input type="date" id="p_endDate">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>How Often Should Your Ad Appear?</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="frequency" value="standard" checked>
+                            <div><span class="radio-label">Standard (1× per rotation)</span><br><span class="radio-desc">Recommended — cheapest option. Rotation happens every 30 seconds.</span></div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="frequency" value="frequent">
+                            <div><span class="radio-label">Frequent (2× per rotation)</span><br><span class="radio-desc">Twice as often as standard</span></div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="frequency" value="very_frequent">
+                            <div><span class="radio-label">Very Frequent (3× per rotation)</span><br><span class="radio-desc">Three times as often — maximum visibility</span></div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Business Category <span class="required">*</span></label>
+                    <div class="category-grid">
+                        <label class="category-option"><input type="radio" name="category" value="museum_education" checked> 🏛️ Museum / Education</label>
+                        <label class="category-option"><input type="radio" name="category" value="shop_retail"> 🛒 Shop / Retail</label>
+                        <label class="category-option"><input type="radio" name="category" value="tour_activity"> 🥾 Tour / Activity</label>
+                        <label class="category-option"><input type="radio" name="category" value="accommodation"> 🏨 Accommodation</label>
+                        <label class="category-option"><input type="radio" name="category" value="restaurant_cafe"> ☕ Restaurant / Café</label>
+                        <label class="category-option"><input type="radio" name="category" value="university_research"> 🎓 University / Research</label>
+                        <label class="category-option other-option">
+                            <input type="radio" name="category" value="other" id="catOtherRadio">
+                            Other: <input type="text" id="p_catOther" maxlength="50" placeholder="Specify..." onclick="document.getElementById('catOtherRadio').checked=true">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- ── LEGAL ── -->
+                <div class="section-label">Legal &amp; Approvals</div>
+                <div class="legal-section">
+                    <div class="checkbox-item"><input type="checkbox" id="legal1" required> <span>I confirm my business information is accurate</span></div>
+                    <div class="checkbox-item"><input type="checkbox" id="legal2" required> <span>I confirm the offer/message is current and valid</span></div>
+                    <div class="checkbox-item"><input type="checkbox" id="legal3" required> <span>I confirm the website URL works correctly</span></div>
+                    <div class="checkbox-item"><input type="checkbox" id="legal4" required> <span>I have permission to use the logo provided</span></div>
+                    <div class="checkbox-item"><input type="checkbox" id="legal5" required> <span>I agree to AmmoniteID's <a href="/static/terms.html" target="_blank" style="color:#2c5f2d;">Terms of Service</a></span></div>
+                </div>
+
+                <!-- ── NOTES ── -->
+                <div class="section-label">Notes / Special Requests <span style="color:#999;font-weight:normal;text-transform:none;">(optional)</span></div>
+                <div class="field">
+                    <textarea id="p_notes" maxlength="300" rows="3" placeholder="e.g. We have seasonal offers, please update monthly"></textarea>
+                    <div class="char-count" id="p_notesCount">0 / 300</div>
+                </div>
+
+                <!-- Captcha -->
+                <div class="captcha-box">
+                    <span class="captcha-question" id="p_captchaQ">Loading...</span>
+                    <span style="font-family:'Arial',sans-serif;color:#5D4E3A;">=</span>
+                    <input type="number" id="p_captchaA" placeholder="?" required>
+                    <button type="button" class="captcha-refresh" onclick="loadCaptcha('partner')" title="New question">🔄</button>
+                </div>
+                <input type="hidden" id="p_captchaToken">
+                <input type="hidden" id="p_captchaQHidden">
+
+                <button type="submit" class="submit-btn" id="p_submitBtn">Submit Ad Campaign</button>
+                <div id="p_message_result" class="form-message"></div>
+            </form>
         </div>
 
-    </div>
+    </div><!-- /page-container -->
 
     <footer>
         <div class="container">
@@ -170,45 +561,209 @@
 
     <script src="/static/ad-tracking.js"></script>
 
-    <!-- Dynamic content from admin -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- FORM LOGIC                                            -->
+    <!-- ══════════════════════════════════════════════════════ -->
     <script>
-        async function loadContactContent() {
-            try {
-                const res = await fetch('/api/content/contact');
-                const d = await res.json();
-                if (d.intro) document.getElementById('contactIntro').textContent = d.intro;
-                if (d.email) {
-                    document.getElementById('contactEmail').href = 'mailto:' + d.email;
-                    document.getElementById('contactEmail').textContent = d.email;
-                }
-                if (d.phone) {
-                    const details = document.getElementById('contactDetails');
-                    details.innerHTML += `<div class="contact-item"><span class="contact-icon">📞</span><div><strong>Phone</strong><br><a href="tel:${d.phone}">${d.phone}</a></div></div>`;
-                }
-            } catch (e) { console.log('Using default contact content'); }
-        }
-        window.addEventListener('DOMContentLoaded', loadContactContent);
-    </script>
+        // ── Show / Hide Forms ──
+        function showForm(type) {
+            const contactCard = document.getElementById('optContact');
+            const partnerCard = document.getElementById('optPartner');
+            const contactForm = document.getElementById('contactForm');
+            const partnerForm = document.getElementById('partnerForm');
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        const firebaseConfig = { apiKey: "AIzaSyChXqOpXgpkLrn44mfIcPoTVPBk6neicBQ", authDomain: "ammoniteid-f9d8e.firebaseapp.com", projectId: "ammoniteid-f9d8e", storageBucket: "ammoniteid-f9d8e.firebasestorage.app", messagingSenderId: "828376677091", appId: "1:828376677091:web:e302f3ff538b78bc83e3d6" };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        onAuthStateChanged(auth, async (user) => {
-            const authButtons = document.querySelector('.auth-buttons');
-            if (user) {
-                const displayName = user.displayName || user.email.split('@')[0];
-                authButtons.innerHTML = `<a href="/static/my-account.html" style="color:#5D4E3A;margin-right:1rem;font-weight:bold;text-decoration:none;">👤 ${displayName}</a><button class="btn-outline" onclick="handleLogout()">Log Out</button>`;
+            contactCard.classList.remove('selected');
+            partnerCard.classList.remove('selected');
+            contactForm.classList.remove('visible');
+            partnerForm.classList.remove('visible');
+
+            if (type === 'contact') {
+                contactCard.classList.add('selected');
+                contactForm.classList.add('visible');
+                loadCaptcha('contact');
             } else {
-                authButtons.innerHTML = `<a href="/static/login.html" class="btn-outline">Log In</a><a href="/static/login.html" class="btn-outline">Sign Up</a>`;
+                partnerCard.classList.add('selected');
+                partnerForm.classList.add('visible');
+                loadCaptcha('partner');
             }
-        });
-        window.handleLogout = async function() { try { localStorage.removeItem('ammonite_tier'); await signOut(auth); window.location.reload(); } catch(e) { alert('Error logging out.'); } };
+
+            // Scroll to form
+            setTimeout(() => {
+                const target = type === 'contact' ? contactForm : partnerForm;
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        // ── Captcha ──
+        async function loadCaptcha(formType) {
+            try {
+                const res = await fetch('/api/contact/captcha');
+                const data = await res.json();
+                const prefix = formType === 'contact' ? 'c' : 'p';
+                document.getElementById(prefix + '_captchaQ').textContent = 'What is ' + data.question + '?';
+                document.getElementById(prefix + '_captchaToken').value = data.token;
+                document.getElementById(prefix + '_captchaQHidden').value = data.question;
+                document.getElementById(prefix + '_captchaA').value = '';
+            } catch (e) {
+                console.error('Captcha load failed:', e);
+            }
+        }
+
+        // ── Char Counters ──
+        function setupCounter(inputId, countId, max) {
+            const input = document.getElementById(inputId);
+            const counter = document.getElementById(countId);
+            if (!input || !counter) return;
+            input.addEventListener('input', () => {
+                const len = input.value.length;
+                counter.textContent = len + ' / ' + max;
+                counter.className = 'char-count' + (len > max ? ' over' : '');
+            });
+        }
+        setupCounter('c_message', 'c_msgCount', 5000);
+        setupCounter('p_name', 'p_nameCount', 50);
+        setupCounter('p_desc', 'p_descCount', 150);
+        setupCounter('p_notes', 'p_notesCount', 300);
+
+        // ── Logo Preview ──
+        function previewLogo(input) {
+            const preview = document.getElementById('logoPreview');
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Logo file too large. Maximum size is 5MB.');
+                    input.value = '';
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = '<img src="' + e.target.result + '" alt="Logo preview">';
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // ── Show result message ──
+        function showResult(elementId, type, message) {
+            const el = document.getElementById(elementId);
+            el.className = 'form-message ' + type;
+            el.textContent = message;
+            el.style.display = 'block';
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // ── Submit Contact Form ──
+        async function submitContact(e) {
+            e.preventDefault();
+            const btn = document.getElementById('c_submitBtn');
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+
+            const formData = new FormData();
+            formData.append('name', document.getElementById('c_name').value);
+            formData.append('email', document.getElementById('c_email').value);
+            formData.append('subject', document.getElementById('c_subject').value);
+            formData.append('message', document.getElementById('c_message').value);
+            formData.append('captcha_question', document.getElementById('c_captchaQHidden').value);
+            formData.append('captcha_answer', document.getElementById('c_captchaA').value);
+            formData.append('captcha_token', document.getElementById('c_captchaToken').value);
+            formData.append('website_url_verify', document.getElementById('c_hp').value);
+
+            try {
+                const res = await fetch('/api/contact/submit', { method: 'POST', body: formData });
+                const data = await res.json();
+                if (res.ok) {
+                    showResult('c_message_result', 'success', data.message || 'Message sent successfully!');
+                    document.getElementById('contactFormEl').reset();
+                } else {
+                    showResult('c_message_result', 'error', data.detail || 'Something went wrong. Please try again.');
+                    loadCaptcha('contact');
+                }
+            } catch (err) {
+                showResult('c_message_result', 'error', 'Network error. Please check your connection and try again.');
+            }
+            btn.disabled = false;
+            btn.textContent = 'Send Message';
+        }
+
+        // ── Submit Partner Ad Form ──
+        async function submitPartner(e) {
+            e.preventDefault();
+            const btn = document.getElementById('p_submitBtn');
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+
+            // Validate legal checkboxes
+            for (let i = 1; i <= 5; i++) {
+                if (!document.getElementById('legal' + i).checked) {
+                    showResult('p_message_result', 'error', 'Please accept all legal confirmations before submitting.');
+                    btn.disabled = false;
+                    btn.textContent = 'Submit Ad Campaign';
+                    return;
+                }
+            }
+
+            // Get category value
+            const catRadio = document.querySelector('input[name="category"]:checked');
+            let category = catRadio ? catRadio.value : 'other';
+            if (category === 'other') {
+                const otherVal = document.getElementById('p_catOther').value.trim();
+                if (otherVal) category = otherVal;
+            }
+
+            const formData = new FormData();
+            formData.append('business_name', document.getElementById('p_name').value);
+            formData.append('website_url', document.getElementById('p_url').value);
+            formData.append('contact_email', document.getElementById('p_email').value);
+            formData.append('phone', document.getElementById('p_phone').value);
+            formData.append('address', document.getElementById('p_address').value);
+            formData.append('description', document.getElementById('p_desc').value);
+            formData.append('special_offer', document.getElementById('p_offer').value);
+            formData.append('banner_color', document.getElementById('p_color').value);
+            formData.append('duration_type', document.querySelector('input[name="duration"]:checked').value);
+            formData.append('start_date', document.getElementById('p_startDate').value);
+            formData.append('end_date', document.getElementById('p_endDate').value);
+            formData.append('frequency', document.querySelector('input[name="frequency"]:checked').value);
+            formData.append('category', category);
+            formData.append('notes', document.getElementById('p_notes').value);
+            formData.append('confirm_accurate', document.getElementById('legal1').checked ? 'yes' : '');
+            formData.append('confirm_offer_valid', document.getElementById('legal2').checked ? 'yes' : '');
+            formData.append('confirm_website_works', document.getElementById('legal3').checked ? 'yes' : '');
+            formData.append('confirm_logo_permission', document.getElementById('legal4').checked ? 'yes' : '');
+            formData.append('confirm_terms', document.getElementById('legal5').checked ? 'yes' : '');
+            formData.append('captcha_question', document.getElementById('p_captchaQHidden').value);
+            formData.append('captcha_answer', document.getElementById('p_captchaA').value);
+            formData.append('captcha_token', document.getElementById('p_captchaToken').value);
+            formData.append('website_url_verify', document.getElementById('p_hp').value);
+
+            // Logo file
+            const logoInput = document.getElementById('p_logo');
+            if (logoInput.files && logoInput.files[0]) {
+                formData.append('logo', logoInput.files[0]);
+            }
+
+            try {
+                const res = await fetch('/api/contact/submit-partner', { method: 'POST', body: formData });
+                const data = await res.json();
+                if (res.ok) {
+                    showResult('p_message_result', 'success', data.message || 'Submission received! We\'ll review it shortly.');
+                    document.getElementById('partnerFormEl').reset();
+                    document.getElementById('logoPreview').style.display = 'none';
+                    document.getElementById('dateFields').style.display = 'none';
+                } else {
+                    showResult('p_message_result', 'error', data.detail || 'Something went wrong. Please try again.');
+                    loadCaptcha('partner');
+                }
+            } catch (err) {
+                showResult('p_message_result', 'error', 'Network error. Please check your connection and try again.');
+            }
+            btn.disabled = false;
+            btn.textContent = 'Submit Ad Campaign';
+        }
     </script>
 
-    <!-- Firebase Auth + Mobile Header -->
+    <!-- Firebase Auth -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -232,6 +787,8 @@
         });
         window.handleLogout = async function() { try { await signOut(auth); window.location.href='/static/home.html'; } catch(e) { alert('Error logging out.'); } };
     </script>
+
+    <!-- Hamburger Menu -->
     <script>
         const _hBtn = document.getElementById('hamburgerBtn');
         const _hMenu = document.getElementById('mobileMenu');
@@ -242,7 +799,6 @@
         }
     </script>
 
-    <!-- Partner banner script (external) -->
     <script src="/static/partner-banner.js"></script>
 
 </body>
