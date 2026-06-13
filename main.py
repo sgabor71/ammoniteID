@@ -20,6 +20,7 @@ from features_api import features_router
 from stripe_api import stripe_router
 from collection_api import collection_router
 from retention_api import retention_router
+from contact_api import contact_router, auto_delete_expired_partner_ads
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse, RedirectResponse
 from typing import List
@@ -54,12 +55,21 @@ def scheduled_auto_delete():
     except Exception as e:
         print(f"⚠️ Auto-delete error: {e}")
 
+def scheduled_partner_cleanup():
+    """Runs daily at 2:30 AM to permanently delete partners past their 30-day grace period."""
+    try:
+        result = auto_delete_expired_partner_ads()
+        print(f"🗑️ Partner cleanup: {result.get('auto_deleted', 0)} expired ads removed")
+    except Exception as e:
+        print(f"⚠️ Partner cleanup error: {e}")
+
 @asynccontextmanager
 async def lifespan(app):
     # Startup
     scheduler.add_job(scheduled_auto_delete, 'cron', hour=2, minute=0, id='auto_delete')
+    scheduler.add_job(scheduled_partner_cleanup, 'cron', hour=2, minute=30, id='partner_cleanup')
     scheduler.start()
-    print("⏰ Scheduler started — auto-delete runs daily at 2:00 AM UTC")
+    print("⏰ Scheduler started — auto-delete runs daily at 2:00 AM UTC, partner cleanup at 2:30 AM UTC")
     yield
     # Shutdown
     scheduler.shutdown()
@@ -90,6 +100,7 @@ app.include_router(features_router)
 app.include_router(stripe_router)
 app.include_router(collection_router)
 app.include_router(retention_router)
+app.include_router(contact_router)
 
 # ── Add CORS middleware ──────────────────────────────────────
 app.add_middleware(
@@ -368,6 +379,88 @@ def init_db():
             timestamp TEXT
         )
     ''')
+
+    # ── Contact messages table (contact form inbox) ─────────────
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS contact_messages (
+            id TEXT PRIMARY KEY,
+            name TEXT,
+            email TEXT,
+            subject TEXT,
+            message TEXT,
+            ip_address TEXT,
+            submitted_at TEXT,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
+    # ── Partner submissions table (ad campaign form submissions) ──
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS partner_submissions (
+            id TEXT PRIMARY KEY,
+            business_name TEXT,
+            website_url TEXT,
+            email TEXT,
+            phone TEXT,
+            address TEXT,
+            description TEXT,
+            special_offer TEXT,
+            banner_color TEXT,
+            duration_type TEXT,
+            start_date TEXT,
+            end_date TEXT,
+            frequency TEXT,
+            category TEXT,
+            notes TEXT,
+            submitted_at TEXT,
+            ip_address TEXT,
+            status TEXT DEFAULT 'pending',
+            admin_notes TEXT,
+            reviewed_by TEXT,
+            reviewed_at TEXT,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
+    # ── Migration: add soft-delete columns to partners table ──
+    c.execute("PRAGMA table_info(partners)")
+    p_cols = [col[1] for col in c.fetchall()]
+    if 'submission_id' not in p_cols:
+        c.execute("ALTER TABLE partners ADD COLUMN submission_id TEXT")
+        print("✅ Added submission_id column to partners table")
+    if 'deletion_scheduled' not in p_cols:
+        c.execute("ALTER TABLE partners ADD COLUMN deletion_scheduled INTEGER DEFAULT 0")
+        print("✅ Added deletion_scheduled column to partners table")
+    if 'deletion_scheduled_at' not in p_cols:
+        c.execute("ALTER TABLE partners ADD COLUMN deletion_scheduled_at TEXT")
+        print("✅ Added deletion_scheduled_at column to partners table")
+    if 'deletion_grace_period_expires' not in p_cols:
+        c.execute("ALTER TABLE partners ADD COLUMN deletion_grace_period_expires TEXT")
+        print("✅ Added deletion_grace_period_expires column to partners table")
+    if 'deleted_at' not in p_cols:
+        c.execute("ALTER TABLE partners ADD COLUMN deleted_at TEXT")
+        print("✅ Added deleted_at column to partners table")
+    if 'deleted_by_admin_id' not in p_cols:
+        c.execute("ALTER TABLE partners ADD COLUMN deleted_by_admin_id TEXT")
+        print("✅ Added deleted_by_admin_id column to partners table")
+    if 'category' not in p_cols:
+        c.execute("ALTER TABLE partners ADD COLUMN category TEXT DEFAULT 'other'")
+        print("✅ Added category column to partners table")
+    if 'expires_at' not in p_cols:
+        c.execute("ALTER TABLE partners ADD COLUMN expires_at TEXT")
+        print("✅ Added expires_at column to partners table")
+    if 'tier' not in p_cols:
+        c.execute("ALTER TABLE partners ADD COLUMN tier TEXT DEFAULT 'standard'")
+        print("✅ Added tier column to partners table")
+    if 'address' not in p_cols:
+        c.execute("ALTER TABLE partners ADD COLUMN address TEXT")
+        print("✅ Added address column to partners table")
+    if 'billing_model' not in p_cols:
+        c.execute("ALTER TABLE partners ADD COLUMN billing_model TEXT DEFAULT 'none'")
+        print("✅ Added billing_model column to partners table")
+    if 'rate_amount' not in p_cols:
+        c.execute("ALTER TABLE partners ADD COLUMN rate_amount REAL DEFAULT 0")
+        print("✅ Added rate_amount column to partners table")
 
     conn.commit()
     conn.close()
