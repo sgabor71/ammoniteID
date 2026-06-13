@@ -35,32 +35,18 @@
         .footer-section a:hover { color: #8B7355; }
         .footer-bottom { text-align: center; padding-top: 2rem; border-top: 1px solid #5D4E3A; color: #A89A87; font-size: 0.9rem; }
 
-        /* ── Partner Ad Banner — same as home.html ── */
+        /* Partner banner container - minimal styling */
         #partner-ad-banner {
-            position: sticky; top: 70px; z-index: 99;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-            min-height: 140px; overflow: hidden;
-            transform: translateY(-110%); opacity: 0;
+            position: sticky;
+            top: 70px;
+            z-index: 99;
+            overflow: hidden;
         }
-        @keyframes bannerSlideIn { from { transform: translateY(-110%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes bannerSlideOut { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-110%); opacity: 0; } }
-        .banner-in  { animation: bannerSlideIn  0.6s cubic-bezier(0.22,1,0.36,1) forwards; }
-        .banner-out { animation: bannerSlideOut 0.4s ease forwards; }
-        @keyframes adFromLeft  { from { transform: translateX(-40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes adFromRight { from { transform: translateX(40px);  opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes adFromTop   { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes adFadeIn    { from { opacity: 0; } to { opacity: 1; } }
-        .ad-content { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 140px; padding: 1rem 2rem; flex-wrap: wrap; }
-        .ad-left { display: flex; align-items: center; gap: 0; flex: 1; min-width: 0; overflow: hidden; }
-        .ad-partner-name { font-size: 1.1rem; font-weight: bold; color: #1a1a1a; text-decoration: none; cursor: pointer; flex-shrink: 0; }
-        .ad-partner-name:hover { text-decoration: underline; color: #2c5f2d; }
-        .ad-detail { font-family: Arial, sans-serif; font-size: 0.9rem; font-weight: bold; color: #333; overflow: hidden; text-overflow: ellipsis; }
-        .ad-detail a { color: #2c5f2d; text-decoration: none; font-weight: bold; }
-        .ad-bar { color: rgba(0,0,0,0.35); padding: 0 13px; flex-shrink: 0; }
-        .ad-offer { margin-left: 14px; font-family: Arial, sans-serif; font-size: 0.88rem; font-weight: bold; color: #1e4620; background: rgba(255,255,255,0.7); padding: 3px 10px; border-radius: 6px; flex-shrink: 0; }
-        .ad-more-info { flex-shrink: 0; padding: 0.5rem 1.1rem; background: #2c5f2d; color: white; text-decoration: none; border-radius: 8px; font-family: Arial, sans-serif; font-size: 0.9rem; font-weight: bold; transition: all 0.3s; }
-        .ad-more-info:hover { background: #1e4620; }
-        @media (max-width: 768px) { .ad-content { padding: 0 1rem; gap: 0.5rem; } .ad-detail { font-size: 0.78rem; } .ad-partner-name { font-size: 0.95rem; } }
+        @media (max-width: 768px) {
+            #partner-ad-banner {
+                top: 52px;
+            }
+        }
     
         /* ── HAMBURGER (MOBILE ONLY) ── */
         .hamburger-btn { display: none; }
@@ -182,108 +168,6 @@
         </div>
     </footer>
 
-    <!-- Banner script — identical to home.html -->
-    <script>
-        let partners = [];
-        let adRotationTimer = null;
-        let rotationIndex = 0;
-        let rotationList = [];
-
-        async function loadAdPartners() {
-            try {
-                const response = await fetch('/api/admin/partners');
-                const data = await response.json();
-                partners = (data.partners || []).filter(p => p.status === 'active' && p.active).map(p => ({
-                    name: p.name, url: p.url, email: p.email || '', phone: p.phone || '',
-                    bgColor: p.bg_color, anchor: p.anchor || p.partner_id,
-                    description: p.description || '', offer: p.offer || '',
-                    logo_path: p.logo_path || '',
-                    display_duration: (p.display_duration || 15) * 1000,
-                    rotation_weight: p.rotation_weight || 1
-                }));
-                if (partners.length > 0) initializeAds();
-                else { const b = document.getElementById('partner-ad-banner'); if (b) b.style.display = 'none'; }
-            } catch (e) {
-                partners = [{ name: "Lyme Regis Museum", url: "https://www.lymeregismuseum.co.uk", email: "info@lymeregismuseum.co.uk", phone: "+44 1297 443370", bgColor: "rgba(255,182,193,1.0)", anchor: "lyme-regis-museum", description: "Discover millions of years of history", offer: "", logo_path: "", display_duration: 15000, rotation_weight: 1 }];
-                initializeAds();
-            }
-        }
-
-        const adAnimations = ['adFromLeft', 'adFromRight', 'adFromTop', 'adFadeIn'];
-
-        function showAd(index) {
-            const banner = document.getElementById('partner-ad-banner');
-            if (!banner || !partners[index]) return;
-            const partner = partners[index];
-            localStorage.setItem('adCurrentIndex', index);
-            localStorage.setItem('adShownTime', Date.now());
-            const existingAd = banner.querySelector('.ad-content');
-            if (existingAd) existingAd.remove();
-            banner.style.backgroundColor = partner.bgColor;
-            const logo = partner.logo_path ? `<img src="${partner.logo_path}" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;">` : '';
-            const website = partner.url ? partner.url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '') : '';
-            const nameClickUrl = partner.url ? partner.url : `/static/partners.html#${partner.anchor}`;
-            const nameTarget = partner.url ? '_blank' : '_self';
-            let details = [];
-            if (website)             details.push(`<span class="ad-detail"><a href="${partner.url}" target="_blank" onclick="event.stopPropagation()">${website}</a></span>`);
-            if (partner.phone)       details.push(`<span class="ad-detail"><a href="tel:${partner.phone}" onclick="event.stopPropagation()">${partner.phone}</a></span>`);
-            if (partner.email)       details.push(`<span class="ad-detail"><a href="mailto:${partner.email}" onclick="event.stopPropagation()">${partner.email}</a></span>`);
-            if (partner.description) details.push(`<span class="ad-detail">${partner.description.length > 60 ? partner.description.slice(0,60)+'…' : partner.description}</span>`);
-            const bar = '<span class="ad-bar">|</span>';
-            const detailsHtml = details.length ? bar + details.join(bar) : '';
-            const offerHtml = partner.offer ? `<span class="ad-offer">🎁 ${partner.offer}</span>` : '';
-            const anim = adAnimations[Math.floor(Math.random() * adAnimations.length)];
-            const adContent = document.createElement('div');
-            adContent.className = 'ad-content';
-            adContent.style.animation = `${anim} 1.2s ease forwards`;
-            adContent.innerHTML = `<div class="ad-left"><a href="${nameClickUrl}" target="${nameTarget}" class="ad-partner-name">${logo}${partner.name}</a>${detailsHtml}${offerHtml}</div><a href="/static/partners.html#${partner.anchor}" class="ad-more-info">More info →</a>`;
-            banner.appendChild(adContent);
-            banner.classList.remove('banner-in', 'banner-out');
-            requestAnimationFrame(() => banner.classList.add('banner-in'));
-        }
-
-        function buildRotationList() {
-            let list = [];
-            partners.forEach((p, i) => { const w = p.rotation_weight || 1; for (let k = 0; k < w; k++) list.push(i); });
-            return list;
-        }
-
-        function rotateAd() {
-            if (rotationList.length === 0) return;
-            rotationIndex = (rotationIndex + 1) % rotationList.length;
-            const pIndex = rotationList[rotationIndex];
-            const banner = document.getElementById('partner-ad-banner');
-            const duration = partners[pIndex].display_duration || 15000;
-            clearTimeout(adRotationTimer);
-            if (banner) {
-                banner.classList.remove('banner-in');
-                banner.classList.add('banner-out');
-                setTimeout(() => { showAd(pIndex); }, 400);
-            } else {
-                showAd(pIndex);
-            }
-            adRotationTimer = setTimeout(rotateAd, duration);
-        }
-
-        function initializeAds() {
-            const banner = document.getElementById('partner-ad-banner');
-            if (partners.length === 0) { if (banner) banner.style.display = 'none'; return; }
-            rotationList = buildRotationList();
-            const savedIndex = parseInt(localStorage.getItem('adCurrentIndex') || '0');
-            const savedTime  = parseInt(localStorage.getItem('adShownTime') || '0');
-            const elapsed    = Date.now() - savedTime;
-            let startPos = rotationList.indexOf(savedIndex);
-            if (startPos === -1) startPos = 0;
-            const duration  = (partners[rotationList[startPos]] || partners[0]).display_duration || 15000;
-            const remaining = Math.max(duration - elapsed, 1000);
-            rotationIndex = startPos;
-            showAd(rotationList[rotationIndex]);
-            if (partners.length > 1) adRotationTimer = setTimeout(rotateAd, remaining);
-        }
-
-        window.addEventListener('load', loadAdPartners);
-    </script>
-
     <script src="/static/ad-tracking.js"></script>
 
     <!-- Dynamic content from admin -->
@@ -324,7 +208,6 @@
         window.handleLogout = async function() { try { localStorage.removeItem('ammonite_tier'); await signOut(auth); window.location.reload(); } catch(e) { alert('Error logging out.'); } };
     </script>
 
-
     <!-- Firebase Auth + Mobile Header -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -359,10 +242,8 @@
         }
     </script>
 
-    <script>
-        // ── NAV PADLOCK LOGIC ──
-        // "My Fossil Collection" shows 🔒 for FREE users
-        // "Identify" shows 🔒 for not-logged-in users
-    </script>
+    <!-- Partner banner script (external) -->
+    <script src="/static/partner-banner.js"></script>
+
 </body>
 </html>
