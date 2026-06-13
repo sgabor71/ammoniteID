@@ -917,6 +917,29 @@ async def get_contact_message(message_id: str):
     return dict(row)
 
 
+@contact_router.delete("/api/admin/contact-messages/{message_id}")
+async def delete_contact_message(message_id: str):
+    """Delete a contact message."""
+    conn = sqlite3.connect(str(DB_PATH))
+    c = conn.cursor()
+
+    c.execute("SELECT name, email FROM contact_messages WHERE id = ?", (message_id,))
+    row = c.fetchone()
+    if not row:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Message not found")
+
+    c.execute("DELETE FROM contact_messages WHERE id = ?", (message_id,))
+    conn.commit()
+    conn.close()
+
+    return {
+        "status": "deleted",
+        "message_id": message_id,
+        "message": f"Message from {row[0]} deleted"
+    }
+
+
 # ── Auto-Delete Expired Grace Periods ─────────────────────────
 
 def auto_delete_expired_partner_ads():
