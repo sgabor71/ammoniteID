@@ -2369,12 +2369,33 @@
                         </div>
                         <div style="margin-top:15px;">
                             <a href="mailto:${m.email}?subject=Re: ${encodeURIComponent(m.subject || 'Your AmmoniteID message')}" class="btn btn-small" style="background:#2c5f2d;text-decoration:none;display:inline-block;">✉️ Reply</a>
+                            <button class="btn btn-small" style="background:#e74c3c;margin-left:8px;" onclick="deleteContactMessage('${m.id}', '${(m.name||'').replace(/'/g,"\\'")}')">🗑️ Delete</button>
                         </div>
                     </div>
                 `).join('');
             } catch (error) {
                 console.error('Error loading messages:', error);
                 container.innerHTML = '<div class="alert alert-warning">Error loading messages. Please refresh.</div>';
+            }
+        }
+
+        // ── Delete Contact Message ──
+        async function deleteContactMessage(messageId, senderName) {
+            if (!confirm('Delete message from ' + senderName + '?\n\nThis cannot be undone.')) return;
+
+            try {
+                const res = await fetch('/api/admin/contact-messages/' + messageId, {
+                    method: 'DELETE'
+                });
+                if (res.ok) {
+                    alert('✅ Message deleted.');
+                    loadContactMessages();
+                } else {
+                    const data = await res.json();
+                    alert('❌ ' + (data.detail || 'Error deleting message.'));
+                }
+            } catch (e) {
+                alert('❌ Network error deleting message.');
             }
         }
 
