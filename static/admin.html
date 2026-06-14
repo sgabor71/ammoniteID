@@ -1218,7 +1218,7 @@
 
             <div class="form-group">
                 <label>Partner Name *</label>
-                <input type="text" id="newPartnerName" placeholder="e.g., Lyme Regis Museum">
+                <input type="text" id="newPartnerName" placeholder="e.g., Lyme Regis Museum" oninput="updateFontPreview()">
             </div>
 
             <div class="form-group">
@@ -1256,16 +1256,51 @@
                 <input type="text" id="newPartnerOffer" placeholder="e.g., 10% off for AmmoniteID users">
             </div>
 
-            <div class="grid-2">
-                <div class="form-group">
-                    <label>Logo Emoji (fallback)</label>
-                    <input type="text" id="newPartnerEmoji" value="🏪" style="width: 80px; font-size: 1.5rem; text-align: center;">
-                </div>
+            <div class="form-group">
+                <label>Partner Logo</label>
+                <input type="file" id="newPartnerLogoFile" accept="image/*" onchange="previewLogo(this)" style="padding: 8px;">
+                <div id="logoPreview" style="margin-top: 10px;"></div>
+                <small style="color: #999;">Recommended: Square image. Will auto-fit to 120×120.</small>
+            </div>
 
-                <div class="form-group">
-                    <label>Logo Image (optional - overrides emoji)</label>
-                    <input type="file" id="newPartnerLogoFile" accept="image/*" onchange="previewLogo(this)" style="padding: 8px;">
-                    <div id="logoPreview" style="margin-top: 8px;"></div>
+            <div style="background: #f0f4f8; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                <label style="font-weight: bold; margin-bottom: 10px; display: block;">🎨 Partner Name Styling</label>
+                <div id="fontPreview" style="padding: 12px; background: white; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 12px; min-height: 40px;">
+                    <span id="fontPreviewText" style="font-size: 18px; font-weight: bold; color: #2c2c2c;">Partner Name Preview</span>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group" style="margin-bottom: 8px;">
+                        <label>Font Size (px)</label>
+                        <select id="newPartnerFontSize" onchange="updateFontPreview()">
+                            <option value="14">14px — Small</option>
+                            <option value="16">16px — Medium</option>
+                            <option value="18" selected>18px — Default</option>
+                            <option value="20">20px — Large</option>
+                            <option value="24">24px — Extra Large</option>
+                            <option value="28">28px — Headline</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 8px;">
+                        <label>Font Color</label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="color" id="newPartnerFontColor" value="#2c2c2c" onchange="updateFontPreview()" style="width: 50px; height: 38px; border: none; cursor: pointer;">
+                            <span id="fontColorHex" style="color: #666; font-size: 0.85rem;">#2c2c2c</span>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 8px;">
+                        <label>Font Weight</label>
+                        <select id="newPartnerFontWeight" onchange="updateFontPreview()">
+                            <option value="normal">Normal</option>
+                            <option value="bold" selected>Bold</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 8px;">
+                        <label>Font Style</label>
+                        <select id="newPartnerFontStyle" onchange="updateFontPreview()">
+                            <option value="normal" selected>Normal</option>
+                            <option value="italic">Italic</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -1727,13 +1762,28 @@
                         const card = document.createElement('div');
                         card.className = 'partner-card';
                         card.style.borderLeftColor = statusColor;
+                        
+                        // Build logo display (120x120, no emoji fallback)
+                        let logoHtml = '';
+                        if (partner.logo_path) {
+                            logoHtml = `<img src="${partner.logo_path}" style="width: 120px; height: 120px; object-fit: contain; border-radius: 10px; border: 2px solid #e0e0e0; background: #f9f9f9; flex-shrink: 0;">`;
+                        } else {
+                            logoHtml = `<div style="width: 120px; height: 120px; border-radius: 10px; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; color: #999; font-size: 0.8rem; text-align: center; flex-shrink: 0; background: #f9f9f9;">No logo<br>uploaded</div>`;
+                        }
+                        
+                        // Font styling for partner name
+                        const nameStyle = `font-size: ${partner.name_font_size || 18}px; color: ${partner.name_font_color || '#2c2c2c'}; font-weight: ${partner.name_font_weight || 'bold'}; font-style: ${partner.name_font_style || 'normal'};`;
+                        
                         card.innerHTML = `
-                            <div style="display: flex; justify-content: space-between; align-items: start;">
-                                <div>
-                                    <h3>${partner.logo_emoji || '🏪'} ${partner.name}</h3>
-                                    <p style="color: #666; margin-top: 5px;">${partner.description || 'No description'}</p>
+                            <div style="display: flex; justify-content: space-between; align-items: start; gap: 15px;">
+                                <div style="display: flex; gap: 15px; align-items: start; flex: 1;">
+                                    ${logoHtml}
+                                    <div>
+                                        <h3 style="${nameStyle}">${partner.name}</h3>
+                                        <p style="color: #666; margin-top: 5px;">${partner.description || 'No description'}</p>
+                                    </div>
                                 </div>
-                                <span style="background: ${statusColor}; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold;">
+                                <span style="background: ${statusColor}; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; flex-shrink: 0;">
                                     ${statusIcon} ${statusText}
                                 </span>
                             </div>
@@ -1782,9 +1832,23 @@
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     currentLogoData = e.target.result;
-                    preview.innerHTML = `<img src="${currentLogoData}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 2px solid #e0e0e0;">`;
+                    preview.innerHTML = `<img src="${currentLogoData}" style="width: 120px; height: 120px; object-fit: contain; border-radius: 10px; border: 2px solid #e0e0e0; background: #f9f9f9;">`;
                 };
                 reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Live preview for font styling
+        function updateFontPreview() {
+            const previewText = document.getElementById('fontPreviewText');
+            const nameInput = document.getElementById('newPartnerName');
+            if (previewText) {
+                previewText.style.fontSize = (document.getElementById('newPartnerFontSize').value || '18') + 'px';
+                previewText.style.color = document.getElementById('newPartnerFontColor').value || '#2c2c2c';
+                previewText.style.fontWeight = document.getElementById('newPartnerFontWeight').value || 'bold';
+                previewText.style.fontStyle = document.getElementById('newPartnerFontStyle').value || 'normal';
+                previewText.textContent = nameInput.value || 'Partner Name Preview';
+                document.getElementById('fontColorHex').textContent = document.getElementById('newPartnerFontColor').value;
             }
         }
 
@@ -1808,6 +1872,12 @@
             currentLogoData = null;
             document.getElementById('logoPreview').innerHTML = '';
             document.getElementById('newPartnerLogoFile').value = '';
+            // Reset font controls
+            document.getElementById('newPartnerFontSize').value = '18';
+            document.getElementById('newPartnerFontColor').value = '#2c2c2c';
+            document.getElementById('newPartnerFontWeight').value = 'bold';
+            document.getElementById('newPartnerFontStyle').value = 'normal';
+            updateFontPreview();
         }
 
         // Add new partner
@@ -1839,10 +1909,14 @@
                 category: document.getElementById('newPartnerCategory').value,
                 tier: document.getElementById('newPartnerTier').value,
                 status: 'active',
-                logo_emoji: document.getElementById('newPartnerEmoji').value || '🏪',
+                logo_emoji: '🏪',
                 expires_at: document.getElementById('newPartnerExpiry').value || null,
                 display_duration: parseInt(document.getElementById('newPartnerDuration').value) || 15,
-                rotation_weight: parseInt(document.getElementById('newPartnerWeight').value) || 1
+                rotation_weight: parseInt(document.getElementById('newPartnerWeight').value) || 1,
+                name_font_size: document.getElementById('newPartnerFontSize').value || '18',
+                name_font_color: document.getElementById('newPartnerFontColor').value || '#2c2c2c',
+                name_font_weight: document.getElementById('newPartnerFontWeight').value || 'bold',
+                name_font_style: document.getElementById('newPartnerFontStyle').value || 'normal'
             };
 
             try {
@@ -1890,16 +1964,22 @@
                 document.getElementById('newPartnerOffer').value = partner.offer || '';
                 document.getElementById('newPartnerCategory').value = partner.category || 'activities';
                 document.getElementById('newPartnerTier').value = partner.tier || 'standard';
-                document.getElementById('newPartnerEmoji').value = partner.logo_emoji || '🏪';
                 document.getElementById('newPartnerExpiry').value = partner.expires_at || '';
                 document.getElementById('newPartnerDuration').value = partner.display_duration || 15;
                 document.getElementById('newPartnerWeight').value = partner.rotation_weight || 1;
+                
+                // Load font styling
+                document.getElementById('newPartnerFontSize').value = partner.name_font_size || '18';
+                document.getElementById('newPartnerFontColor').value = partner.name_font_color || '#2c2c2c';
+                document.getElementById('newPartnerFontWeight').value = partner.name_font_weight || 'bold';
+                document.getElementById('newPartnerFontStyle').value = partner.name_font_style || 'normal';
+                updateFontPreview();
                 
                 // Load existing logo
                 currentLogoData = partner.logo_path || null;
                 const preview = document.getElementById('logoPreview');
                 if (partner.logo_path) {
-                    preview.innerHTML = `<img src="${partner.logo_path}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 2px solid #e0e0e0;">`;
+                    preview.innerHTML = `<img src="${partner.logo_path}" style="width: 120px; height: 120px; object-fit: contain; border-radius: 10px; border: 2px solid #e0e0e0; background: #f9f9f9;">`;
                 } else {
                     preview.innerHTML = '';
                 }
@@ -1936,10 +2016,14 @@
                 category: document.getElementById('newPartnerCategory').value,
                 tier: document.getElementById('newPartnerTier').value,
                 status: 'active',
-                logo_emoji: document.getElementById('newPartnerEmoji').value || '🏪',
+                logo_emoji: '🏪',
                 expires_at: document.getElementById('newPartnerExpiry').value || null,
                 display_duration: parseInt(document.getElementById('newPartnerDuration').value) || 15,
-                rotation_weight: parseInt(document.getElementById('newPartnerWeight').value) || 1
+                rotation_weight: parseInt(document.getElementById('newPartnerWeight').value) || 1,
+                name_font_size: document.getElementById('newPartnerFontSize').value || '18',
+                name_font_color: document.getElementById('newPartnerFontColor').value || '#2c2c2c',
+                name_font_weight: document.getElementById('newPartnerFontWeight').value || 'bold',
+                name_font_style: document.getElementById('newPartnerFontStyle').value || 'normal'
             };
 
             try {
