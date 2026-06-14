@@ -52,8 +52,8 @@ def _set_user_tier(uid: str, tier: str):
     conn = _db()
     c = conn.cursor()
     c.execute(
-        "UPDATE users SET premium_status = ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?",
-        (tier.upper(), uid)
+        "UPDATE users SET tier = ?, premium_status = ?, updated_at = CURRENT_TIMESTAMP WHERE firebase_uid = ?",
+        (tier.upper(), tier.upper(), uid)
     )
     conn.commit()
     conn.close()
