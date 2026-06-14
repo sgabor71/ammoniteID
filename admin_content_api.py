@@ -13,47 +13,54 @@ from database import DB_PATH
 
 content_router = APIRouter()
 
-# ============================================
-# ADDITIONAL DATABASE SCHEMA
-# ============================================
-"""
-Run these SQL commands to add content management tables:
+# ── Create tables on startup ───────────────────────────────────
+def _init_content_tables():
+    conn = sqlite3.connect(str(DB_PATH))
+    c = conn.cursor()
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS site_content (
+            content_id TEXT PRIMARY KEY,
+            page TEXT NOT NULL,
+            section TEXT NOT NULL,
+            content_data TEXT NOT NULL,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS site_design (
+            design_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            setting_name TEXT UNIQUE NOT NULL,
+            setting_value TEXT NOT NULL,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    # Default content rows — only inserted if they don't exist yet
+    defaults = [
+        ('home_hero', 'home', 'hero',
+         '{"title":"Identify Your Ammonite in Seconds","subtitle":"AI-powered fossil identification at your fingertips","cta":"Start Identifying Now","titleSize":"48","titleColor":"#ffffff","titleWeight":"bold","titleStyle":"normal","subtitleSize":"20","subtitleColor":"#ffffff","subtitleWeight":"normal","subtitleStyle":"normal"}'),
+        ('home_features', 'home', 'features',
+         '{"feature1":{"title":"AI-Powered Recognition","desc":"Advanced machine learning identifies your fossils instantly"},"feature2":{"title":"Instant Results","desc":"Get detailed information in seconds"},"feature3":{"title":"Build Your Collection","desc":"Save and organize all your discoveries"}}'),
+        ('about_content', 'about', 'main',
+         '{"mission":"Our mission is to make fossil identification accessible to everyone","title":"About AmmoniteID","text":"AmmoniteID uses cutting-edge AI technology to help identify ammonites and other fossils.","futurePlans":[],"photoTipsIntro":"","photoTips":[],"trainingStats":[],"faqs":[]}'),
+        ('contact_info', 'contact', 'info',
+         '{"email":"contact@ammoniteid.com","phone":"","intro":"Get in touch with us for questions or feedback"}'),
+    ]
+    for row in defaults:
+        c.execute("INSERT OR IGNORE INTO site_content (content_id, page, section, content_data) VALUES (?,?,?,?)", row)
+    # Default design settings
+    design_defaults = [
+        ('heading_font', "'Georgia', serif"), ('body_font', "'Arial', sans-serif"),
+        ('heading_size', '36'), ('body_size', '16'),
+        ('primary_color', '#2c5f2d'), ('secondary_color', '#3498db'),
+        ('heading_color', '#2c5f2d'), ('body_color', '#333333'),
+        ('button_bg', '#2c5f2d'), ('button_text', '#ffffff'),
+    ]
+    for name, val in design_defaults:
+        c.execute("INSERT OR IGNORE INTO site_design (setting_name, setting_value) VALUES (?,?)", (name, val))
+    conn.commit()
+    conn.close()
 
-CREATE TABLE IF NOT EXISTS site_content (
-    content_id TEXT PRIMARY KEY,
-    page TEXT NOT NULL,
-    section TEXT NOT NULL,
-    content_data TEXT NOT NULL,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS site_design (
-    design_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    setting_name TEXT UNIQUE NOT NULL,
-    setting_value TEXT NOT NULL,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
--- Insert default content
-INSERT OR IGNORE INTO site_content VALUES 
-('home_hero', 'home', 'hero', '{"title": "Identify Your Ammonite in Seconds", "subtitle": "AI-powered fossil identification at your fingertips", "cta": "Start Identifying Now"}', CURRENT_TIMESTAMP),
-('home_features', 'home', 'features', '{"feature1": {"title": "AI-Powered Recognition", "desc": "Advanced machine learning identifies your fossils instantly"}, "feature2": {"title": "Instant Results", "desc": "Get detailed information in seconds"}, "feature3": {"title": "Build Your Collection", "desc": "Save and organize all your discoveries"}}', CURRENT_TIMESTAMP),
-('about_content', 'about', 'main', '{"mission": "Our mission is to make fossil identification accessible to everyone", "title": "About AmmoniteID", "text": "AmmoniteID uses cutting-edge AI technology to help identify ammonites and other fossils."}', CURRENT_TIMESTAMP),
-('contact_info', 'contact', 'info', '{"email": "contact@ammoniteid.com", "phone": "", "intro": "Get in touch with us for questions or feedback"}', CURRENT_TIMESTAMP);
-
--- Insert default design settings
-INSERT OR IGNORE INTO site_design (setting_name, setting_value) VALUES
-('heading_font', '''Segoe UI'', sans-serif'),
-('body_font', '''Segoe UI'', sans-serif'),
-('heading_size', '36'),
-('body_size', '16'),
-('primary_color', '#2c5f2d'),
-('secondary_color', '#3498db'),
-('heading_color', '#2c5f2d'),
-('body_color', '#333333'),
-('button_bg', '#2c5f2d'),
-('button_text', '#ffffff');
-"""
+_init_content_tables()
 
 # ============================================
 # PYDANTIC MODELS
@@ -69,6 +76,15 @@ class HomeContent(BaseModel):
     feature2Desc: str
     feature3Title: str
     feature3Desc: str
+    # Styling fields (optional — defaults kept if not sent)
+    titleSize: Optional[str] = "48"
+    titleColor: Optional[str] = "#ffffff"
+    titleWeight: Optional[str] = "bold"
+    titleStyle: Optional[str] = "normal"
+    subtitleSize: Optional[str] = "20"
+    subtitleColor: Optional[str] = "#ffffff"
+    subtitleWeight: Optional[str] = "normal"
+    subtitleStyle: Optional[str] = "normal"
 
 class AboutContent(BaseModel):
     missionStatement: str
@@ -79,6 +95,12 @@ class AboutContent(BaseModel):
     photoTips: Optional[list] = []
     trainingStats: Optional[list] = []
     faqs: Optional[list] = []
+    # Styling
+    titleSize: Optional[str] = "36"
+    titleColor: Optional[str] = "#2c5f2d"
+    titleWeight: Optional[str] = "bold"
+    bodySize: Optional[str] = "16"
+    bodyColor: Optional[str] = "#333333"
 
 class ContactContent(BaseModel):
     contactEmail: str
@@ -134,11 +156,19 @@ async def save_home_content(content: HomeContent):
         conn = sqlite3.connect(str(DB_PATH))
         cursor = conn.cursor()
         
-        # Save hero content
+        # Save hero content (including styling)
         hero_data = json.dumps({
             "title": content.heroTitle,
             "subtitle": content.heroSubtitle,
-            "cta": content.ctaButton
+            "cta": content.ctaButton,
+            "titleSize": content.titleSize,
+            "titleColor": content.titleColor,
+            "titleWeight": content.titleWeight,
+            "titleStyle": content.titleStyle,
+            "subtitleSize": content.subtitleSize,
+            "subtitleColor": content.subtitleColor,
+            "subtitleWeight": content.subtitleWeight,
+            "subtitleStyle": content.subtitleStyle,
         })
         
         cursor.execute("""
@@ -209,7 +239,12 @@ async def save_about_content(content: AboutContent):
             "photoTipsIntro": content.photoTipsIntro,
             "photoTips": content.photoTips,
             "trainingStats": content.trainingStats,
-            "faqs": content.faqs
+            "faqs": content.faqs,
+            "titleSize": content.titleSize,
+            "titleColor": content.titleColor,
+            "titleWeight": content.titleWeight,
+            "bodySize": content.bodySize,
+            "bodyColor": content.bodyColor,
         })
         
         cursor.execute("""
@@ -377,11 +412,13 @@ async def get_all_content():
         
         # Get partners for public display - only active status
         cursor.execute("""
-            SELECT partner_id, name, url, email, bg_color, logo_path, 
+            SELECT partner_id, name, url, email, bg_color, logo_path,
                    billing_model, rate_amount, active, anchor,
-                   description, address, phone, map_link, offer, 
+                   description, address, phone, map_link, offer,
                    category, tier, status, logo_emoji
-            FROM partners WHERE active = 1 AND status = 'active'
+            FROM partners
+            WHERE active = 1 AND status = 'active'
+              AND (deletion_scheduled IS NULL OR deletion_scheduled = 0)
         """)
         
         partners = []
