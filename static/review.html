@@ -876,33 +876,62 @@
             try {
                 const res = await fetch('/queue?status=pending');
                 const data = await res.json();
-                const pending = (data.items || []).map(item => ({
-                    id: item.id,
-                    identification_id: item.identification_id,
-                    date: item.timestamp,
-                    family: item.ai_family || 'Unknown',
-                    genus: item.ai_genus || 'Unknown',
-                    confidence: item.ai_confidence || 0,
-                    status: item.status || 'pending',
-                    expert_family: item.expert_family || '',
-                    expert_genus: item.expert_genus || '',
-                    expert_notes: item.expert_notes || '',
-                    photo: item.photo_paths ? JSON.parse(item.photo_paths)[0]?.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2') : '',
-                    photos: item.photo_paths ? JSON.parse(item.photo_paths).map(p => p.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2')) : [],
-                }));
 
-                // Also load reviewed/ambiguous
-                const [rRes, aRes] = await Promise.all([
+                function mapItem(item, fallbackStatus) {
+                    const photoPaths = item.photo_paths ? JSON.parse(item.photo_paths) : [];
+                    const status = item.status || fallbackStatus;
+
+                    // Calculate auto_delete_date if not set
+                    let autoDelete = item.auto_delete_date || null;
+                    if (!autoDelete && !item.keep_forever) {
+                        const baseDate = item.reviewed_at ? new Date(item.reviewed_at) : new Date(item.timestamp);
+                        const days = (status === 'ambiguous') ? 90 : 30;
+                        const ad = new Date(baseDate);
+                        ad.setDate(ad.getDate() + days);
+                        autoDelete = ad.toISOString().split('T')[0];
+                    }
+
+                    return {
+                        id: item.id,
+                        identification_id: item.identification_id,
+                        date: item.timestamp,
+                        family: item.ai_family || 'Unknown',
+                        genus: item.ai_genus || 'Unknown',
+                        confidence: item.ai_confidence || 0,
+                        status: status,
+                        expert_family: item.expert_family || '',
+                        expert_genus: item.expert_genus || '',
+                        expert_notes: item.expert_notes || '',
+                        photo: photoPaths[0]?.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2') || '',
+                        photos: photoPaths.map(p => p.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2')),
+                        allPhotos: photoPaths.map(p => p.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2')),
+                        keepForever: item.keep_forever === 1,
+                        autoDeleteDate: item.keep_forever === 1 ? null : autoDelete,
+                        reviewedAt: item.reviewed_at || null,
+                        mlTrainingFlag: item.ml_flagged === 1,
+                        correctedFamily: item.expert_family || '',
+                        correctedGenus: item.expert_genus || '',
+                        correctionNotes: item.expert_notes || '',
+                    };
+                }
+
+                const pending = (data.items || []).map(i => mapItem(i, 'pending'));
+
+                // Also load reviewed/ambiguous/incorrect
+                const [rRes, aRes, iRes] = await Promise.all([
                     fetch('/queue?status=reviewed'),
-                    fetch('/queue?status=ambiguous')
+                    fetch('/queue?status=ambiguous'),
+                    fetch('/queue?status=incorrect')
                 ]);
                 const reviewed = rRes.ok ? (await rRes.json()).items || [] : [];
                 const ambiguous = aRes.ok ? (await aRes.json()).items || [] : [];
+                const incorrect = iRes.ok ? (await iRes.json()).items || [] : [];
 
                 identifications = [
                     ...pending,
-                    ...reviewed.map(i => ({...i, status:'reviewed', photo: i.photo_paths ? JSON.parse(i.photo_paths)[0]?.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2') : ''})),
-                    ...ambiguous.map(i => ({...i, status:'ambiguous', photo: i.photo_paths ? JSON.parse(i.photo_paths)[0]?.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2') : ''})),
+                    ...reviewed.map(i => mapItem(i, 'reviewed')),
+                    ...ambiguous.map(i => mapItem(i, 'ambiguous')),
+                    ...incorrect.map(i => mapItem(i, 'incorrect')),
                 ];
 
                 updateCounts();
@@ -922,11 +951,13 @@
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: new URLSearchParams({
                         status: item.status,
-                        expert_family: item.expert_family || '',
-                        expert_genus: item.expert_genus || '',
-                        expert_notes: item.expert_notes || '',
+                        expert_family: item.expert_family || item.correctedFamily || '',
+                        expert_genus: item.expert_genus || item.correctedGenus || '',
+                        expert_notes: item.expert_notes || item.correctionNotes || '',
                         reviewed_by: 'expert',
-                        ml_flag: item.mlTrainingFlag ? '1' : '0'
+                        ml_flag: item.mlTrainingFlag ? '1' : '0',
+                        keep_forever: item.keepForever ? '1' : '0',
+                        auto_delete_date: item.autoDeleteDate || ''
                     })
                 });
 
@@ -1028,13 +1059,24 @@
                     flag = '<div class="error-flag">🚩 Error Reported</div>';
                 }
 
+                // Auto-delete countdown badge
+                let countdownBadge = '';
+                if (item.keepForever) {
+                    countdownBadge = '<span style="display:inline-block;margin-top:4px;font-size:0.7rem;background:#d4edda;color:#155724;padding:2px 6px;border-radius:4px;">∞ Keep Forever</span>';
+                } else if (item.autoDeleteDate) {
+                    const daysLeft = Math.ceil((new Date(item.autoDeleteDate) - new Date()) / (1000*60*60*24));
+                    const bgColor = daysLeft <= 7 ? '#f8d7da' : '#fff3cd';
+                    const txtColor = daysLeft <= 7 ? '#721c24' : '#856404';
+                    countdownBadge = `<span style="display:inline-block;margin-top:4px;font-size:0.7rem;background:${bgColor};color:${txtColor};padding:2px 6px;border-radius:4px;">⏱️ ${daysLeft}d left</span>`;
+                }
+
                 tr.innerHTML = `
                     <td><img src="${item.photo}" alt="${item.genus}" onclick="openZoom('${item.photo}'); event.stopPropagation();"></td>
                     <td>${item.family}</td>
                     <td>${flag}${item.genus}</td>
                     <td class="card-confidence ${confClass}">${item.confidence}%</td>
                     <td>${formatDate(item.date)}</td>
-                    <td>${item.status}</td>
+                    <td>${item.status}<br>${countdownBadge}</td>
                     <td style="text-align: center;">${expandedRow === item.id ? '▲' : '▼'}</td>
                 `;
 
@@ -1250,12 +1292,13 @@
             if (item) {
                 item.keepForever = !item.keepForever;
                 item.autoDeleteDate = item.keepForever ? null : calculateAutoDeleteFromStatus(item);
-                saveReviewToDB(item);
 
                 // Persist keep_forever to backend
-                if (window.toggleKeepForever) {
-                    window.toggleKeepForever(item.identification_id || item.id, item.keepForever);
-                }
+                fetch(`/queue/${item.id}/keep-forever`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ keep: item.keepForever ? '1' : '0' })
+                }).catch(e => console.warn('Could not save keep_forever:', e));
 
                 filterByStatus(currentTab);
             }
@@ -1501,6 +1544,21 @@
                 closeZoom();
             }
         });
+
+        // ── Expose functions to global scope for onclick handlers ──
+        window.switchTab = switchTab;
+        window.markAsReviewed = markAsReviewed;
+        window.markAsAmbiguous = markAsAmbiguous;
+        window.deleteIdentification = deleteIdentification;
+        window.toggleKeepForever = toggleKeepForever;
+        window.openCorrectionModal = openCorrectionModal;
+        window.closeCorrectionModal = closeCorrectionModal;
+        window.submitCorrection = submitCorrection;
+        window.openZoom = openZoom;
+        window.closeZoom = closeZoom;
+        window.zoomIn = zoomIn;
+        window.zoomOut = zoomOut;
+        window.resetZoom = resetZoom;
     </script>
 
 </body>
