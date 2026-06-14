@@ -51,7 +51,7 @@
         if (!rule || rule === 'everyone') return true;
         if (rule === 'off') return false;
         const tier = (localStorage.getItem('ammonite_tier') || 'FREE').toUpperCase();
-        if (rule === 'premium') return tier === 'PREMIUM';
+        if (rule === 'premium') return ['PREMIUM', 'EXPERT', 'ADMIN'].includes(tier);
         if (rule === 'free') return tier === 'FREE';
         return true;
     }
