@@ -653,191 +653,184 @@
         <div id="content" class="panel">
             <div class="section">
                 <h2>Content Editor</h2>
-                <p style="color: #666; margin-bottom: 25px;">Edit all text content across your website</p>
+                <p style="color:#666;margin-bottom:20px;">Edit text and styling for any page — no coding required. Changes save to the database and apply live.</p>
 
-                <h3>Home Page</h3>
-                <div class="content-editor">
+                <!-- ── STYLE TOOLBAR (reusable) ─────────────────── -->
+                <div id="styleToolbar" style="display:none;background:#f8f9fa;border:1px solid #e0e0e0;border-radius:10px;padding:14px 18px;margin-bottom:20px;position:sticky;top:70px;z-index:50;">
+                    <div style="font-size:0.8rem;font-weight:bold;color:#888;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px;">Style for: <span id="toolbarFieldLabel" style="color:#2c5f2d;"></span></div>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+                        <div>
+                            <label style="font-size:0.8rem;color:#666;display:block;margin-bottom:3px;">Size (px)</label>
+                            <input type="number" id="tbSize" min="10" max="96" value="16" style="width:70px;padding:6px;border:1px solid #ddd;border-radius:6px;font-size:0.9rem;" oninput="applyToolbarStyle()">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem;color:#666;display:block;margin-bottom:3px;">Colour</label>
+                            <input type="color" id="tbColor" value="#333333" style="width:48px;height:34px;border:1px solid #ddd;border-radius:6px;cursor:pointer;padding:2px;" oninput="applyToolbarStyle()">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem;color:#666;display:block;margin-bottom:3px;">Weight</label>
+                            <select id="tbWeight" style="padding:6px;border:1px solid #ddd;border-radius:6px;font-size:0.9rem;" onchange="applyToolbarStyle()">
+                                <option value="normal">Normal</option>
+                                <option value="bold">Bold</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem;color:#666;display:block;margin-bottom:3px;">Style</label>
+                            <select id="tbStyle" style="padding:6px;border:1px solid #ddd;border-radius:6px;font-size:0.9rem;" onchange="applyToolbarStyle()">
+                                <option value="normal">Normal</option>
+                                <option value="italic">Italic</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem;color:#666;display:block;margin-bottom:3px;">Preview</label>
+                            <div id="tbPreview" style="padding:6px 12px;border:1px solid #ddd;border-radius:6px;min-width:120px;max-width:260px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:14px;">Sample text</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── HOME PAGE ──────────────────────────────────── -->
+                <div style="background:white;border:1px solid #e0e0e0;border-radius:12px;padding:20px;margin-bottom:24px;">
+                    <h3 style="margin-bottom:16px;color:#2c5f2d;">🏠 Home Page</h3>
+
                     <div class="editor-field">
-                        <label>Hero Title</label>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                            <label style="font-weight:600;">Hero Title</label>
+                            <button onclick="openToolbar('heroTitle','Home — Hero Title')" style="padding:4px 10px;font-size:0.75rem;background:#f0f4f0;border:1px solid #c0d8c0;border-radius:6px;color:#2c5f2d;cursor:pointer;">🎨 Style</button>
+                        </div>
                         <input type="text" id="heroTitle" placeholder="Identify Your Ammonite in Seconds" class="form-control">
+                        <div id="heroTitle_style" style="font-size:0.75rem;color:#888;margin-top:4px;"></div>
+                        <input type="hidden" id="heroTitle_size" value="48">
+                        <input type="hidden" id="heroTitle_color" value="#ffffff">
+                        <input type="hidden" id="heroTitle_weight" value="bold">
+                        <input type="hidden" id="heroTitle_fontStyle" value="normal">
                     </div>
 
                     <div class="editor-field">
-                        <label>Hero Subtitle</label>
-                        <textarea id="heroSubtitle" rows="3" placeholder="AI-powered fossil identification..."></textarea>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                            <label style="font-weight:600;">Hero Subtitle</label>
+                            <button onclick="openToolbar('heroSubtitle','Home — Hero Subtitle')" style="padding:4px 10px;font-size:0.75rem;background:#f0f4f0;border:1px solid #c0d8c0;border-radius:6px;color:#2c5f2d;cursor:pointer;">🎨 Style</button>
+                        </div>
+                        <textarea id="heroSubtitle" rows="2" placeholder="AI-powered fossil identification..."></textarea>
+                        <div id="heroSubtitle_style" style="font-size:0.75rem;color:#888;margin-top:4px;"></div>
+                        <input type="hidden" id="heroSubtitle_size" value="20">
+                        <input type="hidden" id="heroSubtitle_color" value="#ffffff">
+                        <input type="hidden" id="heroSubtitle_weight" value="normal">
+                        <input type="hidden" id="heroSubtitle_fontStyle" value="normal">
                     </div>
 
                     <div class="editor-field">
-                        <label>CTA Button Text</label>
+                        <label style="font-weight:600;">CTA Button Text</label>
                         <input type="text" id="ctaButton" placeholder="Start Identifying Now">
                     </div>
 
-                    <h4 style="margin-top: 25px; color: #2c5f2d;">Feature Cards</h4>
-                    
+                    <h4 style="margin:18px 0 12px;color:#555;">Feature Cards</h4>
+                    ${['1','2','3'].map ? '' : ''}
                     <div class="editor-field">
-                        <label>Feature 1 - Title</label>
+                        <label>Feature 1 — Title</label>
                         <input type="text" id="feature1Title" placeholder="AI-Powered Recognition">
                     </div>
                     <div class="editor-field">
-                        <label>Feature 1 - Description</label>
+                        <label>Feature 1 — Description</label>
                         <textarea id="feature1Desc" rows="2"></textarea>
                     </div>
-
                     <div class="editor-field">
-                        <label>Feature 2 - Title</label>
+                        <label>Feature 2 — Title</label>
                         <input type="text" id="feature2Title" placeholder="Instant Results">
                     </div>
                     <div class="editor-field">
-                        <label>Feature 2 - Description</label>
+                        <label>Feature 2 — Description</label>
                         <textarea id="feature2Desc" rows="2"></textarea>
                     </div>
-
                     <div class="editor-field">
-                        <label>Feature 3 - Title</label>
+                        <label>Feature 3 — Title</label>
                         <input type="text" id="feature3Title" placeholder="Build Your Collection">
                     </div>
                     <div class="editor-field">
-                        <label>Feature 3 - Description</label>
+                        <label>Feature 3 — Description</label>
                         <textarea id="feature3Desc" rows="2"></textarea>
                     </div>
 
-                    <button class="btn" onclick="saveHomeContent()">💾 Save Home Page Content</button>
+                    <button class="btn" onclick="saveHomeContent()" style="margin-top:8px;">💾 Save Home Page</button>
+                    <span id="homeContentMsg" style="margin-left:12px;font-size:0.9rem;display:none;"></span>
                 </div>
 
-                <h3>About Page</h3>
-                <div class="content-editor">
+                <!-- ── ABOUT PAGE ──────────────────────────────────── -->
+                <div style="background:white;border:1px solid #e0e0e0;border-radius:12px;padding:20px;margin-bottom:24px;">
+                    <h3 style="margin-bottom:16px;color:#2c5f2d;">ℹ️ About Page</h3>
+
                     <div class="editor-field">
-                        <label>About Page Title</label>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                            <label style="font-weight:600;">About Page Title</label>
+                            <button onclick="openToolbar('aboutTitle','About — Page Title')" style="padding:4px 10px;font-size:0.75rem;background:#f0f4f0;border:1px solid #c0d8c0;border-radius:6px;color:#2c5f2d;cursor:pointer;">🎨 Style</button>
+                        </div>
                         <input type="text" id="aboutTitle" placeholder="About AmmoniteID">
+                        <div id="aboutTitle_style" style="font-size:0.75rem;color:#888;margin-top:4px;"></div>
+                        <input type="hidden" id="aboutTitle_size" value="36">
+                        <input type="hidden" id="aboutTitle_color" value="#2c5f2d">
+                        <input type="hidden" id="aboutTitle_weight" value="bold">
+                        <input type="hidden" id="aboutTitle_fontStyle" value="normal">
                     </div>
 
                     <div class="editor-field">
-                        <label>Mission Statement</label>
-                        <textarea id="missionStatement" rows="5" placeholder="Our mission is to make fossil identification accessible..."></textarea>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                            <label style="font-weight:600;">Mission Statement</label>
+                            <button onclick="openToolbar('missionStatement','About — Mission')" style="padding:4px 10px;font-size:0.75rem;background:#f0f4f0;border:1px solid #c0d8c0;border-radius:6px;color:#2c5f2d;cursor:pointer;">🎨 Style</button>
+                        </div>
+                        <textarea id="missionStatement" rows="4" placeholder="Our mission is to make fossil identification accessible..."></textarea>
+                        <div id="missionStatement_style" style="font-size:0.75rem;color:#888;margin-top:4px;"></div>
+                        <input type="hidden" id="missionStatement_size" value="16">
+                        <input type="hidden" id="missionStatement_color" value="#333333">
+                        <input type="hidden" id="missionStatement_weight" value="normal">
+                        <input type="hidden" id="missionStatement_fontStyle" value="normal">
                     </div>
 
                     <div class="editor-field">
-                        <label>About Section Text</label>
+                        <label style="font-weight:600;">About Section Text</label>
                         <textarea id="aboutText" rows="4" placeholder="AmmoniteID uses cutting-edge AI technology..."></textarea>
                     </div>
 
-                    <h4 style="margin-top: 25px; color: #2c5f2d;">Future Plans</h4>
-                    <div class="editor-field">
-                        <label>Future Plan 1</label>
-                        <input type="text" id="futurePlan1" placeholder="Expand to other geological regions">
-                    </div>
-                    <div class="editor-field">
-                        <label>Future Plan 2</label>
-                        <input type="text" id="futurePlan2" placeholder="Add more ammonite species and families">
-                    </div>
-                    <div class="editor-field">
-                        <label>Future Plan 3</label>
-                        <input type="text" id="futurePlan3" placeholder="Partner with museums and educational institutions">
-                    </div>
+                    <h4 style="margin:18px 0 12px;color:#555;">Future Plans</h4>
+                    <div class="editor-field"><label>Plan 1</label><input type="text" id="futurePlan1" placeholder="Expand to other geological regions"></div>
+                    <div class="editor-field"><label>Plan 2</label><input type="text" id="futurePlan2" placeholder="Add more ammonite species and families"></div>
+                    <div class="editor-field"><label>Plan 3</label><input type="text" id="futurePlan3" placeholder="Partner with museums and educational institutions"></div>
 
-                    <h4 style="margin-top: 25px; color: #2c5f2d;">📸 Photo Tips Section</h4>
-                    <div class="editor-field">
-                        <label>Photo Tips Intro Text</label>
-                        <textarea id="photoTipsIntro" rows="2" placeholder="Getting accurate results starts with a good photo..."></textarea>
-                    </div>
+                    <h4 style="margin:18px 0 12px;color:#555;">📸 Photo Tips</h4>
+                    <div class="editor-field"><label>Intro Text</label><textarea id="photoTipsIntro" rows="2" placeholder="Getting accurate results starts with a good photo..."></textarea></div>
+                    <div class="editor-field"><label>Tip 1 — Title</label><input type="text" id="tip1Title" placeholder="Fill the Frame"></div>
+                    <div class="editor-field"><label>Tip 1 — Description</label><textarea id="tip1Desc" rows="2"></textarea></div>
+                    <div class="editor-field"><label>Tip 2 — Title</label><input type="text" id="tip2Title" placeholder="Multiple Angles"></div>
+                    <div class="editor-field"><label>Tip 2 — Description</label><textarea id="tip2Desc" rows="2"></textarea></div>
+                    <div class="editor-field"><label>Tip 3 — Title</label><input type="text" id="tip3Title" placeholder="Good Lighting"></div>
+                    <div class="editor-field"><label>Tip 3 — Description</label><textarea id="tip3Desc" rows="2"></textarea></div>
+                    <div class="editor-field"><label>Tip 4 — Title</label><input type="text" id="tip4Title" placeholder="Show Key Features"></div>
+                    <div class="editor-field"><label>Tip 4 — Description</label><textarea id="tip4Desc" rows="2"></textarea></div>
+                    <div class="editor-field"><label>Tip 5 — Title</label><input type="text" id="tip5Title" placeholder="Sharp Focus"></div>
+                    <div class="editor-field"><label>Tip 5 — Description</label><textarea id="tip5Desc" rows="2"></textarea></div>
+                    <div class="editor-field"><label>Tip 6 — Title</label><input type="text" id="tip6Title" placeholder="Clean Background"></div>
+                    <div class="editor-field"><label>Tip 6 — Description</label><textarea id="tip6Desc" rows="2"></textarea></div>
 
-                    <div class="editor-field">
-                        <label>Tip 1 - Title</label>
-                        <input type="text" id="tip1Title" placeholder="Fill the Frame">
-                    </div>
-                    <div class="editor-field">
-                        <label>Tip 1 - Description</label>
-                        <textarea id="tip1Desc" rows="2" placeholder="Your fossil should take up 80% or more of the photo..."></textarea>
-                    </div>
+                    <h4 style="margin:18px 0 12px;color:#555;">🤖 Training Stats</h4>
+                    <div class="editor-field"><label>Stat 1</label><input type="text" id="trainingStat1" placeholder="Already trained on thousands of Jurassic Coast specimens"></div>
+                    <div class="editor-field"><label>Stat 2</label><input type="text" id="trainingStat2" placeholder="80%+ family accuracy"></div>
+                    <div class="editor-field"><label>Stat 3</label><input type="text" id="trainingStat3" placeholder="Model continuously improving with expert review..."></div>
 
-                    <div class="editor-field">
-                        <label>Tip 2 - Title</label>
-                        <input type="text" id="tip2Title" placeholder="Multiple Angles">
-                    </div>
-                    <div class="editor-field">
-                        <label>Tip 2 - Description</label>
-                        <textarea id="tip2Desc" rows="2" placeholder="Take 2-3 photos from different angles..."></textarea>
-                    </div>
+                    <h4 style="margin:18px 0 12px;color:#555;">❓ FAQs</h4>
+                    <div id="faqEditor"></div>
+                    <button class="btn btn-secondary" onclick="addFAQ()" style="margin-bottom:16px;">➕ Add FAQ</button>
 
-                    <div class="editor-field">
-                        <label>Tip 3 - Title</label>
-                        <input type="text" id="tip3Title" placeholder="Good Lighting">
-                    </div>
-                    <div class="editor-field">
-                        <label>Tip 3 - Description</label>
-                        <textarea id="tip3Desc" rows="2" placeholder="Natural daylight works best..."></textarea>
-                    </div>
-
-                    <div class="editor-field">
-                        <label>Tip 4 - Title</label>
-                        <input type="text" id="tip4Title" placeholder="Show Key Features">
-                    </div>
-                    <div class="editor-field">
-                        <label>Tip 4 - Description</label>
-                        <textarea id="tip4Desc" rows="2" placeholder="Make sure distinctive features are visible..."></textarea>
-                    </div>
-
-                    <div class="editor-field">
-                        <label>Tip 5 - Title</label>
-                        <input type="text" id="tip5Title" placeholder="Sharp Focus">
-                    </div>
-                    <div class="editor-field">
-                        <label>Tip 5 - Description</label>
-                        <textarea id="tip5Desc" rows="2" placeholder="Make sure the photo is crisp and clear..."></textarea>
-                    </div>
-
-                    <div class="editor-field">
-                        <label>Tip 6 - Title</label>
-                        <input type="text" id="tip6Title" placeholder="Clean Background">
-                    </div>
-                    <div class="editor-field">
-                        <label>Tip 6 - Description</label>
-                        <textarea id="tip6Desc" rows="2" placeholder="Place your fossil on a plain, neutral surface..."></textarea>
-                    </div>
-
-                    <h4 style="margin-top: 25px; color: #2c5f2d;">🤖 Model Training Section</h4>
-                    <div class="editor-field">
-                        <label>Training Stat 1</label>
-                        <input type="text" id="trainingStat1" placeholder="Already trained on thousands of Jurassic Coast specimens">
-                    </div>
-                    <div class="editor-field">
-                        <label>Training Stat 2</label>
-                        <input type="text" id="trainingStat2" placeholder="80+ % family accuracy and improving">
-                    </div>
-                    <div class="editor-field">
-                        <label>Training Stat 3</label>
-                        <input type="text" id="trainingStat3" placeholder="Model continuously improving with expert review feedback...">
-                    </div>
-
-                    <h4 style="margin-top: 25px; color: #2c5f2d;">❓ FAQs</h4>
-                    <div id="faqEditor">
-                        <!-- FAQs loaded dynamically -->
-                    </div>
-                    <button class="btn btn-secondary" onclick="addFAQ()">➕ Add New FAQ</button>
-
-                    <div style="margin-top: 25px;">
-                        <button class="btn" onclick="saveAboutContent()">💾 Save All About Page Content</button>
-                    </div>
+                    <br>
+                    <button class="btn" onclick="saveAboutContent()">💾 Save About Page</button>
+                    <span id="aboutContentMsg" style="margin-left:12px;font-size:0.9rem;display:none;"></span>
                 </div>
 
-                <h3>Contact Page</h3>
-                <div class="content-editor">
-                    <div class="editor-field">
-                        <label>Contact Email</label>
-                        <input type="email" id="contactEmail" placeholder="contact@ammoniteid.com">
-                    </div>
-
-                    <div class="editor-field">
-                        <label>Contact Phone (optional)</label>
-                        <input type="text" id="contactPhone" placeholder="+44 123 456 7890">
-                    </div>
-
-                    <div class="editor-field">
-                        <label>Contact Page Intro Text</label>
-                        <textarea id="contactIntro" rows="3" placeholder="Get in touch with us..."></textarea>
-                    </div>
-
-                    <button class="btn" onclick="saveContactContent()">💾 Save Contact Page Content</button>
+                <!-- ── CONTACT PAGE ────────────────────────────────── -->
+                <div style="background:white;border:1px solid #e0e0e0;border-radius:12px;padding:20px;margin-bottom:24px;">
+                    <h3 style="margin-bottom:16px;color:#2c5f2d;">✉️ Contact Page</h3>
+                    <div class="editor-field"><label style="font-weight:600;">Contact Email</label><input type="email" id="contactEmail" placeholder="contact@ammoniteid.com"></div>
+                    <div class="editor-field"><label style="font-weight:600;">Contact Phone (optional)</label><input type="text" id="contactPhone" placeholder="+44 123 456 7890"></div>
+                    <div class="editor-field"><label style="font-weight:600;">Contact Page Intro Text</label><textarea id="contactIntro" rows="3" placeholder="Get in touch with us..."></textarea></div>
+                    <button class="btn" onclick="saveContactContent()">💾 Save Contact Page</button>
+                    <span id="contactContentMsg" style="margin-left:12px;font-size:0.9rem;display:none;"></span>
                 </div>
             </div>
         </div>
@@ -1216,87 +1209,6 @@
     </div>
 
     <!-- ADD/EDIT PARTNER MODAL -->
-    <!-- USER MANAGEMENT MODAL -->
-    <div id="userModal" class="modal">
-        <div class="modal-content" style="max-width:620px;max-height:90vh;overflow-y:auto;">
-            <div class="modal-header">
-                <h2>⚙️ Manage User</h2>
-                <button class="close-modal" onclick="closeUserModal()">×</button>
-            </div>
-
-            <!-- User Info -->
-            <div style="padding:0 24px;">
-                <div class="grid-2" style="margin-bottom:16px;">
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="text" id="umEmail" readonly style="background:#f5f5f5;cursor:default;">
-                    </div>
-                    <div class="form-group">
-                        <label>Display Name</label>
-                        <input type="text" id="umDisplayName" placeholder="Display name">
-                    </div>
-                </div>
-                <div class="grid-2" style="margin-bottom:16px;">
-                    <div class="form-group">
-                        <label>Firebase UID</label>
-                        <input type="text" id="umUid" readonly style="background:#f5f5f5;cursor:default;font-size:0.75rem;">
-                    </div>
-                    <div class="form-group">
-                        <label>Account Created</label>
-                        <input type="text" id="umCreatedAt" readonly style="background:#f5f5f5;cursor:default;">
-                    </div>
-                </div>
-                <div class="grid-2" style="margin-bottom:8px;">
-                    <div class="form-group">
-                        <label>Identifications Made</label>
-                        <input type="text" id="umIdCount" readonly style="background:#f5f5f5;cursor:default;">
-                    </div>
-                    <div class="form-group">
-                        <label>Fossils in Collection</label>
-                        <input type="text" id="umFossilCount" readonly style="background:#f5f5f5;cursor:default;">
-                    </div>
-                </div>
-
-                <hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
-
-                <!-- Tier Management -->
-                <h3 style="margin-bottom:12px;color:#2c5f2d;">🏷️ Tier</h3>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
-                    <button onclick="setUserTier('FREE')"    id="umTierFREE"    style="padding:8px 18px;border:2px solid #ddd;border-radius:20px;cursor:pointer;font-weight:bold;background:white;">FREE</button>
-                    <button onclick="setUserTier('PREMIUM')" id="umTierPREMIUM" style="padding:8px 18px;border:2px solid #ddd;border-radius:20px;cursor:pointer;font-weight:bold;background:white;">PREMIUM</button>
-                    <button onclick="setUserTier('EXPERT')"  id="umTierEXPERT"  style="padding:8px 18px;border:2px solid #ddd;border-radius:20px;cursor:pointer;font-weight:bold;background:white;">EXPERT</button>
-                    <button onclick="setUserTier('ADMIN')"   id="umTierADMIN"   style="padding:8px 18px;border:2px solid #ddd;border-radius:20px;cursor:pointer;font-weight:bold;background:white;">ADMIN</button>
-                </div>
-
-                <!-- Account Status -->
-                <h3 style="margin-bottom:12px;color:#2c5f2d;">🔘 Account Status</h3>
-                <div id="umStatusInfo" style="padding:10px 14px;background:#f0f4f0;border-radius:8px;margin-bottom:12px;font-size:0.9rem;color:#555;"></div>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
-                    <button onclick="setUserStatus('active')"  id="umStatusActive" style="padding:8px 18px;border:2px solid #2c5f2d;border-radius:20px;cursor:pointer;font-weight:bold;background:white;color:#2c5f2d;">✅ Active</button>
-                    <button onclick="setUserStatus('paused')"  id="umStatusPaused" style="padding:8px 18px;border:2px solid #e67e22;border-radius:20px;cursor:pointer;font-weight:bold;background:white;color:#e67e22;">⏸️ Pause</button>
-                    <button onclick="deleteUserFromModal()"    id="umDeleteBtn"    style="padding:8px 18px;border:2px solid #dc3545;border-radius:20px;cursor:pointer;font-weight:bold;background:white;color:#dc3545;">🗑️ Delete</button>
-                    <button onclick="restoreUserFromModal()"   id="umRestoreBtn"   style="padding:8px 18px;border:2px solid #27ae60;border-radius:20px;cursor:pointer;font-weight:bold;background:white;color:#27ae60;display:none;">↩️ Restore</button>
-                </div>
-
-                <!-- Backup / Restore -->
-                <hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
-                <h3 style="margin-bottom:12px;color:#2c5f2d;">☁️ User Data Backup & Restore</h3>
-                <div style="background:#f9f9f9;padding:14px;border-radius:8px;margin-bottom:12px;font-size:0.9rem;">
-                    <div>📦 Fossil collection: <strong id="umBackupFossilCount">—</strong> fossils saved on device</div>
-                    <div style="margin-top:6px;color:#888;font-size:0.8rem;">Backups are stored in Cloudinary. Request user exports via contact page.</div>
-                </div>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
-                    <button onclick="adminExportUserData()" style="padding:8px 16px;background:#3498db;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">📥 Export User Data</button>
-                    <button onclick="adminRestoreUserData()" style="padding:8px 16px;background:#e67e22;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">🔄 Initiate Restore</button>
-                </div>
-
-                <div style="display:flex;gap:8px;justify-content:flex-end;padding-bottom:16px;">
-                    <button onclick="closeUserModal()" style="padding:10px 20px;background:#eee;color:#333;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">Cancel</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div id="addPartnerModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1455,51 +1367,29 @@
         async function fetchDashboardData() {
             try {
                 const response = await fetch('/api/admin/dashboard');
-                if (!response.ok) throw new Error('Dashboard API error');
                 const data = await response.json();
+                
+                // Update dashboard
+                document.getElementById('totalUsers').textContent = data.total_users || 0;
+                document.getElementById('activeUsers').textContent = data.active_users || 0;
+                document.getElementById('totalIds').textContent = data.total_identifications || 0;
+                document.getElementById('idsToday').textContent = data.ids_today || 0;
+                document.getElementById('adImpressions').textContent = data.total_impressions || 0;
+                document.getElementById('adClicks').textContent = data.total_clicks || 0;
+                document.getElementById('adCTR').textContent = (data.overall_ctr || 0) + '%';
+                document.getElementById('mrr').textContent = '£' + (data.mrr || 0);
 
-                // Dashboard tab
-                const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-                set('totalUsers', data.total_users || 0);
-                set('activeUsers', data.active_users || 0);
-                set('totalIds', data.total_identifications || 0);
-                set('idsToday', data.ids_today || 0);
-                set('adImpressions', data.total_impressions || 0);
-                set('adClicks', data.total_clicks || 0);
-                set('adCTR', (data.overall_ctr || 0) + '%');
-                set('mrr', '£' + (data.mrr || 0));
+                // Update users tab
+                document.getElementById('userTotal').textContent = data.total_users || 0;
+                document.getElementById('userActive').textContent = data.active_users || 0;
+                document.getElementById('userFree').textContent = data.free_users || 0;
+                document.getElementById('userPremium').textContent = data.premium_users || 0;
 
-                // Users tab analytics
-                set('userTotal', data.total_users || 0);
-                set('userActive', data.active_users || 0);
-                set('userFree', data.free_users || 0);
-                set('userPremium', data.premium_users || 0);
-
-                // Revenue tab
-                set('revMRR', '£' + (data.mrr || 0));
-                set('revTotal', '£' + (data.mrr || 0));
-                if (data.conversion_rate !== undefined) set('revGrowth', data.conversion_rate + '%');
-
-                // Ads tab
-                set('totalImpressions', data.total_impressions || 0);
-                set('totalClicks', data.total_clicks || 0);
-                set('overallCTR', (data.overall_ctr || 0) + '%');
-
-                // Audit tab answers
-                set('auditConversion', data.conversion_rate ? `${data.conversion_rate}% of users are Premium (${data.premium_users} of ${data.total_users})` : 'No data yet');
-                set('auditEngagement', data.total_clicks > 0 ? `${data.total_clicks} ad clicks from ${data.total_impressions} impressions (${data.overall_ctr}% CTR)` : 'No ad data tracked yet');
-                set('auditMostVisited', 'Identification page (tracking coming soon)');
-                set('auditBestCTR', data.total_clicks > 0 ? 'Check Ads tab for breakdown' : 'No click data yet');
-                set('auditTopPartner', 'Check Partners tab for breakdown');
+                // Update revenue tab
+                document.getElementById('revMRR').textContent = '£' + (data.mrr || 0);
 
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);
-                // Show error state instead of zeros
-                const errMsg = '⚠️ API error';
-                ['totalUsers','activeUsers','totalIds','idsToday','adImpressions','adClicks'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el && el.textContent === '0') el.textContent = '—';
-                });
             }
         }
 
@@ -1568,11 +1458,11 @@
                                 const style = TIER_COLORS[t] || TIER_COLORS['FREE'];
                                 const isPermanentAdmin = u.uid === PERMANENT_ADMIN;
                                 return `
-                                <tr style="border-bottom:1px solid #eee;cursor:pointer;" id="userrow-${u.uid}" onclick="openUserModal('${u.uid}')">
+                                <tr style="border-bottom:1px solid #eee;" id="userrow-${u.uid}">
                                     <td style="padding:10px;">${u.email || '—'}</td>
                                     <td style="padding:10px;">${u.display_name || '—'}</td>
                                     <td style="padding:10px;">
-                                        <span style="padding:4px 10px;border-radius:20px;font-size:0.8rem;font-weight:bold;background:${style.bg};color:${style.color};">
+                                        <span id="tier-${u.uid}" style="padding:4px 10px;border-radius:20px;font-size:0.8rem;font-weight:bold;background:${style.bg};color:${style.color};">
                                             ${t}
                                         </span>
                                     </td>
@@ -1580,8 +1470,17 @@
                                     <td style="padding:10px;">
                                         ${isPermanentAdmin
                                             ? `<span style="color:#999;font-size:0.8rem;">🔒 Permanent Admin</span>`
-                                            : `<button onclick="event.stopPropagation();openUserModal('${u.uid}')" style="padding:6px 14px;background:#2c5f2d;color:white;border:none;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:bold;">⚙️ Manage</button>`
+                                            : `<select onchange="changeUserTier('${u.uid}', this.value)" style="padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:0.85rem;cursor:pointer;">
+                                                <option value="" disabled selected>Change...</option>
+                                                <option value="FREE"    ${t==='FREE'    ? 'disabled' : ''}>→ FREE</option>
+                                                <option value="PREMIUM" ${t==='PREMIUM' ? 'disabled' : ''}>→ PREMIUM</option>
+                                                <option value="EXPERT"  ${t==='EXPERT'  ? 'disabled' : ''}>→ EXPERT</option>
+                                                <option value="ADMIN"   ${t==='ADMIN'   ? 'disabled' : ''}>→ ADMIN</option>
+                                               </select>`
                                         }
+                                    </td>
+                                    <td style="padding:10px;">
+                                        ${!isPermanentAdmin ? `<button onclick="deleteUserConfirm('${u.uid}', '${u.email}')" style="padding:4px 8px;background:#dc3545;color:white;border:none;border-radius:4px;cursor:pointer;font-size:0.8rem;font-weight:bold;">🗑️ Delete</button>` : ''}
                                     </td>
                                 </tr>`;
                             }).join('')}
@@ -1676,111 +1575,6 @@
                 alert('Error changing tier: ' + e.message);
             }
         }
-
-        // ── User Management Modal ──────────────────────────────
-        let _umCurrentUid = null;
-        let _umCurrentEmail = '';
-
-        window.openUserModal = async function(uid) {
-            _umCurrentUid = uid;
-            document.getElementById('userModal').classList.add('active');
-            document.getElementById('umUid').value = 'Loading...';
-            document.getElementById('umEmail').value = '...';
-            document.getElementById('umStatusInfo').textContent = 'Loading user data...';
-            try {
-                const res = await fetch(`/api/admin/users/${uid}/detail`);
-                if (!res.ok) throw new Error('User not found');
-                const u = await res.json();
-                _umCurrentEmail = u.email || '';
-                document.getElementById('umEmail').value = u.email || '—';
-                document.getElementById('umDisplayName').value = u.display_name || '';
-                document.getElementById('umUid').value = u.firebase_uid || uid;
-                document.getElementById('umCreatedAt').value = u.created_at ? u.created_at.split('T')[0] : '—';
-                document.getElementById('umIdCount').value = u.identification_count || 0;
-                document.getElementById('umFossilCount').value = u.fossil_count || 0;
-                document.getElementById('umBackupFossilCount').textContent = u.fossil_count || 0;
-
-                // Highlight current tier
-                ['FREE','PREMIUM','EXPERT','ADMIN'].forEach(t => {
-                    const btn = document.getElementById('umTier' + t);
-                    if (btn) {
-                        btn.style.background = (u.tier === t) ? '#2c5f2d' : 'white';
-                        btn.style.color = (u.tier === t) ? 'white' : '#333';
-                        btn.style.borderColor = (u.tier === t) ? '#2c5f2d' : '#ddd';
-                    }
-                });
-
-                // Show status
-                const isDeleted = !!u.deleted_at;
-                const isPaused = u.account_status === 'paused';
-                document.getElementById('umStatusInfo').textContent =
-                    isDeleted ? `⛔ Account deleted on ${u.deleted_at ? u.deleted_at.split('T')[0] : '?'}` :
-                    isPaused  ? `⏸️ Account paused — user cannot log in` :
-                                `✅ Account active`;
-                document.getElementById('umRestoreBtn').style.display = isDeleted ? '' : 'none';
-                document.getElementById('umDeleteBtn').style.display = isDeleted ? 'none' : '';
-            } catch (e) {
-                document.getElementById('umStatusInfo').textContent = 'Error loading user: ' + e.message;
-            }
-        };
-
-        window.closeUserModal = function() {
-            document.getElementById('userModal').classList.remove('active');
-            _umCurrentUid = null;
-        };
-
-        window.setUserTier = async function(tier) {
-            if (!_umCurrentUid) return;
-            if (!confirm(`Set tier to ${tier} for ${_umCurrentEmail}?`)) return;
-            try {
-                const res = await fetch(`/api/admin/users/${_umCurrentUid}/tier?tier=${tier}`, { method: 'PUT' });
-                if (!res.ok) throw new Error('Failed');
-                ['FREE','PREMIUM','EXPERT','ADMIN'].forEach(t => {
-                    const btn = document.getElementById('umTier' + t);
-                    if (btn) { btn.style.background = (t===tier)?'#2c5f2d':'white'; btn.style.color=(t===tier)?'white':'#333'; btn.style.borderColor=(t===tier)?'#2c5f2d':'#ddd'; }
-                });
-                alert(`✅ Tier updated to ${tier}`);
-                loadUserList();
-            } catch(e) { alert('Error: ' + e.message); }
-        };
-
-        window.setUserStatus = async function(status) {
-            if (!_umCurrentUid) return;
-            if (!confirm(`Set account status to "${status}" for ${_umCurrentEmail}?`)) return;
-            try {
-                const res = await fetch(`/api/admin/users/${_umCurrentUid}/status?status=${status}`, { method: 'PUT' });
-                if (!res.ok) throw new Error('Failed');
-                document.getElementById('umStatusInfo').textContent = status === 'paused' ? '⏸️ Account paused — user cannot log in' : '✅ Account active';
-                alert(`✅ Account status set to ${status}`);
-                loadUserList();
-            } catch(e) { alert('Error: ' + e.message); }
-        };
-
-        window.deleteUserFromModal = function() {
-            if (!_umCurrentUid) return;
-            window.deleteUserConfirm(_umCurrentUid, _umCurrentEmail);
-            closeUserModal();
-        };
-
-        window.restoreUserFromModal = function() {
-            if (!_umCurrentUid) return;
-            window.restoreUser(_umCurrentUid, _umCurrentEmail);
-            closeUserModal();
-        };
-
-        window.adminExportUserData = function() {
-            if (!_umCurrentUid) return;
-            alert(`📥 To export data for ${_umCurrentEmail}:\n\nContact them to export their fossil collection JSON from My Account page.\n\nAdmin export endpoint coming in next update.`);
-        };
-
-        window.adminRestoreUserData = function() {
-            if (!_umCurrentUid) return;
-            alert(`🔄 Restore for ${_umCurrentEmail}:\n\nAsk the user to send their backup JSON file, then use the import tool to restore their fossil collection.\n\nAdmin-initiated restore endpoint coming in next update.`);
-        };
-
-        document.getElementById('userModal').addEventListener('click', function(e) {
-            if (e.target === this) closeUserModal();
-        });
 
         window.deleteUserConfirm = function(uid, email) {
             if (!confirm(`Delete "${email}"?\n\nThis marks them as deleted but data is recoverable.`)) return;
@@ -1878,115 +1672,99 @@
             try {
                 const response = await fetch('/api/admin/partners');
                 const data = await response.json();
-
-                let allList = data.partners || [];
-
-                // Separate soft-deleted from active
-                const deletedList = allList.filter(p => p.deletion_scheduled || p.status === 'deleted');
-                let activeList = allList.filter(p => !p.deletion_scheduled && p.status !== 'deleted');
-
-                // Apply view filter to active list
+                
+                let partnerList = data.partners || [];
+                
+                // Apply view filter
                 const filter = document.getElementById('partnerViewFilter').value;
-                let partnerList = activeList;
-
-                if (filter === 'active') partnerList = activeList.filter(p => p.status === 'active');
-                else if (filter === 'paused') partnerList = activeList.filter(p => p.status === 'paused');
-                else if (filter === 'expired') partnerList = activeList.filter(p => p.status === 'expired' || !p.active);
-                else if (filter === 'deleted') partnerList = deletedList;
+                
+                if (filter === 'active') partnerList = partnerList.filter(p => p.status === 'active');
+                else if (filter === 'paused') partnerList = partnerList.filter(p => p.status === 'paused');
+                else if (filter === 'expired') partnerList = partnerList.filter(p => p.status === 'expired' || !p.active);
                 else if (filter.startsWith('cat-')) {
                     const cat = filter.replace('cat-', '');
-                    partnerList = activeList.filter(p => (p.category || '') === cat);
+                    partnerList = partnerList.filter(p => (p.category || '') === cat);
                 }
                 else if (filter === 'tier') {
                     const order = { premium: 0, standard: 1, basic: 2, free: 3 };
-                    partnerList = [...activeList].sort((a, b) => (order[a.tier] || 99) - (order[b.tier] || 99));
+                    partnerList.sort((a, b) => (order[a.tier] || 99) - (order[b.tier] || 99));
                 }
                 else if (filter === 'expiring') {
-                    partnerList = activeList.filter(p => p.expires_at).sort((a, b) => new Date(a.expires_at) - new Date(b.expires_at));
+                    partnerList = partnerList.filter(p => p.expires_at).sort((a, b) => new Date(a.expires_at) - new Date(b.expires_at));
                 }
                 else if (filter === 'newest') {
-                    partnerList = [...activeList].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+                    partnerList.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
                 }
                 else if (filter === 'oldest') {
-                    partnerList = [...activeList].sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
+                    partnerList.sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
                 }
-
+                
                 const partnersList = document.getElementById('partnersList');
                 partnersList.innerHTML = '';
-
-                // Show deleted partners banner if any
-                if (deletedList.length > 0 && filter !== 'deleted') {
-                    partnersList.innerHTML += `<div style="background:#fff3cd;border:1px solid #ffc107;padding:10px 16px;border-radius:8px;margin-bottom:16px;font-size:0.9rem;">
-                        ⚠️ <strong>${deletedList.length}</strong> soft-deleted partner${deletedList.length > 1 ? 's' : ''} hidden from users.
-                        <a href="#" onclick="document.getElementById('partnerViewFilter').value='deleted';loadPartners();return false;" style="color:#2c5f2d;font-weight:bold;margin-left:8px;">View Deleted</a>
-                    </div>`;
-                }
-
+                
                 if (partnerList.length > 0) {
                     partnerList.forEach(partner => {
-                        const isSoftDeleted = partner.deletion_scheduled || partner.status === 'deleted';
-                        const statusColor = isSoftDeleted ? '#c62828' : partner.status === 'active' ? '#2c5f2d' : partner.status === 'paused' ? '#e67e22' : '#999';
-                        const statusIcon = isSoftDeleted ? '🗑️' : partner.status === 'active' ? '✅' : partner.status === 'paused' ? '⏸️' : '❌';
-                        const statusText = isSoftDeleted ? 'Soft Deleted' : (partner.status ? partner.status.charAt(0).toUpperCase() + partner.status.slice(1) : 'Active');
-
+                        const statusColor = partner.status === 'active' ? '#2c5f2d' : partner.status === 'paused' ? '#e67e22' : '#999';
+                        const statusIcon = partner.status === 'active' ? '✅' : partner.status === 'paused' ? '⏸️' : '❌';
+                        const statusText = partner.status ? partner.status.charAt(0).toUpperCase() + partner.status.slice(1) : 'Active';
+                        
+                        // Expiry info
                         let expiryHtml = '';
-                        if (isSoftDeleted && partner.deletion_grace_period_expires) {
-                            const grace = new Date(partner.deletion_grace_period_expires);
-                            const daysLeft = Math.ceil((grace - new Date()) / (1000*60*60*24));
-                            expiryHtml = `<p style="margin-top:10px;color:#c62828;font-weight:bold;">🗑️ Permanent delete in ${daysLeft} day${daysLeft !== 1 ? 's' : ''} (${grace.toLocaleDateString('en-GB')})</p>`;
-                        } else if (partner.expires_at) {
+                        if (partner.expires_at) {
                             const expiryDate = new Date(partner.expires_at);
-                            const daysLeft = Math.ceil((expiryDate - new Date()) / (1000*60*60*24));
-                            const urgency = daysLeft <= 7 ? 'color:#e74c3c;font-weight:bold;' : 'color:#e67e22;';
-                            expiryHtml = daysLeft > 0
-                                ? `<p style="margin-top:10px;${urgency}">⏰ Expires ${expiryDate.toLocaleDateString('en-GB')} (${daysLeft} days)</p>`
-                                : `<p style="margin-top:10px;color:#e74c3c;font-weight:bold;">⏰ EXPIRED</p>`;
+                            const now = new Date();
+                            const daysLeft = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
+                            if (daysLeft > 0) {
+                                const urgency = daysLeft <= 7 ? 'color: #e74c3c; font-weight: bold;' : 'color: #e67e22;';
+                                expiryHtml = `<p style="margin-top: 10px; ${urgency}">⏰ Expires: ${expiryDate.toLocaleDateString('en-GB', {day: 'numeric', month: 'long', year: 'numeric'})} (${daysLeft} days remaining)</p>`;
+                            } else {
+                                expiryHtml = `<p style="margin-top: 10px; color: #e74c3c; font-weight: bold;">⏰ EXPIRED on ${expiryDate.toLocaleDateString('en-GB', {day: 'numeric', month: 'long', year: 'numeric'})}</p>`;
+                            }
                         } else {
-                            expiryHtml = `<p style="margin-top:10px;color:#999;">⏰ No expiry set</p>`;
+                            expiryHtml = `<p style="margin-top: 10px; color: #999;">⏰ No expiry set (showing indefinitely)</p>`;
                         }
-
+                        
                         const card = document.createElement('div');
                         card.className = 'partner-card';
                         card.style.borderLeftColor = statusColor;
-                        if (isSoftDeleted) card.style.opacity = '0.75';
                         card.innerHTML = `
-                            <div style="display:flex;justify-content:space-between;align-items:start;">
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
                                 <div>
                                     <h3>${partner.logo_emoji || '🏪'} ${partner.name}</h3>
-                                    <p style="color:#666;margin-top:5px;">${partner.description || 'No description'}</p>
+                                    <p style="color: #666; margin-top: 5px;">${partner.description || 'No description'}</p>
                                 </div>
-                                <span style="background:${statusColor};color:white;padding:5px 12px;border-radius:20px;font-size:0.85rem;font-weight:bold;">
+                                <span style="background: ${statusColor}; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold;">
                                     ${statusIcon} ${statusText}
                                 </span>
                             </div>
-                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
                                 <p><strong>🌐 URL:</strong> <a href="${partner.url}" target="_blank">${partner.url}</a></p>
                                 <p><strong>📧 Email:</strong> ${partner.email || 'Not set'}</p>
                                 <p><strong>📍 Address:</strong> ${partner.address || 'Not set'}</p>
                                 <p><strong>📞 Phone:</strong> ${partner.phone || 'Not set'}</p>
                                 <p><strong>🏷️ Category:</strong> ${partner.category || 'activities'}</p>
                                 <p><strong>⭐ Tier:</strong> ${partner.tier || 'standard'}</p>
+                                <p><strong>🎨 Banner:</strong> <span style="background: ${partner.bg_color}; padding: 3px 12px; border-radius: 5px;">${partner.bg_color}</span></p>
+                                <p><strong>💰 Billing:</strong> ${(partner.billing_model || 'none').toUpperCase()} ${partner.rate_amount > 0 ? '(£' + partner.rate_amount + ')' : ''}</p>
+                                <p><strong>⏱️ Display:</strong> ${partner.display_duration || 15}s per show</p>
+                                <p><strong>🔄 Weight:</strong> ${partner.rotation_weight || 1}x per cycle</p>
                             </div>
-                            ${partner.offer ? `<p style="margin-top:10px;padding:10px;background:#fff3cd;border-radius:8px;"><strong>🎁 Offer:</strong> ${partner.offer}</p>` : ''}
+                            ${partner.offer ? `<p style="margin-top: 10px; padding: 10px; background: #fff3cd; border-radius: 8px;"><strong>🎁 Offer:</strong> ${partner.offer}</p>` : ''}
                             ${expiryHtml}
-                            <div style="margin-top:15px;display:flex;gap:8px;flex-wrap:wrap;">
-                                ${isSoftDeleted
-                                    ? `<button class="btn btn-small" style="background:#27ae60;" onclick="restorePartner('${partner.partner_id}','${partner.name}')">↩️ Restore</button>
-                                       <button class="btn btn-danger btn-small" onclick="permanentDeletePartner('${partner.partner_id}','${partner.name}')">💀 Delete Permanently</button>`
-                                    : `<button class="btn btn-small" onclick="openEditPartner('${partner.partner_id}')">✏️ Edit</button>
-                                       ${partner.status === 'active'
-                                           ? `<button class="btn btn-small" style="background:#e67e22;" onclick="pausePartner('${partner.partner_id}')">⏸️ Pause</button>`
-                                           : `<button class="btn btn-small" style="background:#27ae60;" onclick="resumePartner('${partner.partner_id}')">▶️ Resume</button>`
-                                       }
-                                       <button class="btn btn-secondary btn-small" onclick="generateReport('${partner.partner_id}')">📊 Report</button>
-                                       <button class="btn btn-danger btn-small" onclick="deletePartner('${partner.partner_id}')">🗑️ Soft Delete</button>`
+                            <div style="margin-top: 15px; display: flex; gap: 8px; flex-wrap: wrap;">
+                                <button class="btn btn-small" onclick="openEditPartner('${partner.partner_id}')">✏️ Edit</button>
+                                ${partner.status === 'active' ? 
+                                    `<button class="btn btn-small" style="background: #e67e22;" onclick="pausePartner('${partner.partner_id}')">⏸️ Pause</button>` :
+                                    `<button class="btn btn-small" style="background: #27ae60;" onclick="resumePartner('${partner.partner_id}')">▶️ Resume</button>`
                                 }
+                                <button class="btn btn-secondary btn-small" onclick="generateReport('${partner.partner_id}')">📊 Report</button>
+                                <button class="btn btn-danger btn-small" onclick="deletePartner('${partner.partner_id}')">🗑️ Delete</button>
                             </div>
                         `;
                         partnersList.appendChild(card);
                     });
                 } else {
-                    partnersList.innerHTML += '<div class="alert alert-info">No partners found matching this filter.</div>';
+                    partnersList.innerHTML = '<div class="alert alert-info">No partners found matching this filter.</div>';
                 }
             } catch (error) {
                 console.error('Error loading partners:', error);
@@ -2229,44 +2007,124 @@
             alert('Generate report for: ' + partnerId + '\n\nThis will generate a detailed performance report (to be implemented)');
         }
 
+        // ── Style Toolbar ──────────────────────────────────────
+        let _tbCurrentField = null;
+
+        window.openToolbar = function(fieldId, label) {
+            _tbCurrentField = fieldId;
+            const tb = document.getElementById('styleToolbar');
+            tb.style.display = 'block';
+            document.getElementById('toolbarFieldLabel').textContent = label;
+            // Load current values for this field
+            const size  = document.getElementById(fieldId + '_size');
+            const color = document.getElementById(fieldId + '_color');
+            const wt    = document.getElementById(fieldId + '_weight');
+            const st    = document.getElementById(fieldId + '_fontStyle');
+            if (size)  document.getElementById('tbSize').value  = size.value;
+            if (color) document.getElementById('tbColor').value = color.value;
+            if (wt)    document.getElementById('tbWeight').value = wt.value;
+            if (st)    document.getElementById('tbStyle').value  = st.value;
+            updateToolbarPreview();
+            // Scroll to show field
+            const el = document.getElementById(fieldId);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        };
+
+        window.applyToolbarStyle = function() {
+            if (!_tbCurrentField) return;
+            const size  = document.getElementById('tbSize').value;
+            const color = document.getElementById('tbColor').value;
+            const wt    = document.getElementById('tbWeight').value;
+            const st    = document.getElementById('tbStyle').value;
+            const setHidden = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+            setHidden(_tbCurrentField + '_size',      size);
+            setHidden(_tbCurrentField + '_color',     color);
+            setHidden(_tbCurrentField + '_weight',    wt);
+            setHidden(_tbCurrentField + '_fontStyle', st);
+            const info = document.getElementById(_tbCurrentField + '_style');
+            if (info) info.textContent = `${size}px · ${color} · ${wt} · ${st}`;
+            updateToolbarPreview();
+        };
+
+        function updateToolbarPreview() {
+            const size  = document.getElementById('tbSize').value;
+            const color = document.getElementById('tbColor').value;
+            const wt    = document.getElementById('tbWeight').value;
+            const st    = document.getElementById('tbStyle').value;
+            const preview = document.getElementById('tbPreview');
+            if (preview) {
+                preview.style.fontSize   = size + 'px';
+                preview.style.color      = color;
+                preview.style.fontWeight = wt;
+                preview.style.fontStyle  = st;
+                const field = document.getElementById(_tbCurrentField);
+                preview.textContent = field ? (field.value || 'Sample text').slice(0, 30) : 'Sample text';
+            }
+        }
+
+        // ── Content Save Functions ─────────────────────────────
+        function showMsg(id, ok, text) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = ok ? '✅ ' + text : '❌ ' + text;
+            el.style.color = ok ? '#2c5f2d' : '#c62828';
+            el.style.display = 'inline';
+            setTimeout(() => { el.style.display = 'none'; }, 4000);
+        }
+
+        function getStyle(fieldId) {
+            const get = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+            return {
+                size:      get(fieldId + '_size'),
+                color:     get(fieldId + '_color'),
+                weight:    get(fieldId + '_weight'),
+                fontStyle: get(fieldId + '_fontStyle'),
+            };
+        }
+
         // Save home content
         async function saveHomeContent() {
+            const htStyle = getStyle('heroTitle');
+            const hsStyle = getStyle('heroSubtitle');
             const content = {
-                heroTitle: document.getElementById('heroTitle').value,
-                heroSubtitle: document.getElementById('heroSubtitle').value,
-                ctaButton: document.getElementById('ctaButton').value,
+                heroTitle:     document.getElementById('heroTitle').value,
+                heroSubtitle:  document.getElementById('heroSubtitle').value,
+                ctaButton:     document.getElementById('ctaButton').value,
                 feature1Title: document.getElementById('feature1Title').value,
-                feature1Desc: document.getElementById('feature1Desc').value,
+                feature1Desc:  document.getElementById('feature1Desc').value,
                 feature2Title: document.getElementById('feature2Title').value,
-                feature2Desc: document.getElementById('feature2Desc').value,
+                feature2Desc:  document.getElementById('feature2Desc').value,
                 feature3Title: document.getElementById('feature3Title').value,
-                feature3Desc: document.getElementById('feature3Desc').value
+                feature3Desc:  document.getElementById('feature3Desc').value,
+                titleSize:     htStyle.size,
+                titleColor:    htStyle.color,
+                titleWeight:   htStyle.weight,
+                titleStyle:    htStyle.fontStyle,
+                subtitleSize:  hsStyle.size,
+                subtitleColor: hsStyle.color,
+                subtitleWeight: hsStyle.weight,
+                subtitleStyle: hsStyle.fontStyle,
             };
-
             try {
-                const response = await fetch('/api/content/home', {
+                const r = await fetch('/api/content/home', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(content)
                 });
-                
-                if (response.ok) {
-                    alert('✅ Home page content saved successfully!');
-                } else {
-                    alert('❌ Error saving home content. Check console.');
-                }
-            } catch (error) {
-                console.error('Error saving home content:', error);
-                alert('❌ Error saving. Is the server running?');
+                showMsg('homeContentMsg', r.ok, r.ok ? 'Home page saved!' : 'Save failed — check server');
+            } catch(e) {
+                showMsg('homeContentMsg', false, 'Connection error: ' + e.message);
             }
         }
 
         // Save about content
         async function saveAboutContent() {
+            const atStyle = getStyle('aboutTitle');
+            const msStyle = getStyle('missionStatement');
             const content = {
                 missionStatement: document.getElementById('missionStatement').value,
-                aboutTitle: document.getElementById('aboutTitle').value,
-                aboutText: document.getElementById('aboutText').value,
+                aboutTitle:       document.getElementById('aboutTitle').value,
+                aboutText:        document.getElementById('aboutText').value,
                 futurePlans: [
                     document.getElementById('futurePlan1').value,
                     document.getElementById('futurePlan2').value,
@@ -2286,24 +2144,23 @@
                     document.getElementById('trainingStat2').value,
                     document.getElementById('trainingStat3').value
                 ],
-                faqs: collectFAQs()
+                faqs:        collectFAQs(),
+                titleSize:   atStyle.size,
+                titleColor:  atStyle.color,
+                titleWeight: atStyle.weight,
+                titleStyle:  atStyle.fontStyle,
+                bodySize:    msStyle.size,
+                bodyColor:   msStyle.color,
             };
-
             try {
-                const response = await fetch('/api/content/about', {
+                const r = await fetch('/api/content/about', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(content)
                 });
-                
-                if (response.ok) {
-                    alert('✅ About page content saved successfully!');
-                } else {
-                    alert('❌ Error saving about content. Check console.');
-                }
-            } catch (error) {
-                console.error('Error saving about content:', error);
-                alert('❌ Error saving. Is the server running?');
+                showMsg('aboutContentMsg', r.ok, r.ok ? 'About page saved!' : 'Save failed — check server');
+            } catch(e) {
+                showMsg('aboutContentMsg', false, 'Connection error: ' + e.message);
             }
         }
 
@@ -2344,22 +2201,15 @@
                 contactPhone: document.getElementById('contactPhone').value,
                 contactIntro: document.getElementById('contactIntro').value
             };
-
             try {
-                const response = await fetch('/api/content/contact', {
+                const r = await fetch('/api/content/contact', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(content)
                 });
-                
-                if (response.ok) {
-                    alert('✅ Contact page content saved successfully!');
-                } else {
-                    alert('❌ Error saving contact content. Check console.');
-                }
-            } catch (error) {
-                console.error('Error saving contact content:', error);
-                alert('❌ Error saving. Is the server running?');
+                showMsg('contactContentMsg', r.ok, r.ok ? 'Contact page saved!' : 'Save failed — check server');
+            } catch(e) {
+                showMsg('contactContentMsg', false, 'Connection error: ' + e.message);
             }
         }
 
@@ -2433,27 +2283,44 @@
 
         // Billing model change handler
         // Load existing content into admin form fields
+        function _setStyleField(fieldId, data, sizeKey, colorKey, weightKey, styleKey, defaults) {
+            const setHidden = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+            const s = data[sizeKey]   || defaults.size;
+            const c = data[colorKey]  || defaults.color;
+            const w = data[weightKey] || defaults.weight;
+            const f = data[styleKey]  || defaults.fontStyle;
+            setHidden(fieldId + '_size',      s);
+            setHidden(fieldId + '_color',     c);
+            setHidden(fieldId + '_weight',    w);
+            setHidden(fieldId + '_fontStyle', f);
+            const info = document.getElementById(fieldId + '_style');
+            if (info) info.textContent = `${s}px · ${c} · ${w} · ${f}`;
+        }
+
         async function loadExistingContent() {
             // Load home content
             try {
                 const homeResponse = await fetch('/api/content/home');
                 const homeData = await homeResponse.json();
-                
-                if (homeData.title) document.getElementById('heroTitle').value = homeData.title;
+
+                if (homeData.title)    document.getElementById('heroTitle').value = homeData.title;
                 if (homeData.subtitle) document.getElementById('heroSubtitle').value = homeData.subtitle;
-                if (homeData.cta) document.getElementById('ctaButton').value = homeData.cta;
+                if (homeData.cta)      document.getElementById('ctaButton').value = homeData.cta;
                 if (homeData.feature1) {
                     document.getElementById('feature1Title').value = homeData.feature1.title || '';
-                    document.getElementById('feature1Desc').value = homeData.feature1.desc || '';
+                    document.getElementById('feature1Desc').value  = homeData.feature1.desc  || '';
                 }
                 if (homeData.feature2) {
                     document.getElementById('feature2Title').value = homeData.feature2.title || '';
-                    document.getElementById('feature2Desc').value = homeData.feature2.desc || '';
+                    document.getElementById('feature2Desc').value  = homeData.feature2.desc  || '';
                 }
                 if (homeData.feature3) {
                     document.getElementById('feature3Title').value = homeData.feature3.title || '';
-                    document.getElementById('feature3Desc').value = homeData.feature3.desc || '';
+                    document.getElementById('feature3Desc').value  = homeData.feature3.desc  || '';
                 }
+                // Restore styling
+                _setStyleField('heroTitle',    homeData, 'titleSize',    'titleColor',    'titleWeight',    'titleStyle',    { size:'48', color:'#ffffff', weight:'bold',   fontStyle:'normal' });
+                _setStyleField('heroSubtitle', homeData, 'subtitleSize', 'subtitleColor', 'subtitleWeight', 'subtitleStyle', { size:'20', color:'#ffffff', weight:'normal', fontStyle:'normal' });
             } catch (e) { console.error('Error loading home content:', e); }
 
             // Load about content
@@ -2529,6 +2396,9 @@
                         addFAQ(faq.question, faq.answer);
                     });
                 }
+                // Restore about page styling
+                _setStyleField('aboutTitle',       aboutData, 'titleSize', 'titleColor', 'titleWeight', 'titleStyle', { size:'36', color:'#2c5f2d', weight:'bold',   fontStyle:'normal' });
+                _setStyleField('missionStatement', aboutData, 'bodySize',  'bodyColor',  '',            '',           { size:'16', color:'#333333', weight:'normal', fontStyle:'normal' });
             } catch (e) { console.error('Error loading about content:', e); }
 
             // Load contact content
