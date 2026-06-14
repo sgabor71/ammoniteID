@@ -510,6 +510,7 @@
                         category: p.category || 'activities',
                         tier: p.tier || 'standard',
                         status: p.status || 'active',
+                        deletion_scheduled: p.deletion_scheduled || false,
                         logo: p.logo_emoji || '🏪',
                         logoData: p.logo_path || '',
                         bgColor: p.bg_color || '',
@@ -517,9 +518,12 @@
                     }));
                 }
                 
-                // Filter active partners only
-                allPartners = partnerData.filter(p => 
-                    p.status !== 'paused' && p.status !== 'expired'
+                // Filter active partners only — exclude soft-deleted and paused
+                allPartners = partnerData.filter(p =>
+                    p.status !== 'paused' &&
+                    p.status !== 'expired' &&
+                    p.status !== 'deleted' &&
+                    !p.deletion_scheduled
                 );
                 
                 // Sort by tier
