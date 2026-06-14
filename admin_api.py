@@ -166,6 +166,10 @@ class Partner(BaseModel):
     expires_at: Optional[str] = None
     display_duration: Optional[int] = 15
     rotation_weight: Optional[int] = 1
+    name_font_size:   Optional[str] = '18'
+    name_font_color:  Optional[str] = '#2c2c2c'
+    name_font_weight: Optional[str] = 'bold'
+    name_font_style:  Optional[str] = 'normal'
 
 # ============================================
 # TRACKING ENDPOINTS (Called from frontend)
@@ -240,81 +244,65 @@ async def get_dashboard_stats():
     try:
         conn = sqlite3.connect(str(DB_PATH))
         cursor = conn.cursor()
-
+        
         # Total users
-        cursor.execute("SELECT COUNT(*) FROM users WHERE deleted_at IS NULL")
+        cursor.execute("SELECT COUNT(*) FROM users")
         total_users = cursor.fetchone()[0]
-
-        # Active users (last 30 days — used the app)
+        
+        # Active users (last 30 days)
         thirty_days_ago = (datetime.now() - timedelta(days=30)).isoformat()
         cursor.execute("SELECT COUNT(DISTINCT user_id) FROM identifications WHERE timestamp > ?", (thirty_days_ago,))
         active_users = cursor.fetchone()[0]
-
+        
         # Total identifications
-        cursor.execute("SELECT COUNT(*) FROM identifications WHERE deleted_at IS NULL")
+        cursor.execute("SELECT COUNT(*) FROM identifications")
         total_identifications = cursor.fetchone()[0]
-
+        
         # IDs today
         today = datetime.now().date().isoformat()
         cursor.execute("SELECT COUNT(*) FROM identifications WHERE DATE(timestamp) = ?", (today,))
         ids_today = cursor.fetchone()[0]
-
-        # Tier breakdown
-        cursor.execute("SELECT COUNT(*) FROM users WHERE (tier = 'FREE' OR tier IS NULL) AND deleted_at IS NULL")
+        
+        # TIER stats (FREE, PREMIUM, EXPERT, ADMIN)
+        cursor.execute("SELECT COUNT(*) FROM users WHERE tier = 'FREE' OR tier IS NULL")
         free_users = cursor.fetchone()[0]
-        cursor.execute("SELECT COUNT(*) FROM users WHERE tier = 'PREMIUM' AND deleted_at IS NULL")
-        premium_users = cursor.fetchone()[0]
-        cursor.execute("SELECT COUNT(*) FROM users WHERE tier = 'EXPERT' AND deleted_at IS NULL")
-        expert_users = cursor.fetchone()[0]
-        cursor.execute("SELECT COUNT(*) FROM users WHERE tier = 'ADMIN' AND deleted_at IS NULL")
-        admin_users = cursor.fetchone()[0]
 
+        cursor.execute("SELECT COUNT(*) FROM users WHERE tier = 'PREMIUM'")
+        premium_users = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM users WHERE tier = 'EXPERT'")
+        expert_users = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM users WHERE tier = 'ADMIN'")
+        admin_users = cursor.fetchone()[0]
+        
+        # Ad impressions and clicks
+        cursor.execute("SELECT COUNT(*) FROM ad_impressions")
+        total_impressions_row = cursor.fetchone()
+        total_impressions = total_impressions_row[0] if total_impressions_row else 0
+        
+        cursor.execute("SELECT COUNT(*) FROM ad_clicks")
+        total_clicks_row = cursor.fetchone()
+        total_clicks = total_clicks_row[0] if total_clicks_row else 0
+        
         # New users this week
         week_ago = (datetime.now() - timedelta(days=7)).isoformat()
-        cursor.execute("SELECT COUNT(*) FROM users WHERE created_at > ? AND deleted_at IS NULL", (week_ago,))
+        cursor.execute("SELECT COUNT(*) FROM users WHERE created_at > ?", (week_ago,))
         new_users_week = cursor.fetchone()[0]
-
-        # Ad impressions — safe fallback if table doesn't exist
-        total_impressions = 0
-        total_clicks = 0
-        try:
-            cursor.execute("SELECT COUNT(*) FROM ad_impressions")
-            total_impressions = cursor.fetchone()[0]
-            cursor.execute("SELECT COUNT(*) FROM ad_clicks")
-            total_clicks = cursor.fetchone()[0]
-        except Exception:
-            # Try partners table impression/click tracking instead
-            try:
-                cursor.execute("SELECT SUM(impressions), SUM(clicks) FROM partners WHERE status='active'")
-                row = cursor.fetchone()
-                total_impressions = row[0] or 0
-                total_clicks = row[1] or 0
-            except Exception:
-                pass
-
-        overall_ctr = round((total_clicks / total_impressions * 100), 2) if total_impressions > 0 else 0
-        conversion_rate = round((premium_users / total_users * 100), 1) if total_users > 0 else 0
-
-        # MRR — safe fallback if subscriptions table doesn't exist
-        mrr = 0
-        try:
-            cursor.execute("SELECT SUM(amount) FROM subscriptions WHERE status = 'active'")
-            mrr_result = cursor.fetchone()
-            mrr = round(mrr_result[0], 2) if mrr_result and mrr_result[0] else 0
-        except Exception:
-            # Estimate from premium user count (£4.99/month)
-            mrr = round(premium_users * 4.99, 2)
-
-        # Pending reviews
-        cursor.execute("SELECT COUNT(*) FROM review_queue WHERE status='pending'")
-        pending_reviews = cursor.fetchone()[0]
-
-        # Active partners
-        cursor.execute("SELECT COUNT(*) FROM partners WHERE status='active' AND (deletion_scheduled IS NULL OR deletion_scheduled=0)")
-        active_partners = cursor.fetchone()[0]
-
+        
+        # Overall CTR
+        overall_ctr = (total_clicks / total_impressions * 100) if total_impressions > 0 else 0
+        
+        # Conversion rate
+        conversion_rate = (premium_users / total_users * 100) if total_users > 0 else 0
+        
+        # MRR (placeholder - will need subscription data)
+        cursor.execute("SELECT SUM(amount) FROM subscriptions WHERE status = 'active'")
+        mrr_result = cursor.fetchone()
+        mrr = mrr_result[0] if mrr_result and mrr_result[0] else 0
+        
         conn.close()
-
+        
         return {
             "total_users": total_users,
             "active_users": active_users,
@@ -327,13 +315,11 @@ async def get_dashboard_stats():
             "total_impressions": total_impressions,
             "total_clicks": total_clicks,
             "new_users_week": new_users_week,
-            "overall_ctr": overall_ctr,
-            "conversion_rate": conversion_rate,
-            "mrr": mrr,
-            "pending_reviews": pending_reviews,
-            "active_partners": active_partners,
+            "overall_ctr": round(overall_ctr, 2),
+            "conversion_rate": round(conversion_rate, 1),
+            "mrr": round(mrr, 2)
         }
-
+        
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -504,46 +490,55 @@ async def get_all_partners():
         conn = sqlite3.connect(str(DB_PATH))
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-        
+
         cursor.execute("""
-            SELECT partner_id, name, url, email, bg_color, logo_path, billing_model, 
+            SELECT partner_id, name, url, email, bg_color, logo_path, billing_model,
                    rate_amount, active, created_at, anchor,
                    description, address, phone, map_link, offer, category, tier, status, logo_emoji, expires_at,
-                   display_duration, rotation_weight
+                   display_duration, rotation_weight,
+                   deletion_scheduled, deleted_at, deletion_grace_period_expires,
+                   name_font_size, name_font_color, name_font_weight, name_font_style
             FROM partners
         """)
         partners = []
-        
+
         for row in cursor.fetchall():
             partners.append({
-                "partner_id": row["partner_id"],
-                "name": row["name"],
-                "url": row["url"],
-                "email": row["email"],
-                "bg_color": row["bg_color"],
-                "logo_path": row["logo_path"],
-                "billing_model": row["billing_model"],
-                "rate_amount": row["rate_amount"],
-                "active": row["active"],
-                "created_at": row["created_at"],
-                "anchor": row["anchor"],
-                "description": row["description"] or "",
-                "address": row["address"] or "",
-                "phone": row["phone"] or "",
-                "map_link": row["map_link"] or "",
-                "offer": row["offer"] or "",
-                "category": row["category"] or "activities",
-                "tier": row["tier"] or "standard",
-                "status": row["status"] or "active",
-                "logo_emoji": row["logo_emoji"] or "🏪",
-                "expires_at": row["expires_at"] or None,
-                "display_duration": row["display_duration"] or 15,
-                "rotation_weight": row["rotation_weight"] or 1
+                "partner_id":     row["partner_id"],
+                "name":           row["name"],
+                "url":            row["url"],
+                "email":          row["email"],
+                "bg_color":       row["bg_color"],
+                "logo_path":      row["logo_path"],
+                "billing_model":  row["billing_model"],
+                "rate_amount":    row["rate_amount"],
+                "active":         row["active"],
+                "created_at":     row["created_at"],
+                "anchor":         row["anchor"],
+                "description":    row["description"]  or "",
+                "address":        row["address"]      or "",
+                "phone":          row["phone"]        or "",
+                "map_link":       row["map_link"]     or "",
+                "offer":          row["offer"]        or "",
+                "category":       row["category"]     or "activities",
+                "tier":           row["tier"]         or "standard",
+                "status":         row["status"]       or "active",
+                "logo_emoji":     row["logo_emoji"]   or "🏪",
+                "expires_at":     row["expires_at"]   or None,
+                "display_duration":  row["display_duration"]  or 15,
+                "rotation_weight":   row["rotation_weight"]   or 1,
+                "deletion_scheduled": bool(row["deletion_scheduled"]),
+                "deleted_at":         row["deleted_at"] or None,
+                "deletion_grace_period_expires": row["deletion_grace_period_expires"] or None,
+                "name_font_size":   row["name_font_size"]   or "18",
+                "name_font_color":  row["name_font_color"]  or "#2c2c2c",
+                "name_font_weight": row["name_font_weight"] or "bold",
+                "name_font_style":  row["name_font_style"]  or "normal",
             })
-        
+
         conn.close()
         return {"partners": partners}
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -555,17 +550,19 @@ async def create_partner(partner: Partner):
         cursor = conn.cursor()
         
         cursor.execute("""
-            INSERT INTO partners 
+            INSERT INTO partners
             (partner_id, name, url, email, bg_color, logo_path, billing_model, rate_amount, active, anchor,
              description, address, phone, map_link, offer, category, tier, status, logo_emoji, expires_at,
-             display_duration, rotation_weight)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (partner.partner_id, partner.name, partner.url, partner.email, 
-              partner.bg_color, partner.logo_path, partner.billing_model, 
+             display_duration, rotation_weight,
+             name_font_size, name_font_color, name_font_weight, name_font_style)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (partner.partner_id, partner.name, partner.url, partner.email,
+              partner.bg_color, partner.logo_path, partner.billing_model,
               partner.rate_amount, 1 if partner.active else 0, partner.anchor,
               partner.description, partner.address, partner.phone, partner.map_link,
               partner.offer, partner.category, partner.tier, partner.status, partner.logo_emoji,
-              partner.expires_at, partner.display_duration, partner.rotation_weight))
+              partner.expires_at, partner.display_duration, partner.rotation_weight,
+              partner.name_font_size, partner.name_font_color, partner.name_font_weight, partner.name_font_style))
         
         conn.commit()
         conn.close()
@@ -585,19 +582,22 @@ async def update_partner(partner_id: str, partner: Partner):
         cursor = conn.cursor()
         
         cursor.execute("""
-            UPDATE partners 
+            UPDATE partners
             SET name = ?, url = ?, email = ?, bg_color = ?, logo_path = ?,
                 billing_model = ?, rate_amount = ?, active = ?, anchor = ?,
-                description = ?, address = ?, phone = ?, map_link = ?, 
+                description = ?, address = ?, phone = ?, map_link = ?,
                 offer = ?, category = ?, tier = ?, status = ?, logo_emoji = ?, expires_at = ?,
-                display_duration = ?, rotation_weight = ?
+                display_duration = ?, rotation_weight = ?,
+                name_font_size = ?, name_font_color = ?, name_font_weight = ?, name_font_style = ?
             WHERE partner_id = ?
         """, (partner.name, partner.url, partner.email, partner.bg_color,
               partner.logo_path, partner.billing_model, partner.rate_amount,
               1 if partner.active else 0, partner.anchor,
               partner.description, partner.address, partner.phone, partner.map_link,
               partner.offer, partner.category, partner.tier, partner.status, partner.logo_emoji,
-              partner.expires_at, partner.display_duration, partner.rotation_weight, partner_id))
+              partner.expires_at, partner.display_duration, partner.rotation_weight,
+              partner.name_font_size, partner.name_font_color, partner.name_font_weight, partner.name_font_style,
+              partner_id))
         
         conn.commit()
         conn.close()
