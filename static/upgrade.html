@@ -241,7 +241,7 @@
 
         window.subscribe = async function(plan) {
             if (!currentUid) {
-                window.location.href = '/static/login.html';
+                window.location.href = '/static/login.html?redirect=upgrade';
                 return;
             }
             const btn = document.getElementById(plan === 'monthly' ? 'btnMonthly' : 'btnAnnual');
