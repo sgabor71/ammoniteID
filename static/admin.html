@@ -1228,7 +1228,7 @@
 
             <div class="form-group">
                 <label>Description</label>
-                <textarea id="newPartnerDesc" rows="3" placeholder="Brief description of the partner..."></textarea>
+                <textarea id="newPartnerDesc" rows="3" placeholder="Brief description of the partner..." oninput="updateFontPreview()"></textarea>
             </div>
 
             <div class="form-group">
@@ -1264,13 +1264,19 @@
             </div>
 
             <div style="background: #f0f4f8; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-                <label style="font-weight: bold; margin-bottom: 10px; display: block;">🎨 Partner Name Styling</label>
-                <div id="fontPreview" style="padding: 12px; background: white; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 12px; min-height: 40px;">
-                    <span id="fontPreviewText" style="font-size: 18px; font-weight: bold; color: #2c2c2c;">Partner Name Preview</span>
+                <label style="font-weight: bold; margin-bottom: 10px; display: block;">🎨 Text Styling</label>
+                
+                <!-- Live Preview -->
+                <div id="fontPreview" style="padding: 15px; background: white; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px;">
+                    <span id="fontPreviewText" style="font-size: 18px; font-weight: bold; color: #2c2c2c; display: block;">Partner Name Preview</span>
+                    <span id="descPreviewText" style="font-size: 14px; font-weight: normal; color: #666666; display: block; margin-top: 4px;">Description text preview</span>
                 </div>
+
+                <!-- Name Styling -->
+                <p style="font-weight: 600; font-size: 0.9rem; color: #333; margin-bottom: 8px;">Partner Name</p>
                 <div class="grid-2">
                     <div class="form-group" style="margin-bottom: 8px;">
-                        <label>Font Size (px)</label>
+                        <label>Size</label>
                         <select id="newPartnerFontSize" onchange="updateFontPreview()">
                             <option value="14">14px — Small</option>
                             <option value="16">16px — Medium</option>
@@ -1281,22 +1287,58 @@
                         </select>
                     </div>
                     <div class="form-group" style="margin-bottom: 8px;">
-                        <label>Font Color</label>
+                        <label>Color</label>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <input type="color" id="newPartnerFontColor" value="#2c2c2c" onchange="updateFontPreview()" style="width: 50px; height: 38px; border: none; cursor: pointer;">
                             <span id="fontColorHex" style="color: #666; font-size: 0.85rem;">#2c2c2c</span>
                         </div>
                     </div>
                     <div class="form-group" style="margin-bottom: 8px;">
-                        <label>Font Weight</label>
+                        <label>Weight</label>
                         <select id="newPartnerFontWeight" onchange="updateFontPreview()">
                             <option value="normal">Normal</option>
                             <option value="bold" selected>Bold</option>
                         </select>
                     </div>
                     <div class="form-group" style="margin-bottom: 8px;">
-                        <label>Font Style</label>
+                        <label>Style</label>
                         <select id="newPartnerFontStyle" onchange="updateFontPreview()">
+                            <option value="normal" selected>Normal</option>
+                            <option value="italic">Italic</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Description Styling -->
+                <p style="font-weight: 600; font-size: 0.9rem; color: #333; margin-bottom: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #ddd;">Description</p>
+                <div class="grid-2">
+                    <div class="form-group" style="margin-bottom: 8px;">
+                        <label>Size</label>
+                        <select id="newPartnerDescFontSize" onchange="updateFontPreview()">
+                            <option value="12">12px — Small</option>
+                            <option value="14" selected>14px — Default</option>
+                            <option value="16">16px — Medium</option>
+                            <option value="18">18px — Large</option>
+                            <option value="20">20px — Extra Large</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 8px;">
+                        <label>Color</label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="color" id="newPartnerDescFontColor" value="#666666" onchange="updateFontPreview()" style="width: 50px; height: 38px; border: none; cursor: pointer;">
+                            <span id="descColorHex" style="color: #666; font-size: 0.85rem;">#666666</span>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 8px;">
+                        <label>Weight</label>
+                        <select id="newPartnerDescFontWeight" onchange="updateFontPreview()">
+                            <option value="normal" selected>Normal</option>
+                            <option value="bold">Bold</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 8px;">
+                        <label>Style</label>
+                        <select id="newPartnerDescFontStyle" onchange="updateFontPreview()">
                             <option value="normal" selected>Normal</option>
                             <option value="italic">Italic</option>
                         </select>
@@ -1773,6 +1815,7 @@
                         
                         // Font styling for partner name
                         const nameStyle = `font-size: ${partner.name_font_size || 18}px; color: ${partner.name_font_color || '#2c2c2c'}; font-weight: ${partner.name_font_weight || 'bold'}; font-style: ${partner.name_font_style || 'normal'};`;
+                        const descStyle = `font-size: ${partner.desc_font_size || 14}px; color: ${partner.desc_font_color || '#666666'}; font-weight: ${partner.desc_font_weight || 'normal'}; font-style: ${partner.desc_font_style || 'normal'};`;
                         
                         card.innerHTML = `
                             <div style="display: flex; justify-content: space-between; align-items: start; gap: 15px;">
@@ -1780,7 +1823,7 @@
                                     ${logoHtml}
                                     <div>
                                         <h3 style="${nameStyle}">${partner.name}</h3>
-                                        <p style="color: #666; margin-top: 5px;">${partner.description || 'No description'}</p>
+                                        <p style="${descStyle} margin-top: 5px;">${partner.description || 'No description'}</p>
                                     </div>
                                 </div>
                                 <span style="background: ${statusColor}; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; flex-shrink: 0;">
@@ -1838,17 +1881,28 @@
             }
         }
 
-        // Live preview for font styling
+        // Live preview for font styling (name + description)
         function updateFontPreview() {
-            const previewText = document.getElementById('fontPreviewText');
+            const namePreview = document.getElementById('fontPreviewText');
+            const descPreview = document.getElementById('descPreviewText');
             const nameInput = document.getElementById('newPartnerName');
-            if (previewText) {
-                previewText.style.fontSize = (document.getElementById('newPartnerFontSize').value || '18') + 'px';
-                previewText.style.color = document.getElementById('newPartnerFontColor').value || '#2c2c2c';
-                previewText.style.fontWeight = document.getElementById('newPartnerFontWeight').value || 'bold';
-                previewText.style.fontStyle = document.getElementById('newPartnerFontStyle').value || 'normal';
-                previewText.textContent = nameInput.value || 'Partner Name Preview';
+            const descInput = document.getElementById('newPartnerDesc');
+            
+            if (namePreview) {
+                namePreview.style.fontSize = (document.getElementById('newPartnerFontSize').value || '18') + 'px';
+                namePreview.style.color = document.getElementById('newPartnerFontColor').value || '#2c2c2c';
+                namePreview.style.fontWeight = document.getElementById('newPartnerFontWeight').value || 'bold';
+                namePreview.style.fontStyle = document.getElementById('newPartnerFontStyle').value || 'normal';
+                namePreview.textContent = nameInput.value || 'Partner Name Preview';
                 document.getElementById('fontColorHex').textContent = document.getElementById('newPartnerFontColor').value;
+            }
+            if (descPreview) {
+                descPreview.style.fontSize = (document.getElementById('newPartnerDescFontSize').value || '14') + 'px';
+                descPreview.style.color = document.getElementById('newPartnerDescFontColor').value || '#666666';
+                descPreview.style.fontWeight = document.getElementById('newPartnerDescFontWeight').value || 'normal';
+                descPreview.style.fontStyle = document.getElementById('newPartnerDescFontStyle').value || 'normal';
+                descPreview.textContent = descInput.value || 'Description text preview';
+                document.getElementById('descColorHex').textContent = document.getElementById('newPartnerDescFontColor').value;
             }
         }
 
@@ -1877,6 +1931,10 @@
             document.getElementById('newPartnerFontColor').value = '#2c2c2c';
             document.getElementById('newPartnerFontWeight').value = 'bold';
             document.getElementById('newPartnerFontStyle').value = 'normal';
+            document.getElementById('newPartnerDescFontSize').value = '14';
+            document.getElementById('newPartnerDescFontColor').value = '#666666';
+            document.getElementById('newPartnerDescFontWeight').value = 'normal';
+            document.getElementById('newPartnerDescFontStyle').value = 'normal';
             updateFontPreview();
         }
 
@@ -1916,7 +1974,11 @@
                 name_font_size: document.getElementById('newPartnerFontSize').value || '18',
                 name_font_color: document.getElementById('newPartnerFontColor').value || '#2c2c2c',
                 name_font_weight: document.getElementById('newPartnerFontWeight').value || 'bold',
-                name_font_style: document.getElementById('newPartnerFontStyle').value || 'normal'
+                name_font_style: document.getElementById('newPartnerFontStyle').value || 'normal',
+                desc_font_size: document.getElementById('newPartnerDescFontSize').value || '14',
+                desc_font_color: document.getElementById('newPartnerDescFontColor').value || '#666666',
+                desc_font_weight: document.getElementById('newPartnerDescFontWeight').value || 'normal',
+                desc_font_style: document.getElementById('newPartnerDescFontStyle').value || 'normal'
             };
 
             try {
@@ -1973,6 +2035,10 @@
                 document.getElementById('newPartnerFontColor').value = partner.name_font_color || '#2c2c2c';
                 document.getElementById('newPartnerFontWeight').value = partner.name_font_weight || 'bold';
                 document.getElementById('newPartnerFontStyle').value = partner.name_font_style || 'normal';
+                document.getElementById('newPartnerDescFontSize').value = partner.desc_font_size || '14';
+                document.getElementById('newPartnerDescFontColor').value = partner.desc_font_color || '#666666';
+                document.getElementById('newPartnerDescFontWeight').value = partner.desc_font_weight || 'normal';
+                document.getElementById('newPartnerDescFontStyle').value = partner.desc_font_style || 'normal';
                 updateFontPreview();
                 
                 // Load existing logo
@@ -2023,7 +2089,11 @@
                 name_font_size: document.getElementById('newPartnerFontSize').value || '18',
                 name_font_color: document.getElementById('newPartnerFontColor').value || '#2c2c2c',
                 name_font_weight: document.getElementById('newPartnerFontWeight').value || 'bold',
-                name_font_style: document.getElementById('newPartnerFontStyle').value || 'normal'
+                name_font_style: document.getElementById('newPartnerFontStyle').value || 'normal',
+                desc_font_size: document.getElementById('newPartnerDescFontSize').value || '14',
+                desc_font_color: document.getElementById('newPartnerDescFontColor').value || '#666666',
+                desc_font_weight: document.getElementById('newPartnerDescFontWeight').value || 'normal',
+                desc_font_style: document.getElementById('newPartnerDescFontStyle').value || 'normal'
             };
 
             try {
