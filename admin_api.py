@@ -55,6 +55,10 @@ def _migrate_partners_table():
             'name_font_color': "ALTER TABLE partners ADD COLUMN name_font_color TEXT DEFAULT '#2c2c2c'",
             'name_font_weight': "ALTER TABLE partners ADD COLUMN name_font_weight TEXT DEFAULT 'bold'",
             'name_font_style': "ALTER TABLE partners ADD COLUMN name_font_style TEXT DEFAULT 'normal'",
+            'desc_font_size': "ALTER TABLE partners ADD COLUMN desc_font_size TEXT DEFAULT '14'",
+            'desc_font_color': "ALTER TABLE partners ADD COLUMN desc_font_color TEXT DEFAULT '#666666'",
+            'desc_font_weight': "ALTER TABLE partners ADD COLUMN desc_font_weight TEXT DEFAULT 'normal'",
+            'desc_font_style': "ALTER TABLE partners ADD COLUMN desc_font_style TEXT DEFAULT 'normal'",
         }
         
         for col, sql in migrations.items():
@@ -200,6 +204,10 @@ class Partner(BaseModel):
     name_font_color: Optional[str] = '#2c2c2c'
     name_font_weight: Optional[str] = 'bold'
     name_font_style: Optional[str] = 'normal'
+    desc_font_size: Optional[str] = '14'
+    desc_font_color: Optional[str] = '#666666'
+    desc_font_weight: Optional[str] = 'normal'
+    desc_font_style: Optional[str] = 'normal'
 
 # ============================================
 # TRACKING ENDPOINTS (Called from frontend)
@@ -544,7 +552,8 @@ async def get_all_partners():
                    rate_amount, active, created_at, anchor,
                    description, address, phone, map_link, offer, category, tier, status, logo_emoji, expires_at,
                    display_duration, rotation_weight,
-                   name_font_size, name_font_color, name_font_weight, name_font_style
+                   name_font_size, name_font_color, name_font_weight, name_font_style,
+                   desc_font_size, desc_font_color, desc_font_weight, desc_font_style
             FROM partners
         """)
         partners = []
@@ -577,7 +586,11 @@ async def get_all_partners():
                 "name_font_size": row["name_font_size"] or "18",
                 "name_font_color": row["name_font_color"] or "#2c2c2c",
                 "name_font_weight": row["name_font_weight"] or "bold",
-                "name_font_style": row["name_font_style"] or "normal"
+                "name_font_style": row["name_font_style"] or "normal",
+                "desc_font_size": row["desc_font_size"] or "14",
+                "desc_font_color": row["desc_font_color"] or "#666666",
+                "desc_font_weight": row["desc_font_weight"] or "normal",
+                "desc_font_style": row["desc_font_style"] or "normal"
             })
         
         conn.close()
@@ -597,15 +610,17 @@ async def create_partner(partner: Partner):
             INSERT INTO partners 
             (partner_id, name, url, email, bg_color, logo_path, billing_model, rate_amount, active, anchor,
              description, address, phone, map_link, offer, category, tier, status, logo_emoji, expires_at,
-             display_duration, rotation_weight, name_font_size, name_font_color, name_font_weight, name_font_style)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             display_duration, rotation_weight, name_font_size, name_font_color, name_font_weight, name_font_style,
+             desc_font_size, desc_font_color, desc_font_weight, desc_font_style)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (partner.partner_id, partner.name, partner.url, partner.email, 
               partner.bg_color, partner.logo_path, partner.billing_model, 
               partner.rate_amount, 1 if partner.active else 0, partner.anchor,
               partner.description, partner.address, partner.phone, partner.map_link,
               partner.offer, partner.category, partner.tier, partner.status, partner.logo_emoji,
               partner.expires_at, partner.display_duration, partner.rotation_weight,
-              partner.name_font_size, partner.name_font_color, partner.name_font_weight, partner.name_font_style))
+              partner.name_font_size, partner.name_font_color, partner.name_font_weight, partner.name_font_style,
+              partner.desc_font_size, partner.desc_font_color, partner.desc_font_weight, partner.desc_font_style))
         
         conn.commit()
         conn.close()
@@ -631,7 +646,8 @@ async def update_partner(partner_id: str, partner: Partner):
                 description = ?, address = ?, phone = ?, map_link = ?, 
                 offer = ?, category = ?, tier = ?, status = ?, logo_emoji = ?, expires_at = ?,
                 display_duration = ?, rotation_weight = ?,
-                name_font_size = ?, name_font_color = ?, name_font_weight = ?, name_font_style = ?
+                name_font_size = ?, name_font_color = ?, name_font_weight = ?, name_font_style = ?,
+                desc_font_size = ?, desc_font_color = ?, desc_font_weight = ?, desc_font_style = ?
             WHERE partner_id = ?
         """, (partner.name, partner.url, partner.email, partner.bg_color,
               partner.logo_path, partner.billing_model, partner.rate_amount,
@@ -640,6 +656,7 @@ async def update_partner(partner_id: str, partner: Partner):
               partner.offer, partner.category, partner.tier, partner.status, partner.logo_emoji,
               partner.expires_at, partner.display_duration, partner.rotation_weight,
               partner.name_font_size, partner.name_font_color, partner.name_font_weight, partner.name_font_style,
+              partner.desc_font_size, partner.desc_font_color, partner.desc_font_weight, partner.desc_font_style,
               partner_id))
         
         conn.commit()
