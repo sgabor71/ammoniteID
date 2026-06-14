@@ -199,18 +199,7 @@
             <div class="icon">📊</div>
             <div class="text"><strong>Advanced Stats</strong><span>Rarity scores and deeper insights about your finds</span></div>
         </div>
-        <div class="feature-row">
-            <div class="icon">🖼️</div>
-            <div class="text"><strong>Photo Editing</strong><span>Crop, rotate, and enhance your fossil photos</span></div>
-        </div>
-        <div class="feature-row">
-            <div class="icon">🔍</div>
-            <div class="text"><strong>Comparison Mode</strong><span>Side-by-side reference comparison</span></div>
-        </div>
-        <div class="feature-row">
-            <div class="icon">🎨</div>
-            <div class="text"><strong>Theme Switcher</strong><span>Choose between Natural and Modern themes</span></div>
-        </div>
+
     </div>
 
     <div class="note">
@@ -241,7 +230,7 @@
 
         window.subscribe = async function(plan) {
             if (!currentUid) {
-                window.location.href = '/static/login.html?redirect=upgrade';
+                window.location.href = '/static/login.html';
                 return;
             }
             const btn = document.getElementById(plan === 'monthly' ? 'btnMonthly' : 'btnAnnual');
