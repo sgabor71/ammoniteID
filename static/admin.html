@@ -653,191 +653,184 @@
         <div id="content" class="panel">
             <div class="section">
                 <h2>Content Editor</h2>
-                <p style="color: #666; margin-bottom: 25px;">Edit all text content across your website</p>
+                <p style="color:#666;margin-bottom:20px;">Edit text and styling for any page — no coding required. Changes save to the database and apply live.</p>
 
-                <h3>Home Page</h3>
-                <div class="content-editor">
+                <!-- ── STYLE TOOLBAR (reusable) ─────────────────── -->
+                <div id="styleToolbar" style="display:none;background:#f8f9fa;border:1px solid #e0e0e0;border-radius:10px;padding:14px 18px;margin-bottom:20px;position:sticky;top:70px;z-index:50;">
+                    <div style="font-size:0.8rem;font-weight:bold;color:#888;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px;">Style for: <span id="toolbarFieldLabel" style="color:#2c5f2d;"></span></div>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+                        <div>
+                            <label style="font-size:0.8rem;color:#666;display:block;margin-bottom:3px;">Size (px)</label>
+                            <input type="number" id="tbSize" min="10" max="96" value="16" style="width:70px;padding:6px;border:1px solid #ddd;border-radius:6px;font-size:0.9rem;" oninput="applyToolbarStyle()">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem;color:#666;display:block;margin-bottom:3px;">Colour</label>
+                            <input type="color" id="tbColor" value="#333333" style="width:48px;height:34px;border:1px solid #ddd;border-radius:6px;cursor:pointer;padding:2px;" oninput="applyToolbarStyle()">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem;color:#666;display:block;margin-bottom:3px;">Weight</label>
+                            <select id="tbWeight" style="padding:6px;border:1px solid #ddd;border-radius:6px;font-size:0.9rem;" onchange="applyToolbarStyle()">
+                                <option value="normal">Normal</option>
+                                <option value="bold">Bold</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem;color:#666;display:block;margin-bottom:3px;">Style</label>
+                            <select id="tbStyle" style="padding:6px;border:1px solid #ddd;border-radius:6px;font-size:0.9rem;" onchange="applyToolbarStyle()">
+                                <option value="normal">Normal</option>
+                                <option value="italic">Italic</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem;color:#666;display:block;margin-bottom:3px;">Preview</label>
+                            <div id="tbPreview" style="padding:6px 12px;border:1px solid #ddd;border-radius:6px;min-width:120px;max-width:260px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:14px;">Sample text</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── HOME PAGE ──────────────────────────────────── -->
+                <div style="background:white;border:1px solid #e0e0e0;border-radius:12px;padding:20px;margin-bottom:24px;">
+                    <h3 style="margin-bottom:16px;color:#2c5f2d;">🏠 Home Page</h3>
+
                     <div class="editor-field">
-                        <label>Hero Title</label>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                            <label style="font-weight:600;">Hero Title</label>
+                            <button onclick="openToolbar('heroTitle','Home — Hero Title')" style="padding:4px 10px;font-size:0.75rem;background:#f0f4f0;border:1px solid #c0d8c0;border-radius:6px;color:#2c5f2d;cursor:pointer;">🎨 Style</button>
+                        </div>
                         <input type="text" id="heroTitle" placeholder="Identify Your Ammonite in Seconds" class="form-control">
+                        <div id="heroTitle_style" style="font-size:0.75rem;color:#888;margin-top:4px;"></div>
+                        <input type="hidden" id="heroTitle_size" value="48">
+                        <input type="hidden" id="heroTitle_color" value="#ffffff">
+                        <input type="hidden" id="heroTitle_weight" value="bold">
+                        <input type="hidden" id="heroTitle_fontStyle" value="normal">
                     </div>
 
                     <div class="editor-field">
-                        <label>Hero Subtitle</label>
-                        <textarea id="heroSubtitle" rows="3" placeholder="AI-powered fossil identification..."></textarea>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                            <label style="font-weight:600;">Hero Subtitle</label>
+                            <button onclick="openToolbar('heroSubtitle','Home — Hero Subtitle')" style="padding:4px 10px;font-size:0.75rem;background:#f0f4f0;border:1px solid #c0d8c0;border-radius:6px;color:#2c5f2d;cursor:pointer;">🎨 Style</button>
+                        </div>
+                        <textarea id="heroSubtitle" rows="2" placeholder="AI-powered fossil identification..."></textarea>
+                        <div id="heroSubtitle_style" style="font-size:0.75rem;color:#888;margin-top:4px;"></div>
+                        <input type="hidden" id="heroSubtitle_size" value="20">
+                        <input type="hidden" id="heroSubtitle_color" value="#ffffff">
+                        <input type="hidden" id="heroSubtitle_weight" value="normal">
+                        <input type="hidden" id="heroSubtitle_fontStyle" value="normal">
                     </div>
 
                     <div class="editor-field">
-                        <label>CTA Button Text</label>
+                        <label style="font-weight:600;">CTA Button Text</label>
                         <input type="text" id="ctaButton" placeholder="Start Identifying Now">
                     </div>
 
-                    <h4 style="margin-top: 25px; color: #2c5f2d;">Feature Cards</h4>
-                    
+                    <h4 style="margin:18px 0 12px;color:#555;">Feature Cards</h4>
+                    ${['1','2','3'].map ? '' : ''}
                     <div class="editor-field">
-                        <label>Feature 1 - Title</label>
+                        <label>Feature 1 — Title</label>
                         <input type="text" id="feature1Title" placeholder="AI-Powered Recognition">
                     </div>
                     <div class="editor-field">
-                        <label>Feature 1 - Description</label>
+                        <label>Feature 1 — Description</label>
                         <textarea id="feature1Desc" rows="2"></textarea>
                     </div>
-
                     <div class="editor-field">
-                        <label>Feature 2 - Title</label>
+                        <label>Feature 2 — Title</label>
                         <input type="text" id="feature2Title" placeholder="Instant Results">
                     </div>
                     <div class="editor-field">
-                        <label>Feature 2 - Description</label>
+                        <label>Feature 2 — Description</label>
                         <textarea id="feature2Desc" rows="2"></textarea>
                     </div>
-
                     <div class="editor-field">
-                        <label>Feature 3 - Title</label>
+                        <label>Feature 3 — Title</label>
                         <input type="text" id="feature3Title" placeholder="Build Your Collection">
                     </div>
                     <div class="editor-field">
-                        <label>Feature 3 - Description</label>
+                        <label>Feature 3 — Description</label>
                         <textarea id="feature3Desc" rows="2"></textarea>
                     </div>
 
-                    <button class="btn" onclick="saveHomeContent()">💾 Save Home Page Content</button>
+                    <button class="btn" onclick="saveHomeContent()" style="margin-top:8px;">💾 Save Home Page</button>
+                    <span id="homeContentMsg" style="margin-left:12px;font-size:0.9rem;display:none;"></span>
                 </div>
 
-                <h3>About Page</h3>
-                <div class="content-editor">
+                <!-- ── ABOUT PAGE ──────────────────────────────────── -->
+                <div style="background:white;border:1px solid #e0e0e0;border-radius:12px;padding:20px;margin-bottom:24px;">
+                    <h3 style="margin-bottom:16px;color:#2c5f2d;">ℹ️ About Page</h3>
+
                     <div class="editor-field">
-                        <label>About Page Title</label>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                            <label style="font-weight:600;">About Page Title</label>
+                            <button onclick="openToolbar('aboutTitle','About — Page Title')" style="padding:4px 10px;font-size:0.75rem;background:#f0f4f0;border:1px solid #c0d8c0;border-radius:6px;color:#2c5f2d;cursor:pointer;">🎨 Style</button>
+                        </div>
                         <input type="text" id="aboutTitle" placeholder="About AmmoniteID">
+                        <div id="aboutTitle_style" style="font-size:0.75rem;color:#888;margin-top:4px;"></div>
+                        <input type="hidden" id="aboutTitle_size" value="36">
+                        <input type="hidden" id="aboutTitle_color" value="#2c5f2d">
+                        <input type="hidden" id="aboutTitle_weight" value="bold">
+                        <input type="hidden" id="aboutTitle_fontStyle" value="normal">
                     </div>
 
                     <div class="editor-field">
-                        <label>Mission Statement</label>
-                        <textarea id="missionStatement" rows="5" placeholder="Our mission is to make fossil identification accessible..."></textarea>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                            <label style="font-weight:600;">Mission Statement</label>
+                            <button onclick="openToolbar('missionStatement','About — Mission')" style="padding:4px 10px;font-size:0.75rem;background:#f0f4f0;border:1px solid #c0d8c0;border-radius:6px;color:#2c5f2d;cursor:pointer;">🎨 Style</button>
+                        </div>
+                        <textarea id="missionStatement" rows="4" placeholder="Our mission is to make fossil identification accessible..."></textarea>
+                        <div id="missionStatement_style" style="font-size:0.75rem;color:#888;margin-top:4px;"></div>
+                        <input type="hidden" id="missionStatement_size" value="16">
+                        <input type="hidden" id="missionStatement_color" value="#333333">
+                        <input type="hidden" id="missionStatement_weight" value="normal">
+                        <input type="hidden" id="missionStatement_fontStyle" value="normal">
                     </div>
 
                     <div class="editor-field">
-                        <label>About Section Text</label>
+                        <label style="font-weight:600;">About Section Text</label>
                         <textarea id="aboutText" rows="4" placeholder="AmmoniteID uses cutting-edge AI technology..."></textarea>
                     </div>
 
-                    <h4 style="margin-top: 25px; color: #2c5f2d;">Future Plans</h4>
-                    <div class="editor-field">
-                        <label>Future Plan 1</label>
-                        <input type="text" id="futurePlan1" placeholder="Expand to other geological regions">
-                    </div>
-                    <div class="editor-field">
-                        <label>Future Plan 2</label>
-                        <input type="text" id="futurePlan2" placeholder="Add more ammonite species and families">
-                    </div>
-                    <div class="editor-field">
-                        <label>Future Plan 3</label>
-                        <input type="text" id="futurePlan3" placeholder="Partner with museums and educational institutions">
-                    </div>
+                    <h4 style="margin:18px 0 12px;color:#555;">Future Plans</h4>
+                    <div class="editor-field"><label>Plan 1</label><input type="text" id="futurePlan1" placeholder="Expand to other geological regions"></div>
+                    <div class="editor-field"><label>Plan 2</label><input type="text" id="futurePlan2" placeholder="Add more ammonite species and families"></div>
+                    <div class="editor-field"><label>Plan 3</label><input type="text" id="futurePlan3" placeholder="Partner with museums and educational institutions"></div>
 
-                    <h4 style="margin-top: 25px; color: #2c5f2d;">📸 Photo Tips Section</h4>
-                    <div class="editor-field">
-                        <label>Photo Tips Intro Text</label>
-                        <textarea id="photoTipsIntro" rows="2" placeholder="Getting accurate results starts with a good photo..."></textarea>
-                    </div>
+                    <h4 style="margin:18px 0 12px;color:#555;">📸 Photo Tips</h4>
+                    <div class="editor-field"><label>Intro Text</label><textarea id="photoTipsIntro" rows="2" placeholder="Getting accurate results starts with a good photo..."></textarea></div>
+                    <div class="editor-field"><label>Tip 1 — Title</label><input type="text" id="tip1Title" placeholder="Fill the Frame"></div>
+                    <div class="editor-field"><label>Tip 1 — Description</label><textarea id="tip1Desc" rows="2"></textarea></div>
+                    <div class="editor-field"><label>Tip 2 — Title</label><input type="text" id="tip2Title" placeholder="Multiple Angles"></div>
+                    <div class="editor-field"><label>Tip 2 — Description</label><textarea id="tip2Desc" rows="2"></textarea></div>
+                    <div class="editor-field"><label>Tip 3 — Title</label><input type="text" id="tip3Title" placeholder="Good Lighting"></div>
+                    <div class="editor-field"><label>Tip 3 — Description</label><textarea id="tip3Desc" rows="2"></textarea></div>
+                    <div class="editor-field"><label>Tip 4 — Title</label><input type="text" id="tip4Title" placeholder="Show Key Features"></div>
+                    <div class="editor-field"><label>Tip 4 — Description</label><textarea id="tip4Desc" rows="2"></textarea></div>
+                    <div class="editor-field"><label>Tip 5 — Title</label><input type="text" id="tip5Title" placeholder="Sharp Focus"></div>
+                    <div class="editor-field"><label>Tip 5 — Description</label><textarea id="tip5Desc" rows="2"></textarea></div>
+                    <div class="editor-field"><label>Tip 6 — Title</label><input type="text" id="tip6Title" placeholder="Clean Background"></div>
+                    <div class="editor-field"><label>Tip 6 — Description</label><textarea id="tip6Desc" rows="2"></textarea></div>
 
-                    <div class="editor-field">
-                        <label>Tip 1 - Title</label>
-                        <input type="text" id="tip1Title" placeholder="Fill the Frame">
-                    </div>
-                    <div class="editor-field">
-                        <label>Tip 1 - Description</label>
-                        <textarea id="tip1Desc" rows="2" placeholder="Your fossil should take up 80% or more of the photo..."></textarea>
-                    </div>
+                    <h4 style="margin:18px 0 12px;color:#555;">🤖 Training Stats</h4>
+                    <div class="editor-field"><label>Stat 1</label><input type="text" id="trainingStat1" placeholder="Already trained on thousands of Jurassic Coast specimens"></div>
+                    <div class="editor-field"><label>Stat 2</label><input type="text" id="trainingStat2" placeholder="80%+ family accuracy"></div>
+                    <div class="editor-field"><label>Stat 3</label><input type="text" id="trainingStat3" placeholder="Model continuously improving with expert review..."></div>
 
-                    <div class="editor-field">
-                        <label>Tip 2 - Title</label>
-                        <input type="text" id="tip2Title" placeholder="Multiple Angles">
-                    </div>
-                    <div class="editor-field">
-                        <label>Tip 2 - Description</label>
-                        <textarea id="tip2Desc" rows="2" placeholder="Take 2-3 photos from different angles..."></textarea>
-                    </div>
+                    <h4 style="margin:18px 0 12px;color:#555;">❓ FAQs</h4>
+                    <div id="faqEditor"></div>
+                    <button class="btn btn-secondary" onclick="addFAQ()" style="margin-bottom:16px;">➕ Add FAQ</button>
 
-                    <div class="editor-field">
-                        <label>Tip 3 - Title</label>
-                        <input type="text" id="tip3Title" placeholder="Good Lighting">
-                    </div>
-                    <div class="editor-field">
-                        <label>Tip 3 - Description</label>
-                        <textarea id="tip3Desc" rows="2" placeholder="Natural daylight works best..."></textarea>
-                    </div>
-
-                    <div class="editor-field">
-                        <label>Tip 4 - Title</label>
-                        <input type="text" id="tip4Title" placeholder="Show Key Features">
-                    </div>
-                    <div class="editor-field">
-                        <label>Tip 4 - Description</label>
-                        <textarea id="tip4Desc" rows="2" placeholder="Make sure distinctive features are visible..."></textarea>
-                    </div>
-
-                    <div class="editor-field">
-                        <label>Tip 5 - Title</label>
-                        <input type="text" id="tip5Title" placeholder="Sharp Focus">
-                    </div>
-                    <div class="editor-field">
-                        <label>Tip 5 - Description</label>
-                        <textarea id="tip5Desc" rows="2" placeholder="Make sure the photo is crisp and clear..."></textarea>
-                    </div>
-
-                    <div class="editor-field">
-                        <label>Tip 6 - Title</label>
-                        <input type="text" id="tip6Title" placeholder="Clean Background">
-                    </div>
-                    <div class="editor-field">
-                        <label>Tip 6 - Description</label>
-                        <textarea id="tip6Desc" rows="2" placeholder="Place your fossil on a plain, neutral surface..."></textarea>
-                    </div>
-
-                    <h4 style="margin-top: 25px; color: #2c5f2d;">🤖 Model Training Section</h4>
-                    <div class="editor-field">
-                        <label>Training Stat 1</label>
-                        <input type="text" id="trainingStat1" placeholder="Already trained on thousands of Jurassic Coast specimens">
-                    </div>
-                    <div class="editor-field">
-                        <label>Training Stat 2</label>
-                        <input type="text" id="trainingStat2" placeholder="80+ % family accuracy and improving">
-                    </div>
-                    <div class="editor-field">
-                        <label>Training Stat 3</label>
-                        <input type="text" id="trainingStat3" placeholder="Model continuously improving with expert review feedback...">
-                    </div>
-
-                    <h4 style="margin-top: 25px; color: #2c5f2d;">❓ FAQs</h4>
-                    <div id="faqEditor">
-                        <!-- FAQs loaded dynamically -->
-                    </div>
-                    <button class="btn btn-secondary" onclick="addFAQ()">➕ Add New FAQ</button>
-
-                    <div style="margin-top: 25px;">
-                        <button class="btn" onclick="saveAboutContent()">💾 Save All About Page Content</button>
-                    </div>
+                    <br>
+                    <button class="btn" onclick="saveAboutContent()">💾 Save About Page</button>
+                    <span id="aboutContentMsg" style="margin-left:12px;font-size:0.9rem;display:none;"></span>
                 </div>
 
-                <h3>Contact Page</h3>
-                <div class="content-editor">
-                    <div class="editor-field">
-                        <label>Contact Email</label>
-                        <input type="email" id="contactEmail" placeholder="contact@ammoniteid.com">
-                    </div>
-
-                    <div class="editor-field">
-                        <label>Contact Phone (optional)</label>
-                        <input type="text" id="contactPhone" placeholder="+44 123 456 7890">
-                    </div>
-
-                    <div class="editor-field">
-                        <label>Contact Page Intro Text</label>
-                        <textarea id="contactIntro" rows="3" placeholder="Get in touch with us..."></textarea>
-                    </div>
-
-                    <button class="btn" onclick="saveContactContent()">💾 Save Contact Page Content</button>
+                <!-- ── CONTACT PAGE ────────────────────────────────── -->
+                <div style="background:white;border:1px solid #e0e0e0;border-radius:12px;padding:20px;margin-bottom:24px;">
+                    <h3 style="margin-bottom:16px;color:#2c5f2d;">✉️ Contact Page</h3>
+                    <div class="editor-field"><label style="font-weight:600;">Contact Email</label><input type="email" id="contactEmail" placeholder="contact@ammoniteid.com"></div>
+                    <div class="editor-field"><label style="font-weight:600;">Contact Phone (optional)</label><input type="text" id="contactPhone" placeholder="+44 123 456 7890"></div>
+                    <div class="editor-field"><label style="font-weight:600;">Contact Page Intro Text</label><textarea id="contactIntro" rows="3" placeholder="Get in touch with us..."></textarea></div>
+                    <button class="btn" onclick="saveContactContent()">💾 Save Contact Page</button>
+                    <span id="contactContentMsg" style="margin-left:12px;font-size:0.9rem;display:none;"></span>
                 </div>
             </div>
         </div>
@@ -1263,59 +1256,16 @@
                 <input type="text" id="newPartnerOffer" placeholder="e.g., 10% off for AmmoniteID users">
             </div>
 
-            <!-- Logo upload — no emoji fallback -->
-            <div class="form-group">
-                <label>Partner Logo</label>
-                <div style="display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;">
-                    <div id="logoPreview" style="width:120px;height:120px;border:2px dashed #ccc;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#fafafa;color:#aaa;font-size:0.8rem;text-align:center;flex-shrink:0;">
-                        No logo
-                    </div>
-                    <div style="flex:1;min-width:200px;">
-                        <input type="file" id="newPartnerLogoFile" accept="image/*" onchange="previewLogo(this)" style="padding:8px;width:100%;">
-                        <small style="color:#888;display:block;margin-top:6px;">Recommended: square image (e.g. 200×200px). Auto-fitted to display area.</small>
-                        <button type="button" onclick="clearLogo()" style="margin-top:8px;padding:4px 12px;background:#eee;border:1px solid #ccc;border-radius:6px;cursor:pointer;font-size:0.8rem;color:#666;">✕ Remove Logo</button>
-                    </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Logo Emoji (fallback)</label>
+                    <input type="text" id="newPartnerEmoji" value="🏪" style="width: 80px; font-size: 1.5rem; text-align: center;">
                 </div>
-            </div>
-            <!-- Hidden emoji field kept for DB compatibility but not shown -->
-            <input type="hidden" id="newPartnerEmoji" value="🏪">
 
-            <!-- Partner Name Font Styling -->
-            <div class="form-group">
-                <label>Partner Name — Font Style</label>
-                <div style="background:#f8f9fa;border:1px solid #e0e0e0;border-radius:10px;padding:14px 16px;">
-                    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
-                        <div>
-                            <label style="font-size:0.8rem;color:#666;display:block;margin-bottom:4px;">Size (px)</label>
-                            <input type="number" id="newPartnerNameSize" min="12" max="48" value="18"
-                                   style="width:70px;padding:6px;border:1px solid #ddd;border-radius:6px;"
-                                   oninput="updatePartnerNamePreview()">
-                        </div>
-                        <div>
-                            <label style="font-size:0.8rem;color:#666;display:block;margin-bottom:4px;">Colour</label>
-                            <input type="color" id="newPartnerNameColor" value="#2c2c2c"
-                                   style="width:48px;height:34px;border:1px solid #ddd;border-radius:6px;cursor:pointer;padding:2px;"
-                                   oninput="updatePartnerNamePreview()">
-                        </div>
-                        <div>
-                            <label style="font-size:0.8rem;color:#666;display:block;margin-bottom:4px;">Weight</label>
-                            <select id="newPartnerNameWeight" style="padding:6px;border:1px solid #ddd;border-radius:6px;" onchange="updatePartnerNamePreview()">
-                                <option value="normal">Normal</option>
-                                <option value="bold" selected>Bold</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label style="font-size:0.8rem;color:#666;display:block;margin-bottom:4px;">Style</label>
-                            <select id="newPartnerNameStyle" style="padding:6px;border:1px solid #ddd;border-radius:6px;" onchange="updatePartnerNamePreview()">
-                                <option value="normal" selected>Normal</option>
-                                <option value="italic">Italic</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div style="margin-top:12px;padding:10px 14px;background:white;border:1px solid #e0e0e0;border-radius:8px;">
-                        <span style="font-size:0.75rem;color:#aaa;display:block;margin-bottom:4px;">Preview:</span>
-                        <span id="partnerNamePreview" style="font-size:18px;font-weight:bold;color:#2c2c2c;">Partner Name</span>
-                    </div>
+                <div class="form-group">
+                    <label>Logo Image (optional - overrides emoji)</label>
+                    <input type="file" id="newPartnerLogoFile" accept="image/*" onchange="previewLogo(this)" style="padding: 8px;">
+                    <div id="logoPreview" style="margin-top: 8px;"></div>
                 </div>
             </div>
 
@@ -1777,20 +1727,13 @@
                         const card = document.createElement('div');
                         card.className = 'partner-card';
                         card.style.borderLeftColor = statusColor;
-                        if (isSoftDeleted) card.style.opacity = '0.75';
                         card.innerHTML = `
-                            <div style="display:flex;justify-content:space-between;align-items:start;gap:12px;">
-                                <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0;">
-                                    ${partner.logo_path
-                                        ? `<img src="${partner.logo_path}" style="width:60px;height:60px;object-fit:contain;border-radius:8px;border:1px solid #eee;flex-shrink:0;">`
-                                        : `<div style="width:60px;height:60px;border:1px dashed #ccc;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:0.7rem;flex-shrink:0;text-align:center;">No<br>logo</div>`
-                                    }
-                                    <div style="min-width:0;">
-                                        <h3 style="margin:0;font-size:${partner.name_font_size || 18}px;color:${partner.name_font_color || '#2c2c2c'};font-weight:${partner.name_font_weight || 'bold'};font-style:${partner.name_font_style || 'normal'};">${partner.name}</h3>
-                                        <p style="color:#666;margin-top:4px;font-size:0.9rem;">${partner.description || 'No description'}</p>
-                                    </div>
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                <div>
+                                    <h3>${partner.logo_emoji || '🏪'} ${partner.name}</h3>
+                                    <p style="color: #666; margin-top: 5px;">${partner.description || 'No description'}</p>
                                 </div>
-                                <span style="background:${statusColor};color:white;padding:5px 12px;border-radius:20px;font-size:0.85rem;font-weight:bold;flex-shrink:0;">
+                                <span style="background: ${statusColor}; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold;">
                                     ${statusIcon} ${statusText}
                                 </span>
                             </div>
@@ -1830,51 +1773,20 @@
         }
 
         // Partner modal functions
+        // Logo preview and base64 conversion
         let currentLogoData = null;
-
+        
         function previewLogo(input) {
             const preview = document.getElementById('logoPreview');
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     currentLogoData = e.target.result;
-                    preview.style.border = '2px solid #2c5f2d';
-                    preview.style.padding = '0';
-                    preview.innerHTML = `<img src="${currentLogoData}" style="width:120px;height:120px;object-fit:contain;border-radius:8px;display:block;">`;
+                    preview.innerHTML = `<img src="${currentLogoData}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 2px solid #e0e0e0;">`;
                 };
                 reader.readAsDataURL(input.files[0]);
             }
         }
-
-        function clearLogo() {
-            currentLogoData = null;
-            const preview = document.getElementById('logoPreview');
-            preview.style.border = '2px dashed #ccc';
-            preview.innerHTML = 'No logo';
-            document.getElementById('newPartnerLogoFile').value = '';
-        }
-
-        function updatePartnerNamePreview() {
-            const size   = document.getElementById('newPartnerNameSize').value;
-            const color  = document.getElementById('newPartnerNameColor').value;
-            const weight = document.getElementById('newPartnerNameWeight').value;
-            const style  = document.getElementById('newPartnerNameStyle').value;
-            const nameEl = document.getElementById('newPartnerName');
-            const prev   = document.getElementById('partnerNamePreview');
-            if (prev) {
-                prev.style.fontSize   = size + 'px';
-                prev.style.color      = color;
-                prev.style.fontWeight = weight;
-                prev.style.fontStyle  = style;
-                if (nameEl && nameEl.value) prev.textContent = nameEl.value;
-            }
-        }
-
-        // Update preview when name is typed
-        document.addEventListener('DOMContentLoaded', () => {
-            const nameInput = document.getElementById('newPartnerName');
-            if (nameInput) nameInput.addEventListener('input', updatePartnerNamePreview);
-        });
 
         // Auto-fill display duration based on tier
         function autoFillDuration() {
@@ -1894,16 +1806,8 @@
             document.getElementById('modalSaveBtn').onclick = addNewPartner;
             editingPartnerId = null;
             currentLogoData = null;
-            const preview = document.getElementById('logoPreview');
-            preview.style.border = '2px dashed #ccc';
-            preview.innerHTML = 'No logo';
+            document.getElementById('logoPreview').innerHTML = '';
             document.getElementById('newPartnerLogoFile').value = '';
-            // Reset font styling
-            document.getElementById('newPartnerNameSize').value   = '18';
-            document.getElementById('newPartnerNameColor').value  = '#2c2c2c';
-            document.getElementById('newPartnerNameWeight').value = 'bold';
-            document.getElementById('newPartnerNameStyle').value  = 'normal';
-            updatePartnerNamePreview();
         }
 
         // Add new partner
@@ -1935,14 +1839,10 @@
                 category: document.getElementById('newPartnerCategory').value,
                 tier: document.getElementById('newPartnerTier').value,
                 status: 'active',
-                logo_emoji: '🏪',
+                logo_emoji: document.getElementById('newPartnerEmoji').value || '🏪',
                 expires_at: document.getElementById('newPartnerExpiry').value || null,
                 display_duration: parseInt(document.getElementById('newPartnerDuration').value) || 15,
-                rotation_weight: parseInt(document.getElementById('newPartnerWeight').value) || 1,
-                name_font_size:   document.getElementById('newPartnerNameSize').value  || '18',
-                name_font_color:  document.getElementById('newPartnerNameColor').value || '#2c2c2c',
-                name_font_weight: document.getElementById('newPartnerNameWeight').value || 'bold',
-                name_font_style:  document.getElementById('newPartnerNameStyle').value || 'normal',
+                rotation_weight: parseInt(document.getElementById('newPartnerWeight').value) || 1
             };
 
             try {
@@ -1994,24 +1894,14 @@
                 document.getElementById('newPartnerExpiry').value = partner.expires_at || '';
                 document.getElementById('newPartnerDuration').value = partner.display_duration || 15;
                 document.getElementById('newPartnerWeight').value = partner.rotation_weight || 1;
-
-                // Load name font styling
-                document.getElementById('newPartnerNameSize').value   = partner.name_font_size   || '18';
-                document.getElementById('newPartnerNameColor').value  = partner.name_font_color  || '#2c2c2c';
-                document.getElementById('newPartnerNameWeight').value = partner.name_font_weight || 'bold';
-                document.getElementById('newPartnerNameStyle').value  = partner.name_font_style  || 'normal';
-                updatePartnerNamePreview();
-
-                // Load existing logo at doubled size
+                
+                // Load existing logo
                 currentLogoData = partner.logo_path || null;
                 const preview = document.getElementById('logoPreview');
                 if (partner.logo_path) {
-                    preview.style.border = '2px solid #2c5f2d';
-                    preview.style.padding = '0';
-                    preview.innerHTML = `<img src="${partner.logo_path}" style="width:120px;height:120px;object-fit:contain;border-radius:8px;display:block;">`;
+                    preview.innerHTML = `<img src="${partner.logo_path}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 2px solid #e0e0e0;">`;
                 } else {
-                    preview.style.border = '2px dashed #ccc';
-                    preview.innerHTML = 'No logo';
+                    preview.innerHTML = '';
                 }
                 
                 // Change modal title and button
@@ -2046,14 +1936,10 @@
                 category: document.getElementById('newPartnerCategory').value,
                 tier: document.getElementById('newPartnerTier').value,
                 status: 'active',
-                logo_emoji: '🏪',
+                logo_emoji: document.getElementById('newPartnerEmoji').value || '🏪',
                 expires_at: document.getElementById('newPartnerExpiry').value || null,
                 display_duration: parseInt(document.getElementById('newPartnerDuration').value) || 15,
-                rotation_weight: parseInt(document.getElementById('newPartnerWeight').value) || 1,
-                name_font_size:   document.getElementById('newPartnerNameSize').value  || '18',
-                name_font_color:  document.getElementById('newPartnerNameColor').value || '#2c2c2c',
-                name_font_weight: document.getElementById('newPartnerNameWeight').value || 'bold',
-                name_font_style:  document.getElementById('newPartnerNameStyle').value || 'normal',
+                rotation_weight: parseInt(document.getElementById('newPartnerWeight').value) || 1
             };
 
             try {
@@ -2121,44 +2007,124 @@
             alert('Generate report for: ' + partnerId + '\n\nThis will generate a detailed performance report (to be implemented)');
         }
 
+        // ── Style Toolbar ──────────────────────────────────────
+        let _tbCurrentField = null;
+
+        window.openToolbar = function(fieldId, label) {
+            _tbCurrentField = fieldId;
+            const tb = document.getElementById('styleToolbar');
+            tb.style.display = 'block';
+            document.getElementById('toolbarFieldLabel').textContent = label;
+            // Load current values for this field
+            const size  = document.getElementById(fieldId + '_size');
+            const color = document.getElementById(fieldId + '_color');
+            const wt    = document.getElementById(fieldId + '_weight');
+            const st    = document.getElementById(fieldId + '_fontStyle');
+            if (size)  document.getElementById('tbSize').value  = size.value;
+            if (color) document.getElementById('tbColor').value = color.value;
+            if (wt)    document.getElementById('tbWeight').value = wt.value;
+            if (st)    document.getElementById('tbStyle').value  = st.value;
+            updateToolbarPreview();
+            // Scroll to show field
+            const el = document.getElementById(fieldId);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        };
+
+        window.applyToolbarStyle = function() {
+            if (!_tbCurrentField) return;
+            const size  = document.getElementById('tbSize').value;
+            const color = document.getElementById('tbColor').value;
+            const wt    = document.getElementById('tbWeight').value;
+            const st    = document.getElementById('tbStyle').value;
+            const setHidden = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+            setHidden(_tbCurrentField + '_size',      size);
+            setHidden(_tbCurrentField + '_color',     color);
+            setHidden(_tbCurrentField + '_weight',    wt);
+            setHidden(_tbCurrentField + '_fontStyle', st);
+            const info = document.getElementById(_tbCurrentField + '_style');
+            if (info) info.textContent = `${size}px · ${color} · ${wt} · ${st}`;
+            updateToolbarPreview();
+        };
+
+        function updateToolbarPreview() {
+            const size  = document.getElementById('tbSize').value;
+            const color = document.getElementById('tbColor').value;
+            const wt    = document.getElementById('tbWeight').value;
+            const st    = document.getElementById('tbStyle').value;
+            const preview = document.getElementById('tbPreview');
+            if (preview) {
+                preview.style.fontSize   = size + 'px';
+                preview.style.color      = color;
+                preview.style.fontWeight = wt;
+                preview.style.fontStyle  = st;
+                const field = document.getElementById(_tbCurrentField);
+                preview.textContent = field ? (field.value || 'Sample text').slice(0, 30) : 'Sample text';
+            }
+        }
+
+        // ── Content Save Functions ─────────────────────────────
+        function showMsg(id, ok, text) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = ok ? '✅ ' + text : '❌ ' + text;
+            el.style.color = ok ? '#2c5f2d' : '#c62828';
+            el.style.display = 'inline';
+            setTimeout(() => { el.style.display = 'none'; }, 4000);
+        }
+
+        function getStyle(fieldId) {
+            const get = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+            return {
+                size:      get(fieldId + '_size'),
+                color:     get(fieldId + '_color'),
+                weight:    get(fieldId + '_weight'),
+                fontStyle: get(fieldId + '_fontStyle'),
+            };
+        }
+
         // Save home content
         async function saveHomeContent() {
+            const htStyle = getStyle('heroTitle');
+            const hsStyle = getStyle('heroSubtitle');
             const content = {
-                heroTitle: document.getElementById('heroTitle').value,
-                heroSubtitle: document.getElementById('heroSubtitle').value,
-                ctaButton: document.getElementById('ctaButton').value,
+                heroTitle:     document.getElementById('heroTitle').value,
+                heroSubtitle:  document.getElementById('heroSubtitle').value,
+                ctaButton:     document.getElementById('ctaButton').value,
                 feature1Title: document.getElementById('feature1Title').value,
-                feature1Desc: document.getElementById('feature1Desc').value,
+                feature1Desc:  document.getElementById('feature1Desc').value,
                 feature2Title: document.getElementById('feature2Title').value,
-                feature2Desc: document.getElementById('feature2Desc').value,
+                feature2Desc:  document.getElementById('feature2Desc').value,
                 feature3Title: document.getElementById('feature3Title').value,
-                feature3Desc: document.getElementById('feature3Desc').value
+                feature3Desc:  document.getElementById('feature3Desc').value,
+                titleSize:     htStyle.size,
+                titleColor:    htStyle.color,
+                titleWeight:   htStyle.weight,
+                titleStyle:    htStyle.fontStyle,
+                subtitleSize:  hsStyle.size,
+                subtitleColor: hsStyle.color,
+                subtitleWeight: hsStyle.weight,
+                subtitleStyle: hsStyle.fontStyle,
             };
-
             try {
-                const response = await fetch('/api/content/home', {
+                const r = await fetch('/api/content/home', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(content)
                 });
-                
-                if (response.ok) {
-                    alert('✅ Home page content saved successfully!');
-                } else {
-                    alert('❌ Error saving home content. Check console.');
-                }
-            } catch (error) {
-                console.error('Error saving home content:', error);
-                alert('❌ Error saving. Is the server running?');
+                showMsg('homeContentMsg', r.ok, r.ok ? 'Home page saved!' : 'Save failed — check server');
+            } catch(e) {
+                showMsg('homeContentMsg', false, 'Connection error: ' + e.message);
             }
         }
 
         // Save about content
         async function saveAboutContent() {
+            const atStyle = getStyle('aboutTitle');
+            const msStyle = getStyle('missionStatement');
             const content = {
                 missionStatement: document.getElementById('missionStatement').value,
-                aboutTitle: document.getElementById('aboutTitle').value,
-                aboutText: document.getElementById('aboutText').value,
+                aboutTitle:       document.getElementById('aboutTitle').value,
+                aboutText:        document.getElementById('aboutText').value,
                 futurePlans: [
                     document.getElementById('futurePlan1').value,
                     document.getElementById('futurePlan2').value,
@@ -2178,24 +2144,23 @@
                     document.getElementById('trainingStat2').value,
                     document.getElementById('trainingStat3').value
                 ],
-                faqs: collectFAQs()
+                faqs:        collectFAQs(),
+                titleSize:   atStyle.size,
+                titleColor:  atStyle.color,
+                titleWeight: atStyle.weight,
+                titleStyle:  atStyle.fontStyle,
+                bodySize:    msStyle.size,
+                bodyColor:   msStyle.color,
             };
-
             try {
-                const response = await fetch('/api/content/about', {
+                const r = await fetch('/api/content/about', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(content)
                 });
-                
-                if (response.ok) {
-                    alert('✅ About page content saved successfully!');
-                } else {
-                    alert('❌ Error saving about content. Check console.');
-                }
-            } catch (error) {
-                console.error('Error saving about content:', error);
-                alert('❌ Error saving. Is the server running?');
+                showMsg('aboutContentMsg', r.ok, r.ok ? 'About page saved!' : 'Save failed — check server');
+            } catch(e) {
+                showMsg('aboutContentMsg', false, 'Connection error: ' + e.message);
             }
         }
 
@@ -2236,22 +2201,15 @@
                 contactPhone: document.getElementById('contactPhone').value,
                 contactIntro: document.getElementById('contactIntro').value
             };
-
             try {
-                const response = await fetch('/api/content/contact', {
+                const r = await fetch('/api/content/contact', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(content)
                 });
-                
-                if (response.ok) {
-                    alert('✅ Contact page content saved successfully!');
-                } else {
-                    alert('❌ Error saving contact content. Check console.');
-                }
-            } catch (error) {
-                console.error('Error saving contact content:', error);
-                alert('❌ Error saving. Is the server running?');
+                showMsg('contactContentMsg', r.ok, r.ok ? 'Contact page saved!' : 'Save failed — check server');
+            } catch(e) {
+                showMsg('contactContentMsg', false, 'Connection error: ' + e.message);
             }
         }
 
@@ -2325,27 +2283,44 @@
 
         // Billing model change handler
         // Load existing content into admin form fields
+        function _setStyleField(fieldId, data, sizeKey, colorKey, weightKey, styleKey, defaults) {
+            const setHidden = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+            const s = data[sizeKey]   || defaults.size;
+            const c = data[colorKey]  || defaults.color;
+            const w = data[weightKey] || defaults.weight;
+            const f = data[styleKey]  || defaults.fontStyle;
+            setHidden(fieldId + '_size',      s);
+            setHidden(fieldId + '_color',     c);
+            setHidden(fieldId + '_weight',    w);
+            setHidden(fieldId + '_fontStyle', f);
+            const info = document.getElementById(fieldId + '_style');
+            if (info) info.textContent = `${s}px · ${c} · ${w} · ${f}`;
+        }
+
         async function loadExistingContent() {
             // Load home content
             try {
                 const homeResponse = await fetch('/api/content/home');
                 const homeData = await homeResponse.json();
-                
-                if (homeData.title) document.getElementById('heroTitle').value = homeData.title;
+
+                if (homeData.title)    document.getElementById('heroTitle').value = homeData.title;
                 if (homeData.subtitle) document.getElementById('heroSubtitle').value = homeData.subtitle;
-                if (homeData.cta) document.getElementById('ctaButton').value = homeData.cta;
+                if (homeData.cta)      document.getElementById('ctaButton').value = homeData.cta;
                 if (homeData.feature1) {
                     document.getElementById('feature1Title').value = homeData.feature1.title || '';
-                    document.getElementById('feature1Desc').value = homeData.feature1.desc || '';
+                    document.getElementById('feature1Desc').value  = homeData.feature1.desc  || '';
                 }
                 if (homeData.feature2) {
                     document.getElementById('feature2Title').value = homeData.feature2.title || '';
-                    document.getElementById('feature2Desc').value = homeData.feature2.desc || '';
+                    document.getElementById('feature2Desc').value  = homeData.feature2.desc  || '';
                 }
                 if (homeData.feature3) {
                     document.getElementById('feature3Title').value = homeData.feature3.title || '';
-                    document.getElementById('feature3Desc').value = homeData.feature3.desc || '';
+                    document.getElementById('feature3Desc').value  = homeData.feature3.desc  || '';
                 }
+                // Restore styling
+                _setStyleField('heroTitle',    homeData, 'titleSize',    'titleColor',    'titleWeight',    'titleStyle',    { size:'48', color:'#ffffff', weight:'bold',   fontStyle:'normal' });
+                _setStyleField('heroSubtitle', homeData, 'subtitleSize', 'subtitleColor', 'subtitleWeight', 'subtitleStyle', { size:'20', color:'#ffffff', weight:'normal', fontStyle:'normal' });
             } catch (e) { console.error('Error loading home content:', e); }
 
             // Load about content
@@ -2421,6 +2396,9 @@
                         addFAQ(faq.question, faq.answer);
                     });
                 }
+                // Restore about page styling
+                _setStyleField('aboutTitle',       aboutData, 'titleSize', 'titleColor', 'titleWeight', 'titleStyle', { size:'36', color:'#2c5f2d', weight:'bold',   fontStyle:'normal' });
+                _setStyleField('missionStatement', aboutData, 'bodySize',  'bodyColor',  '',            '',           { size:'16', color:'#333333', weight:'normal', fontStyle:'normal' });
             } catch (e) { console.error('Error loading about content:', e); }
 
             // Load contact content
