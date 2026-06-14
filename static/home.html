@@ -747,8 +747,10 @@
 
         function updateHomeButtons() {
             const installed = isAppInstalled();
+            const uid = localStorage.getItem('ammonite_user_id');
             const tier = (localStorage.getItem('ammonite_tier') || 'FREE').toUpperCase();
             const isPremiumPlus = (tier === 'PREMIUM' || tier === 'ADMIN' || tier === 'EXPERT');
+            const isLoggedIn = !!uid;
 
             // Hero buttons
             const heroFree = document.getElementById('heroFreeBtn');
@@ -757,8 +759,10 @@
             const planFree = document.getElementById('planFreeBtn');
             const planPremium = document.getElementById('planPremiumBtn');
 
-            if (installed) {
-                // App is installed — switch buttons
+            if (isLoggedIn) {
+                // ── LOGGED IN: buttons change based on tier ──
+
+                // Free button → "Identify Now"
                 if (heroFree) {
                     heroFree.innerHTML = '🔍 Identify Now';
                     heroFree.onclick = function() { window.location.href = '/static/test.html'; };
@@ -769,11 +773,12 @@
                 }
 
                 if (isPremiumPlus) {
-                    // Premium+: hide premium button
+                    // Premium user: hide premium/upgrade button entirely
                     if (heroPremium) heroPremium.style.display = 'none';
                     if (planPremium) planPremium.style.display = 'none';
                 } else {
-                    // Free: change premium button to upgrade                    if (heroPremium) {
+                    // Free user: show upgrade button
+                    if (heroPremium) {
                         heroPremium.innerHTML = '⭐ Upgrade to Premium';
                         heroPremium.href = '/static/upgrade.html';
                         heroPremium.style.display = '';
@@ -785,10 +790,27 @@
                     }
                 }
             } else {
-                // Not installed — show original download buttons (default state)
-                if (heroPremium) heroPremium.style.display = '';
-                if (planPremium) planPremium.style.display = '';
+                // ── NOT LOGGED IN: show original sign up / download buttons ──
+                if (heroFree) {
+                    heroFree.innerHTML = '<span class="btn-label-desktop">✨ Sign Up Free</span><span class="btn-label-mobile">📲 Download Free</span>';
+                    heroFree.onclick = function() { showFreeModeInfo(); };
+                }
+                if (heroPremium) {
+                    heroPremium.innerHTML = '<span class="btn-label-desktop">⭐ Sign Up Premium</span><span class="btn-label-mobile">⭐ Download Premium</span>';
+                    heroPremium.href = '/static/login.html?redirect=upgrade';
+                    heroPremium.style.display = '';
+                }
+                if (planFree) {
+                    planFree.innerHTML = '<span class="btn-label-desktop">✨ Sign Up Free</span><span class="btn-label-mobile">📲 Download Free</span>';
+                    planFree.onclick = function() { showFreeModeInfo(); };
+                }
+                if (planPremium) {
+                    planPremium.innerHTML = '<span class="btn-label-desktop">⭐ Sign Up Premium</span><span class="btn-label-mobile">⭐ Download Premium</span>';
+                    planPremium.href = '/static/login.html?redirect=upgrade';
+                    planPremium.style.display = '';
+                }
             }
+        }
         }
 
         // Run on page load and when tier changes
@@ -819,18 +841,32 @@
         const firebaseConfig = { apiKey:"AIzaSyChXqOpXgpkLrn44mfIcPoTVPBk6neicBQ", authDomain:"ammoniteid-f9d8e.firebaseapp.com", projectId:"ammoniteid-f9d8e", storageBucket:"ammoniteid-f9d8e.firebasestorage.app", messagingSenderId:"828376677091", appId:"1:828376677091:web:e302f3ff538b78bc83e3d6" };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             const authButtons = document.getElementById('authButtons');
             const mobileAuthLinks = document.getElementById('mobileAuthLinks');
             if (!authButtons) return;
             if (user) {
                 localStorage.setItem('ammonite_user_id', user.uid);
+                // Sync user with backend + fetch tier
+                try {
+                    await fetch('/api/auth/sync', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ uid: user.uid, email: user.email, display_name: user.displayName })
+                    });
+                } catch(e) {}
+                await refreshTierAndApplyNav(user.uid);
                 authButtons.innerHTML = `<a href="/static/my-account.html" class="btn-outline" style="font-size:0.95rem;padding:0.5rem 1rem;">👤 My Account</a><button class="btn-outline" style="font-size:0.9rem;padding:0.5rem 1rem;" onclick="handleLogout()">🚪 Log Out</button>`;
                 if (mobileAuthLinks) mobileAuthLinks.innerHTML = `<a href="/static/my-account.html">👤 My Account</a><button onclick="handleLogout()">🚪 Log Out</button>`;
+                // Update hero buttons based on tier
+                updateHomeButtons();
             } else {
                 localStorage.removeItem('ammonite_user_id');
+                localStorage.removeItem('ammonite_tier');
                 authButtons.innerHTML = `<a href="/static/login.html" class="btn-outline">Log In</a><a href="/static/login.html" class="btn-outline">Sign Up</a>`;
                 if (mobileAuthLinks) mobileAuthLinks.innerHTML = `<a href="/static/login.html">🔑 Log In</a><a href="/static/login.html">✏️ Sign Up</a>`;
+                // Reset hero buttons to sign up state
+                updateHomeButtons();
             }
         });
         window.handleLogout = async function() { try { await signOut(auth); window.location.href='/static/home.html'; } catch(e) { alert('Error logging out.'); } };
