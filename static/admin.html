@@ -600,7 +600,6 @@
             <div class="tab" onclick="switchTab('content')">✏️ Content Editor</div>
             <div class="tab" onclick="switchTab('design')">🎨 Design</div>
             <div class="tab" onclick="switchTab('partners')">🤝 Partners</div>
-            <div class="tab" onclick="switchTab('messages'); loadContactMessages();">📬 Messages</div>
             <div class="tab" onclick="switchTab('pages')">📄 Pages</div>
             <div class="tab" onclick="switchTab('ads')">📢 Ads</div>
             <div class="tab" onclick="switchTab('users'); loadUserList();">👥 Users</div>
@@ -948,67 +947,32 @@
         <div id="partners" class="panel">
             <div class="section">
                 <h2>Partner Management</h2>
+                <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                    <button class="btn" onclick="showAddPartnerModal()">➕ Add New Partner</button>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <label style="font-weight: bold; color: #333;">View:</label>
+                        <select id="partnerViewFilter" onchange="loadPartners()" style="padding: 10px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 0.95rem;">
+                            <option value="all">All Partners</option>
+                            <option value="active">Active Only</option>
+                            <option value="paused">Paused Only</option>
+                            <option value="expired">Expired Only</option>
+                            <option value="cat-activities">Category: Activities & Tours</option>
+                            <option value="cat-food">Category: Food & Drink</option>
+                            <option value="cat-accommodation">Category: Accommodation</option>
+                            <option value="cat-services">Category: Services</option>
+                            <option value="cat-other">Category: Other</option>
+                            <option value="tier">By Tier (Premium first)</option>
+                            <option value="expiring">Expiring Soon</option>
+                            <option value="newest">Date Added (Newest first)</option>
+                            <option value="oldest">Date Added (Oldest first)</option>
+                        </select>
+                    </div>
+                </div>
                 
-                <!-- Sub-tabs: Active | Pending | Deleted -->
-                <div style="display:flex;gap:0;margin-bottom:20px;border-bottom:3px solid #e0e0e0;">
-                    <button class="partner-subtab active" onclick="switchPartnerView('active')" id="pst-active" style="padding:12px 24px;font-weight:bold;font-size:0.95rem;border:none;background:none;cursor:pointer;color:#2c5f2d;border-bottom:3px solid #2c5f2d;margin-bottom:-3px;">✅ Active Partners</button>
-                    <button class="partner-subtab" onclick="switchPartnerView('pending')" id="pst-pending" style="padding:12px 24px;font-weight:bold;font-size:0.95rem;border:none;background:none;cursor:pointer;color:#999;border-bottom:3px solid transparent;margin-bottom:-3px;">📋 Pending <span id="pendingBadge" style="display:none;background:#e67e22;color:white;padding:2px 8px;border-radius:10px;font-size:0.8rem;margin-left:5px;">0</span></button>
-                    <button class="partner-subtab" onclick="switchPartnerView('deleted')" id="pst-deleted" style="padding:12px 24px;font-weight:bold;font-size:0.95rem;border:none;background:none;cursor:pointer;color:#999;border-bottom:3px solid transparent;margin-bottom:-3px;">🗑️ Deleted</button>
-                </div>
-
-                <!-- ACTIVE PARTNERS VIEW -->
-                <div id="partnersActiveView">
-                    <div style="display:flex;gap:15px;align-items:center;flex-wrap:wrap;margin-bottom:20px;">
-                        <button class="btn" onclick="showAddPartnerModal()">➕ Add New Partner</button>
-                        <div style="display:flex;align-items:center;gap:8px;">
-                            <label style="font-weight:bold;color:#333;">Filter:</label>
-                            <select id="partnerViewFilter" onchange="loadPartners()" style="padding:10px 15px;border:2px solid #e0e0e0;border-radius:8px;font-size:0.95rem;">
-                                <option value="all">All Partners</option>
-                                <option value="active">Active Only</option>
-                                <option value="paused">Paused Only</option>
-                                <option value="expired">Expired Only</option>
-                                <option value="cat-activities">Category: Activities & Tours</option>
-                                <option value="cat-food">Category: Food & Drink</option>
-                                <option value="cat-accommodation">Category: Accommodation</option>
-                                <option value="cat-services">Category: Services</option>
-                                <option value="cat-other">Category: Other</option>
-                                <option value="tier">By Tier (Premium first)</option>
-                                <option value="expiring">Expiring Soon</option>
-                                <option value="newest">Date Added (Newest first)</option>
-                                <option value="oldest">Date Added (Oldest first)</option>
-                            </select>
-                        </div>
+                <div id="partnersList" style="margin-top: 30px;">
+                    <div class="alert-info alert">
+                        <strong>Loading partners...</strong> Partner data will appear here.
                     </div>
-                    <div id="partnersList" style="margin-top:10px;">
-                        <div class="alert-info alert"><strong>Loading partners...</strong></div>
-                    </div>
-                </div>
-
-                <!-- PENDING SUBMISSIONS VIEW -->
-                <div id="partnersPendingView" style="display:none;">
-                    <p style="color:#666;font-family:Arial,sans-serif;margin-bottom:20px;">Partner ad campaign submissions awaiting your review. You can view details, edit fields, then approve or reject.</p>
-                    <div id="pendingSubmissionsList">
-                        <div class="alert-info alert"><strong>Loading pending submissions...</strong></div>
-                    </div>
-                </div>
-
-                <!-- DELETED PARTNERS VIEW -->
-                <div id="partnersDeletedView" style="display:none;">
-                    <p style="color:#666;font-family:Arial,sans-serif;margin-bottom:20px;">Soft-deleted partners with a 30-day grace period. Restore with one click, or permanently delete.</p>
-                    <div id="deletedPartnersList">
-                        <div class="alert-info alert"><strong>Loading deleted partners...</strong></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- MESSAGES PANEL (Contact Form Inbox) -->
-        <div id="messages" class="panel">
-            <div class="section">
-                <h2>📬 Contact Form Messages</h2>
-                <p style="color:#666;font-family:Arial,sans-serif;margin-bottom:20px;">All messages submitted via the Contact Us form on the contact page. Email notifications are optional; all messages are stored here.</p>
-                <div id="messagesList">
-                    <div class="alert-info alert"><strong>Loading messages...</strong></div>
                 </div>
             </div>
         </div>
@@ -1252,6 +1216,87 @@
     </div>
 
     <!-- ADD/EDIT PARTNER MODAL -->
+    <!-- USER MANAGEMENT MODAL -->
+    <div id="userModal" class="modal">
+        <div class="modal-content" style="max-width:620px;max-height:90vh;overflow-y:auto;">
+            <div class="modal-header">
+                <h2>⚙️ Manage User</h2>
+                <button class="close-modal" onclick="closeUserModal()">×</button>
+            </div>
+
+            <!-- User Info -->
+            <div style="padding:0 24px;">
+                <div class="grid-2" style="margin-bottom:16px;">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="text" id="umEmail" readonly style="background:#f5f5f5;cursor:default;">
+                    </div>
+                    <div class="form-group">
+                        <label>Display Name</label>
+                        <input type="text" id="umDisplayName" placeholder="Display name">
+                    </div>
+                </div>
+                <div class="grid-2" style="margin-bottom:16px;">
+                    <div class="form-group">
+                        <label>Firebase UID</label>
+                        <input type="text" id="umUid" readonly style="background:#f5f5f5;cursor:default;font-size:0.75rem;">
+                    </div>
+                    <div class="form-group">
+                        <label>Account Created</label>
+                        <input type="text" id="umCreatedAt" readonly style="background:#f5f5f5;cursor:default;">
+                    </div>
+                </div>
+                <div class="grid-2" style="margin-bottom:8px;">
+                    <div class="form-group">
+                        <label>Identifications Made</label>
+                        <input type="text" id="umIdCount" readonly style="background:#f5f5f5;cursor:default;">
+                    </div>
+                    <div class="form-group">
+                        <label>Fossils in Collection</label>
+                        <input type="text" id="umFossilCount" readonly style="background:#f5f5f5;cursor:default;">
+                    </div>
+                </div>
+
+                <hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
+
+                <!-- Tier Management -->
+                <h3 style="margin-bottom:12px;color:#2c5f2d;">🏷️ Tier</h3>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
+                    <button onclick="setUserTier('FREE')"    id="umTierFREE"    style="padding:8px 18px;border:2px solid #ddd;border-radius:20px;cursor:pointer;font-weight:bold;background:white;">FREE</button>
+                    <button onclick="setUserTier('PREMIUM')" id="umTierPREMIUM" style="padding:8px 18px;border:2px solid #ddd;border-radius:20px;cursor:pointer;font-weight:bold;background:white;">PREMIUM</button>
+                    <button onclick="setUserTier('EXPERT')"  id="umTierEXPERT"  style="padding:8px 18px;border:2px solid #ddd;border-radius:20px;cursor:pointer;font-weight:bold;background:white;">EXPERT</button>
+                    <button onclick="setUserTier('ADMIN')"   id="umTierADMIN"   style="padding:8px 18px;border:2px solid #ddd;border-radius:20px;cursor:pointer;font-weight:bold;background:white;">ADMIN</button>
+                </div>
+
+                <!-- Account Status -->
+                <h3 style="margin-bottom:12px;color:#2c5f2d;">🔘 Account Status</h3>
+                <div id="umStatusInfo" style="padding:10px 14px;background:#f0f4f0;border-radius:8px;margin-bottom:12px;font-size:0.9rem;color:#555;"></div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
+                    <button onclick="setUserStatus('active')"  id="umStatusActive" style="padding:8px 18px;border:2px solid #2c5f2d;border-radius:20px;cursor:pointer;font-weight:bold;background:white;color:#2c5f2d;">✅ Active</button>
+                    <button onclick="setUserStatus('paused')"  id="umStatusPaused" style="padding:8px 18px;border:2px solid #e67e22;border-radius:20px;cursor:pointer;font-weight:bold;background:white;color:#e67e22;">⏸️ Pause</button>
+                    <button onclick="deleteUserFromModal()"    id="umDeleteBtn"    style="padding:8px 18px;border:2px solid #dc3545;border-radius:20px;cursor:pointer;font-weight:bold;background:white;color:#dc3545;">🗑️ Delete</button>
+                    <button onclick="restoreUserFromModal()"   id="umRestoreBtn"   style="padding:8px 18px;border:2px solid #27ae60;border-radius:20px;cursor:pointer;font-weight:bold;background:white;color:#27ae60;display:none;">↩️ Restore</button>
+                </div>
+
+                <!-- Backup / Restore -->
+                <hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
+                <h3 style="margin-bottom:12px;color:#2c5f2d;">☁️ User Data Backup & Restore</h3>
+                <div style="background:#f9f9f9;padding:14px;border-radius:8px;margin-bottom:12px;font-size:0.9rem;">
+                    <div>📦 Fossil collection: <strong id="umBackupFossilCount">—</strong> fossils saved on device</div>
+                    <div style="margin-top:6px;color:#888;font-size:0.8rem;">Backups are stored in Cloudinary. Request user exports via contact page.</div>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
+                    <button onclick="adminExportUserData()" style="padding:8px 16px;background:#3498db;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">📥 Export User Data</button>
+                    <button onclick="adminRestoreUserData()" style="padding:8px 16px;background:#e67e22;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">🔄 Initiate Restore</button>
+                </div>
+
+                <div style="display:flex;gap:8px;justify-content:flex-end;padding-bottom:16px;">
+                    <button onclick="closeUserModal()" style="padding:10px 20px;background:#eee;color:#333;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="addPartnerModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1404,52 +1449,57 @@
             document.getElementById('lastUpdate').textContent = now.toLocaleTimeString();
             fetchDashboardData();
             loadPartners();
-            updatePendingBadge();
-        }
-
-        // Update pending submissions badge count
-        async function updatePendingBadge() {
-            try {
-                const res = await fetch('/api/admin/partner-submissions?status=pending');
-                const data = await res.json();
-                const count = (data.submissions || []).length;
-                const badge = document.getElementById('pendingBadge');
-                if (count > 0) {
-                    badge.textContent = count;
-                    badge.style.display = 'inline';
-                } else {
-                    badge.style.display = 'none';
-                }
-            } catch (e) { /* silent */ }
         }
 
         // Fetch dashboard data
         async function fetchDashboardData() {
             try {
                 const response = await fetch('/api/admin/dashboard');
+                if (!response.ok) throw new Error('Dashboard API error');
                 const data = await response.json();
-                
-                // Update dashboard
-                document.getElementById('totalUsers').textContent = data.total_users || 0;
-                document.getElementById('activeUsers').textContent = data.active_users || 0;
-                document.getElementById('totalIds').textContent = data.total_identifications || 0;
-                document.getElementById('idsToday').textContent = data.ids_today || 0;
-                document.getElementById('adImpressions').textContent = data.total_impressions || 0;
-                document.getElementById('adClicks').textContent = data.total_clicks || 0;
-                document.getElementById('adCTR').textContent = (data.overall_ctr || 0) + '%';
-                document.getElementById('mrr').textContent = '£' + (data.mrr || 0);
 
-                // Update users tab
-                document.getElementById('userTotal').textContent = data.total_users || 0;
-                document.getElementById('userActive').textContent = data.active_users || 0;
-                document.getElementById('userFree').textContent = data.free_users || 0;
-                document.getElementById('userPremium').textContent = data.premium_users || 0;
+                // Dashboard tab
+                const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+                set('totalUsers', data.total_users || 0);
+                set('activeUsers', data.active_users || 0);
+                set('totalIds', data.total_identifications || 0);
+                set('idsToday', data.ids_today || 0);
+                set('adImpressions', data.total_impressions || 0);
+                set('adClicks', data.total_clicks || 0);
+                set('adCTR', (data.overall_ctr || 0) + '%');
+                set('mrr', '£' + (data.mrr || 0));
 
-                // Update revenue tab
-                document.getElementById('revMRR').textContent = '£' + (data.mrr || 0);
+                // Users tab analytics
+                set('userTotal', data.total_users || 0);
+                set('userActive', data.active_users || 0);
+                set('userFree', data.free_users || 0);
+                set('userPremium', data.premium_users || 0);
+
+                // Revenue tab
+                set('revMRR', '£' + (data.mrr || 0));
+                set('revTotal', '£' + (data.mrr || 0));
+                if (data.conversion_rate !== undefined) set('revGrowth', data.conversion_rate + '%');
+
+                // Ads tab
+                set('totalImpressions', data.total_impressions || 0);
+                set('totalClicks', data.total_clicks || 0);
+                set('overallCTR', (data.overall_ctr || 0) + '%');
+
+                // Audit tab answers
+                set('auditConversion', data.conversion_rate ? `${data.conversion_rate}% of users are Premium (${data.premium_users} of ${data.total_users})` : 'No data yet');
+                set('auditEngagement', data.total_clicks > 0 ? `${data.total_clicks} ad clicks from ${data.total_impressions} impressions (${data.overall_ctr}% CTR)` : 'No ad data tracked yet');
+                set('auditMostVisited', 'Identification page (tracking coming soon)');
+                set('auditBestCTR', data.total_clicks > 0 ? 'Check Ads tab for breakdown' : 'No click data yet');
+                set('auditTopPartner', 'Check Partners tab for breakdown');
 
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);
+                // Show error state instead of zeros
+                const errMsg = '⚠️ API error';
+                ['totalUsers','activeUsers','totalIds','idsToday','adImpressions','adClicks'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el && el.textContent === '0') el.textContent = '—';
+                });
             }
         }
 
@@ -1518,11 +1568,11 @@
                                 const style = TIER_COLORS[t] || TIER_COLORS['FREE'];
                                 const isPermanentAdmin = u.uid === PERMANENT_ADMIN;
                                 return `
-                                <tr style="border-bottom:1px solid #eee;" id="userrow-${u.uid}">
+                                <tr style="border-bottom:1px solid #eee;cursor:pointer;" id="userrow-${u.uid}" onclick="openUserModal('${u.uid}')">
                                     <td style="padding:10px;">${u.email || '—'}</td>
                                     <td style="padding:10px;">${u.display_name || '—'}</td>
                                     <td style="padding:10px;">
-                                        <span id="tier-${u.uid}" style="padding:4px 10px;border-radius:20px;font-size:0.8rem;font-weight:bold;background:${style.bg};color:${style.color};">
+                                        <span style="padding:4px 10px;border-radius:20px;font-size:0.8rem;font-weight:bold;background:${style.bg};color:${style.color};">
                                             ${t}
                                         </span>
                                     </td>
@@ -1530,17 +1580,8 @@
                                     <td style="padding:10px;">
                                         ${isPermanentAdmin
                                             ? `<span style="color:#999;font-size:0.8rem;">🔒 Permanent Admin</span>`
-                                            : `<select onchange="changeUserTier('${u.uid}', this.value)" style="padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:0.85rem;cursor:pointer;">
-                                                <option value="" disabled selected>Change...</option>
-                                                <option value="FREE"    ${t==='FREE'    ? 'disabled' : ''}>→ FREE</option>
-                                                <option value="PREMIUM" ${t==='PREMIUM' ? 'disabled' : ''}>→ PREMIUM</option>
-                                                <option value="EXPERT"  ${t==='EXPERT'  ? 'disabled' : ''}>→ EXPERT</option>
-                                                <option value="ADMIN"   ${t==='ADMIN'   ? 'disabled' : ''}>→ ADMIN</option>
-                                               </select>`
+                                            : `<button onclick="event.stopPropagation();openUserModal('${u.uid}')" style="padding:6px 14px;background:#2c5f2d;color:white;border:none;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:bold;">⚙️ Manage</button>`
                                         }
-                                    </td>
-                                    <td style="padding:10px;">
-                                        ${!isPermanentAdmin ? `<button onclick="deleteUserConfirm('${u.uid}', '${u.email}')" style="padding:4px 8px;background:#dc3545;color:white;border:none;border-radius:4px;cursor:pointer;font-size:0.8rem;font-weight:bold;">🗑️ Delete</button>` : ''}
                                     </td>
                                 </tr>`;
                             }).join('')}
@@ -1635,6 +1676,111 @@
                 alert('Error changing tier: ' + e.message);
             }
         }
+
+        // ── User Management Modal ──────────────────────────────
+        let _umCurrentUid = null;
+        let _umCurrentEmail = '';
+
+        window.openUserModal = async function(uid) {
+            _umCurrentUid = uid;
+            document.getElementById('userModal').classList.add('active');
+            document.getElementById('umUid').value = 'Loading...';
+            document.getElementById('umEmail').value = '...';
+            document.getElementById('umStatusInfo').textContent = 'Loading user data...';
+            try {
+                const res = await fetch(`/api/admin/users/${uid}/detail`);
+                if (!res.ok) throw new Error('User not found');
+                const u = await res.json();
+                _umCurrentEmail = u.email || '';
+                document.getElementById('umEmail').value = u.email || '—';
+                document.getElementById('umDisplayName').value = u.display_name || '';
+                document.getElementById('umUid').value = u.firebase_uid || uid;
+                document.getElementById('umCreatedAt').value = u.created_at ? u.created_at.split('T')[0] : '—';
+                document.getElementById('umIdCount').value = u.identification_count || 0;
+                document.getElementById('umFossilCount').value = u.fossil_count || 0;
+                document.getElementById('umBackupFossilCount').textContent = u.fossil_count || 0;
+
+                // Highlight current tier
+                ['FREE','PREMIUM','EXPERT','ADMIN'].forEach(t => {
+                    const btn = document.getElementById('umTier' + t);
+                    if (btn) {
+                        btn.style.background = (u.tier === t) ? '#2c5f2d' : 'white';
+                        btn.style.color = (u.tier === t) ? 'white' : '#333';
+                        btn.style.borderColor = (u.tier === t) ? '#2c5f2d' : '#ddd';
+                    }
+                });
+
+                // Show status
+                const isDeleted = !!u.deleted_at;
+                const isPaused = u.account_status === 'paused';
+                document.getElementById('umStatusInfo').textContent =
+                    isDeleted ? `⛔ Account deleted on ${u.deleted_at ? u.deleted_at.split('T')[0] : '?'}` :
+                    isPaused  ? `⏸️ Account paused — user cannot log in` :
+                                `✅ Account active`;
+                document.getElementById('umRestoreBtn').style.display = isDeleted ? '' : 'none';
+                document.getElementById('umDeleteBtn').style.display = isDeleted ? 'none' : '';
+            } catch (e) {
+                document.getElementById('umStatusInfo').textContent = 'Error loading user: ' + e.message;
+            }
+        };
+
+        window.closeUserModal = function() {
+            document.getElementById('userModal').classList.remove('active');
+            _umCurrentUid = null;
+        };
+
+        window.setUserTier = async function(tier) {
+            if (!_umCurrentUid) return;
+            if (!confirm(`Set tier to ${tier} for ${_umCurrentEmail}?`)) return;
+            try {
+                const res = await fetch(`/api/admin/users/${_umCurrentUid}/tier?tier=${tier}`, { method: 'PUT' });
+                if (!res.ok) throw new Error('Failed');
+                ['FREE','PREMIUM','EXPERT','ADMIN'].forEach(t => {
+                    const btn = document.getElementById('umTier' + t);
+                    if (btn) { btn.style.background = (t===tier)?'#2c5f2d':'white'; btn.style.color=(t===tier)?'white':'#333'; btn.style.borderColor=(t===tier)?'#2c5f2d':'#ddd'; }
+                });
+                alert(`✅ Tier updated to ${tier}`);
+                loadUserList();
+            } catch(e) { alert('Error: ' + e.message); }
+        };
+
+        window.setUserStatus = async function(status) {
+            if (!_umCurrentUid) return;
+            if (!confirm(`Set account status to "${status}" for ${_umCurrentEmail}?`)) return;
+            try {
+                const res = await fetch(`/api/admin/users/${_umCurrentUid}/status?status=${status}`, { method: 'PUT' });
+                if (!res.ok) throw new Error('Failed');
+                document.getElementById('umStatusInfo').textContent = status === 'paused' ? '⏸️ Account paused — user cannot log in' : '✅ Account active';
+                alert(`✅ Account status set to ${status}`);
+                loadUserList();
+            } catch(e) { alert('Error: ' + e.message); }
+        };
+
+        window.deleteUserFromModal = function() {
+            if (!_umCurrentUid) return;
+            window.deleteUserConfirm(_umCurrentUid, _umCurrentEmail);
+            closeUserModal();
+        };
+
+        window.restoreUserFromModal = function() {
+            if (!_umCurrentUid) return;
+            window.restoreUser(_umCurrentUid, _umCurrentEmail);
+            closeUserModal();
+        };
+
+        window.adminExportUserData = function() {
+            if (!_umCurrentUid) return;
+            alert(`📥 To export data for ${_umCurrentEmail}:\n\nContact them to export their fossil collection JSON from My Account page.\n\nAdmin export endpoint coming in next update.`);
+        };
+
+        window.adminRestoreUserData = function() {
+            if (!_umCurrentUid) return;
+            alert(`🔄 Restore for ${_umCurrentEmail}:\n\nAsk the user to send their backup JSON file, then use the import tool to restore their fossil collection.\n\nAdmin-initiated restore endpoint coming in next update.`);
+        };
+
+        document.getElementById('userModal').addEventListener('click', function(e) {
+            if (e.target === this) closeUserModal();
+        });
 
         window.deleteUserConfirm = function(uid, email) {
             if (!confirm(`Delete "${email}"?\n\nThis marks them as deleted but data is recoverable.`)) return;
@@ -1732,99 +1878,115 @@
             try {
                 const response = await fetch('/api/admin/partners');
                 const data = await response.json();
-                
-                let partnerList = data.partners || [];
-                
-                // Apply view filter
+
+                let allList = data.partners || [];
+
+                // Separate soft-deleted from active
+                const deletedList = allList.filter(p => p.deletion_scheduled || p.status === 'deleted');
+                let activeList = allList.filter(p => !p.deletion_scheduled && p.status !== 'deleted');
+
+                // Apply view filter to active list
                 const filter = document.getElementById('partnerViewFilter').value;
-                
-                if (filter === 'active') partnerList = partnerList.filter(p => p.status === 'active');
-                else if (filter === 'paused') partnerList = partnerList.filter(p => p.status === 'paused');
-                else if (filter === 'expired') partnerList = partnerList.filter(p => p.status === 'expired' || !p.active);
+                let partnerList = activeList;
+
+                if (filter === 'active') partnerList = activeList.filter(p => p.status === 'active');
+                else if (filter === 'paused') partnerList = activeList.filter(p => p.status === 'paused');
+                else if (filter === 'expired') partnerList = activeList.filter(p => p.status === 'expired' || !p.active);
+                else if (filter === 'deleted') partnerList = deletedList;
                 else if (filter.startsWith('cat-')) {
                     const cat = filter.replace('cat-', '');
-                    partnerList = partnerList.filter(p => (p.category || '') === cat);
+                    partnerList = activeList.filter(p => (p.category || '') === cat);
                 }
                 else if (filter === 'tier') {
                     const order = { premium: 0, standard: 1, basic: 2, free: 3 };
-                    partnerList.sort((a, b) => (order[a.tier] || 99) - (order[b.tier] || 99));
+                    partnerList = [...activeList].sort((a, b) => (order[a.tier] || 99) - (order[b.tier] || 99));
                 }
                 else if (filter === 'expiring') {
-                    partnerList = partnerList.filter(p => p.expires_at).sort((a, b) => new Date(a.expires_at) - new Date(b.expires_at));
+                    partnerList = activeList.filter(p => p.expires_at).sort((a, b) => new Date(a.expires_at) - new Date(b.expires_at));
                 }
                 else if (filter === 'newest') {
-                    partnerList.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+                    partnerList = [...activeList].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
                 }
                 else if (filter === 'oldest') {
-                    partnerList.sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
+                    partnerList = [...activeList].sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
                 }
-                
+
                 const partnersList = document.getElementById('partnersList');
                 partnersList.innerHTML = '';
-                
+
+                // Show deleted partners banner if any
+                if (deletedList.length > 0 && filter !== 'deleted') {
+                    partnersList.innerHTML += `<div style="background:#fff3cd;border:1px solid #ffc107;padding:10px 16px;border-radius:8px;margin-bottom:16px;font-size:0.9rem;">
+                        ⚠️ <strong>${deletedList.length}</strong> soft-deleted partner${deletedList.length > 1 ? 's' : ''} hidden from users.
+                        <a href="#" onclick="document.getElementById('partnerViewFilter').value='deleted';loadPartners();return false;" style="color:#2c5f2d;font-weight:bold;margin-left:8px;">View Deleted</a>
+                    </div>`;
+                }
+
                 if (partnerList.length > 0) {
                     partnerList.forEach(partner => {
-                        const statusColor = partner.status === 'active' ? '#2c5f2d' : partner.status === 'paused' ? '#e67e22' : '#999';
-                        const statusIcon = partner.status === 'active' ? '✅' : partner.status === 'paused' ? '⏸️' : '❌';
-                        const statusText = partner.status ? partner.status.charAt(0).toUpperCase() + partner.status.slice(1) : 'Active';
-                        
-                        // Expiry info
+                        const isSoftDeleted = partner.deletion_scheduled || partner.status === 'deleted';
+                        const statusColor = isSoftDeleted ? '#c62828' : partner.status === 'active' ? '#2c5f2d' : partner.status === 'paused' ? '#e67e22' : '#999';
+                        const statusIcon = isSoftDeleted ? '🗑️' : partner.status === 'active' ? '✅' : partner.status === 'paused' ? '⏸️' : '❌';
+                        const statusText = isSoftDeleted ? 'Soft Deleted' : (partner.status ? partner.status.charAt(0).toUpperCase() + partner.status.slice(1) : 'Active');
+
                         let expiryHtml = '';
-                        if (partner.expires_at) {
+                        if (isSoftDeleted && partner.deletion_grace_period_expires) {
+                            const grace = new Date(partner.deletion_grace_period_expires);
+                            const daysLeft = Math.ceil((grace - new Date()) / (1000*60*60*24));
+                            expiryHtml = `<p style="margin-top:10px;color:#c62828;font-weight:bold;">🗑️ Permanent delete in ${daysLeft} day${daysLeft !== 1 ? 's' : ''} (${grace.toLocaleDateString('en-GB')})</p>`;
+                        } else if (partner.expires_at) {
                             const expiryDate = new Date(partner.expires_at);
-                            const now = new Date();
-                            const daysLeft = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
-                            if (daysLeft > 0) {
-                                const urgency = daysLeft <= 7 ? 'color: #e74c3c; font-weight: bold;' : 'color: #e67e22;';
-                                expiryHtml = `<p style="margin-top: 10px; ${urgency}">⏰ Expires: ${expiryDate.toLocaleDateString('en-GB', {day: 'numeric', month: 'long', year: 'numeric'})} (${daysLeft} days remaining)</p>`;
-                            } else {
-                                expiryHtml = `<p style="margin-top: 10px; color: #e74c3c; font-weight: bold;">⏰ EXPIRED on ${expiryDate.toLocaleDateString('en-GB', {day: 'numeric', month: 'long', year: 'numeric'})}</p>`;
-                            }
+                            const daysLeft = Math.ceil((expiryDate - new Date()) / (1000*60*60*24));
+                            const urgency = daysLeft <= 7 ? 'color:#e74c3c;font-weight:bold;' : 'color:#e67e22;';
+                            expiryHtml = daysLeft > 0
+                                ? `<p style="margin-top:10px;${urgency}">⏰ Expires ${expiryDate.toLocaleDateString('en-GB')} (${daysLeft} days)</p>`
+                                : `<p style="margin-top:10px;color:#e74c3c;font-weight:bold;">⏰ EXPIRED</p>`;
                         } else {
-                            expiryHtml = `<p style="margin-top: 10px; color: #999;">⏰ No expiry set (showing indefinitely)</p>`;
+                            expiryHtml = `<p style="margin-top:10px;color:#999;">⏰ No expiry set</p>`;
                         }
-                        
+
                         const card = document.createElement('div');
                         card.className = 'partner-card';
                         card.style.borderLeftColor = statusColor;
+                        if (isSoftDeleted) card.style.opacity = '0.75';
                         card.innerHTML = `
-                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div style="display:flex;justify-content:space-between;align-items:start;">
                                 <div>
                                     <h3>${partner.logo_emoji || '🏪'} ${partner.name}</h3>
-                                    <p style="color: #666; margin-top: 5px;">${partner.description || 'No description'}</p>
+                                    <p style="color:#666;margin-top:5px;">${partner.description || 'No description'}</p>
                                 </div>
-                                <span style="background: ${statusColor}; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold;">
+                                <span style="background:${statusColor};color:white;padding:5px 12px;border-radius:20px;font-size:0.85rem;font-weight:bold;">
                                     ${statusIcon} ${statusText}
                                 </span>
                             </div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px;">
                                 <p><strong>🌐 URL:</strong> <a href="${partner.url}" target="_blank">${partner.url}</a></p>
                                 <p><strong>📧 Email:</strong> ${partner.email || 'Not set'}</p>
                                 <p><strong>📍 Address:</strong> ${partner.address || 'Not set'}</p>
                                 <p><strong>📞 Phone:</strong> ${partner.phone || 'Not set'}</p>
                                 <p><strong>🏷️ Category:</strong> ${partner.category || 'activities'}</p>
                                 <p><strong>⭐ Tier:</strong> ${partner.tier || 'standard'}</p>
-                                <p><strong>🎨 Banner:</strong> <span style="background: ${partner.bg_color}; padding: 3px 12px; border-radius: 5px;">${partner.bg_color}</span></p>
-                                <p><strong>💰 Billing:</strong> ${(partner.billing_model || 'none').toUpperCase()} ${partner.rate_amount > 0 ? '(£' + partner.rate_amount + ')' : ''}</p>
-                                <p><strong>⏱️ Display:</strong> ${partner.display_duration || 15}s per show</p>
-                                <p><strong>🔄 Weight:</strong> ${partner.rotation_weight || 1}x per cycle</p>
                             </div>
-                            ${partner.offer ? `<p style="margin-top: 10px; padding: 10px; background: #fff3cd; border-radius: 8px;"><strong>🎁 Offer:</strong> ${partner.offer}</p>` : ''}
+                            ${partner.offer ? `<p style="margin-top:10px;padding:10px;background:#fff3cd;border-radius:8px;"><strong>🎁 Offer:</strong> ${partner.offer}</p>` : ''}
                             ${expiryHtml}
-                            <div style="margin-top: 15px; display: flex; gap: 8px; flex-wrap: wrap;">
-                                <button class="btn btn-small" onclick="openEditPartner('${partner.partner_id}')">✏️ Edit</button>
-                                ${partner.status === 'active' ? 
-                                    `<button class="btn btn-small" style="background: #e67e22;" onclick="pausePartner('${partner.partner_id}')">⏸️ Pause</button>` :
-                                    `<button class="btn btn-small" style="background: #27ae60;" onclick="resumePartner('${partner.partner_id}')">▶️ Resume</button>`
+                            <div style="margin-top:15px;display:flex;gap:8px;flex-wrap:wrap;">
+                                ${isSoftDeleted
+                                    ? `<button class="btn btn-small" style="background:#27ae60;" onclick="restorePartner('${partner.partner_id}','${partner.name}')">↩️ Restore</button>
+                                       <button class="btn btn-danger btn-small" onclick="permanentDeletePartner('${partner.partner_id}','${partner.name}')">💀 Delete Permanently</button>`
+                                    : `<button class="btn btn-small" onclick="openEditPartner('${partner.partner_id}')">✏️ Edit</button>
+                                       ${partner.status === 'active'
+                                           ? `<button class="btn btn-small" style="background:#e67e22;" onclick="pausePartner('${partner.partner_id}')">⏸️ Pause</button>`
+                                           : `<button class="btn btn-small" style="background:#27ae60;" onclick="resumePartner('${partner.partner_id}')">▶️ Resume</button>`
+                                       }
+                                       <button class="btn btn-secondary btn-small" onclick="generateReport('${partner.partner_id}')">📊 Report</button>
+                                       <button class="btn btn-danger btn-small" onclick="deletePartner('${partner.partner_id}')">🗑️ Soft Delete</button>`
                                 }
-                                <button class="btn btn-secondary btn-small" onclick="generateReport('${partner.partner_id}')">📊 Report</button>
-                                <button class="btn btn-danger btn-small" onclick="deletePartner('${partner.partner_id}')">🗑️ Delete</button>
                             </div>
                         `;
                         partnersList.appendChild(card);
                     });
                 } else {
-                    partnersList.innerHTML = '<div class="alert alert-info">No partners found matching this filter.</div>';
+                    partnersList.innerHTML += '<div class="alert alert-info">No partners found matching this filter.</div>';
                 }
             } catch (error) {
                 console.error('Error loading partners:', error);
@@ -2043,359 +2205,22 @@
 
         // Delete partner
         async function deletePartner(partnerId) {
-            if (!confirm('⚠️ Remove this partner ad?\n\nThe ad will disappear from the app immediately.\nYou can restore it within 30 days from the Deleted tab.')) return;
+            if (!confirm('Are you sure you want to delete this partner?')) return;
 
             try {
-                const uid = localStorage.getItem('ammonite_user_id') || 'admin';
-                const response = await fetch(`/api/admin/partners/${partnerId}/soft-delete`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ admin_uid: uid })
-                });
-                const data = await response.json();
-                if (response.ok) {
-                    alert('✅ ' + (data.message || 'Partner marked for deletion. Restore within 30 days.'));
-                    loadPartners();
-                } else {
-                    alert('❌ ' + (data.detail || 'Error removing partner.'));
-                }
-            } catch (error) {
-                console.error('Error soft-deleting partner:', error);
-                alert('❌ Error removing partner.');
-            }
-        }
-
-        // ── Partner Sub-tab Switching ──
-        function switchPartnerView(view) {
-            // Hide all views
-            document.getElementById('partnersActiveView').style.display = 'none';
-            document.getElementById('partnersPendingView').style.display = 'none';
-            document.getElementById('partnersDeletedView').style.display = 'none';
-
-            // Reset all sub-tab styles
-            document.querySelectorAll('.partner-subtab').forEach(t => {
-                t.style.color = '#999';
-                t.style.borderBottom = '3px solid transparent';
-            });
-
-            // Show selected view
-            const tabEl = document.getElementById('pst-' + view);
-            tabEl.style.color = '#2c5f2d';
-            tabEl.style.borderBottom = '3px solid #2c5f2d';
-
-            if (view === 'active') {
-                document.getElementById('partnersActiveView').style.display = 'block';
-                loadPartners();
-            } else if (view === 'pending') {
-                document.getElementById('partnersPendingView').style.display = 'block';
-                loadPendingSubmissions();
-            } else if (view === 'deleted') {
-                document.getElementById('partnersDeletedView').style.display = 'block';
-                loadDeletedPartners();
-            }
-        }
-
-        // ── Load Pending Submissions ──
-        async function loadPendingSubmissions() {
-            const container = document.getElementById('pendingSubmissionsList');
-            try {
-                const res = await fetch('/api/admin/partner-submissions?status=pending');
-                const data = await res.json();
-                const subs = data.submissions || [];
-
-                // Update badge
-                const badge = document.getElementById('pendingBadge');
-                if (subs.length > 0) {
-                    badge.textContent = subs.length;
-                    badge.style.display = 'inline';
-                } else {
-                    badge.style.display = 'none';
-                }
-
-                if (subs.length === 0) {
-                    container.innerHTML = '<div class="alert alert-info" style="text-align:center;padding:30px;">No pending submissions. New submissions from the contact page will appear here.</div>';
-                    return;
-                }
-
-                container.innerHTML = subs.map(s => `
-                    <div class="partner-card" style="border-left:4px solid #e67e22;padding:20px;background:white;border-radius:12px;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-                        <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:10px;">
-                            <div>
-                                <h3 style="color:#2c5f2d;margin:0;">${s.business_name || 'Unnamed'}</h3>
-                                <p style="color:#666;margin:5px 0;font-size:0.9rem;">${s.description || ''}</p>
-                            </div>
-                            <span style="background:#e67e22;color:white;padding:4px 12px;border-radius:15px;font-size:0.82rem;font-weight:bold;">⏳ Pending</span>
-                        </div>
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;font-size:0.9rem;">
-                            <p><strong>🌐</strong> <a href="${s.website_url}" target="_blank">${s.website_url || '—'}</a></p>
-                            <p><strong>📧</strong> ${s.email || '—'}</p>
-                            <p><strong>📞</strong> ${s.phone || '—'}</p>
-                            <p><strong>📍</strong> ${s.address || '—'}</p>
-                            <p><strong>🏷️</strong> ${s.category || '—'}</p>
-                            <p><strong>⏱️</strong> ${s.duration_type === 'indefinite' ? 'Monthly (indefinite)' : 'Limited: ' + (s.start_date || '?') + ' → ' + (s.end_date || '?')}</p>
-                            <p><strong>🔄</strong> ${s.frequency || 'standard'}</p>
-                            <p><strong>🎨</strong> <span style="display:inline-block;width:16px;height:16px;background:${s.banner_color || '#F5F1E8'};border:1px solid #ccc;border-radius:3px;vertical-align:middle;"></span> ${s.banner_color || 'Default'}</p>
-                        </div>
-                        ${s.special_offer ? '<p style="margin-top:10px;padding:8px 12px;background:#fff3cd;border-radius:8px;font-size:0.9rem;"><strong>🎁 Offer:</strong> ' + s.special_offer + '</p>' : ''}
-                        ${s.notes ? '<p style="margin-top:8px;font-size:0.85rem;color:#666;"><strong>📝 Notes:</strong> ' + s.notes + '</p>' : ''}
-                        <p style="margin-top:8px;font-size:0.8rem;color:#999;">Submitted: ${new Date(s.submitted_at).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})} | ID: ${s.id}</p>
-                        <div style="margin-top:15px;display:flex;gap:8px;flex-wrap:wrap;">
-                            <button class="btn btn-small" style="background:#27ae60;" onclick="approveSubmission('${s.id}', '${(s.business_name||'').replace(/'/g,"\\'")}')">✅ Approve & Deploy</button>
-                            <button class="btn btn-small" style="background:#e74c3c;" onclick="rejectSubmission('${s.id}')">❌ Reject</button>
-                            <button class="btn btn-small" style="background:#3498db;" onclick="editSubmission('${s.id}')">✏️ Edit Before Approve</button>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Error loading submissions:', error);
-                container.innerHTML = '<div class="alert alert-warning">Error loading submissions. Please refresh.</div>';
-            }
-        }
-
-        // ── Approve Submission ──
-        async function approveSubmission(subId, businessName) {
-            if (!confirm('Approve "' + businessName + '"?\n\nThis will create an active partner ad visible on the app.')) return;
-
-            const notes = prompt('Admin notes (optional):') || '';
-            const uid = localStorage.getItem('ammonite_user_id') || 'admin';
-
-            try {
-                const res = await fetch('/api/admin/partner-submissions/' + subId + '/approve', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ admin_uid: uid, admin_notes: notes })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    alert('✅ ' + (data.message || 'Partner approved and now active!'));
-                    loadPendingSubmissions();
-                } else {
-                    alert('❌ ' + (data.detail || 'Error approving submission.'));
-                }
-            } catch (e) {
-                alert('❌ Network error approving submission.');
-            }
-        }
-
-        // ── Reject Submission ──
-        async function rejectSubmission(subId) {
-            const reason = prompt('Rejection reason (will be logged):');
-            if (reason === null) return;
-
-            const uid = localStorage.getItem('ammonite_user_id') || 'admin';
-
-            try {
-                const res = await fetch('/api/admin/partner-submissions/' + subId + '/reject', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ admin_uid: uid, reason: reason })
-                });
-                if (res.ok) {
-                    alert('✅ Submission rejected.');
-                    loadPendingSubmissions();
-                } else {
-                    const data = await res.json();
-                    alert('❌ ' + (data.detail || 'Error rejecting submission.'));
-                }
-            } catch (e) {
-                alert('❌ Network error rejecting submission.');
-            }
-        }
-
-        // ── Edit Submission Before Approval ──
-        async function editSubmission(subId) {
-            try {
-                const res = await fetch('/api/admin/partner-submissions/' + subId);
-                const sub = await res.json();
-                if (!res.ok) { alert('❌ Could not load submission.'); return; }
-
-                const newName = prompt('Business Name:', sub.business_name);
-                if (newName === null) return;
-                const newDesc = prompt('Description:', sub.description);
-                const newOffer = prompt('Special Offer:', sub.special_offer || '');
-                const newColor = prompt('Banner Colour (#hex):', sub.banner_color || '');
-                const newCategory = prompt('Category:', sub.category || '');
-                const adminNotes = prompt('Admin Notes:', sub.admin_notes || '');
-
-                const updates = {};
-                if (newName !== null) updates.business_name = newName;
-                if (newDesc !== null) updates.description = newDesc;
-                if (newOffer !== null) updates.special_offer = newOffer;
-                if (newColor !== null) updates.banner_color = newColor;
-                if (newCategory !== null) updates.category = newCategory;
-                if (adminNotes !== null) updates.admin_notes = adminNotes;
-
-                const updateRes = await fetch('/api/admin/partner-submissions/' + subId, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(updates)
-                });
-                if (updateRes.ok) {
-                    alert('✅ Submission updated. You can now approve it.');
-                    loadPendingSubmissions();
-                } else {
-                    const errData = await updateRes.json();
-                    alert('❌ ' + (errData.detail || 'Error updating submission.'));
-                }
-            } catch (e) {
-                alert('❌ Network error editing submission.');
-            }
-        }
-
-        // ── Load Deleted Partners ──
-        async function loadDeletedPartners() {
-            const container = document.getElementById('deletedPartnersList');
-            try {
-                const res = await fetch('/api/admin/partners/deleted');
-                const data = await res.json();
-                const deleted = data.deleted_partners || [];
-
-                if (deleted.length === 0) {
-                    container.innerHTML = '<div class="alert alert-info" style="text-align:center;padding:30px;">No deleted partners. Removed partners will appear here with a 30-day restoration window.</div>';
-                    return;
-                }
-
-                container.innerHTML = deleted.map(p => {
-                    const daysLeft = p.days_until_permanent || 0;
-                    const urgency = daysLeft <= 7 ? 'color:#e74c3c;font-weight:bold;' : 'color:#e67e22;';
-                    const deletedDate = p.deletion_scheduled_at ? new Date(p.deletion_scheduled_at).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}) : '—';
-
-                    return `
-                    <div class="partner-card" style="border-left:4px solid #e74c3c;padding:20px;background:#fff5f5;border-radius:12px;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-                        <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:10px;">
-                            <div>
-                                <h3 style="color:#c0392b;margin:0;">🗑️ ${p.name || 'Unnamed'}</h3>
-                                <p style="color:#666;margin:5px 0;font-size:0.9rem;">${p.description || ''}</p>
-                            </div>
-                            <span style="background:#e74c3c;color:white;padding:4px 12px;border-radius:15px;font-size:0.82rem;font-weight:bold;">Soft-Deleted</span>
-                        </div>
-                        <div style="margin-top:12px;font-size:0.9rem;">
-                            <p><strong>Deleted:</strong> ${deletedDate}</p>
-                            <p style="${urgency}"><strong>⏰ Restore by:</strong> ${daysLeft} days remaining ${daysLeft <= 7 ? '⚠️ EXPIRING SOON' : ''}</p>
-                            <p><strong>🌐</strong> <a href="${p.url}" target="_blank">${p.url || '—'}</a> | <strong>📧</strong> ${p.email || '—'}</p>
-                        </div>
-                        <div style="margin-top:15px;display:flex;gap:8px;flex-wrap:wrap;">
-                            <button class="btn btn-small" style="background:#27ae60;" onclick="restorePartner('${p.partner_id}', '${(p.name||'').replace(/'/g,"\\'")}')">♻️ Restore</button>
-                            <button class="btn btn-danger btn-small" onclick="permanentDeletePartner('${p.partner_id}', '${(p.name||'').replace(/'/g,"\\'")}')">💀 Delete Permanently</button>
-                        </div>
-                    </div>`;
-                }).join('');
-            } catch (error) {
-                console.error('Error loading deleted partners:', error);
-                container.innerHTML = '<div class="alert alert-warning">Error loading deleted partners.</div>';
-            }
-        }
-
-        // ── Restore Partner ──
-        async function restorePartner(partnerId, name) {
-            const uid = localStorage.getItem('ammonite_user_id') || 'admin';
-            try {
-                const res = await fetch('/api/admin/partners/' + partnerId + '/restore', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ admin_uid: uid })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    alert('✅ ' + (data.message || '"' + name + '" restored and reactivated!'));
-                    loadDeletedPartners();
-                } else {
-                    alert('❌ ' + (data.detail || 'Error restoring partner.'));
-                }
-            } catch (e) {
-                alert('❌ Network error restoring partner.');
-            }
-        }
-
-        // ── Permanent Delete Partner ──
-        async function permanentDeletePartner(partnerId, name) {
-            const typed = prompt('⚠️ PERMANENT DELETION\n\nThis will permanently remove "' + name + '" and all associated data.\n\nThis CANNOT be undone.\n\nType the business name to confirm:');
-            if (typed === null) return;
-            if (typed.trim().toLowerCase() !== name.trim().toLowerCase()) {
-                alert('❌ Business name does not match. Deletion cancelled.');
-                return;
-            }
-
-            const reason = prompt('Reason for permanent deletion (optional):') || '';
-            const uid = localStorage.getItem('ammonite_user_id') || 'admin';
-
-            try {
-                const res = await fetch('/api/admin/partners/' + partnerId + '/permanent', {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ admin_uid: uid, confirm_business_name: typed, reason: reason })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    alert('✅ ' + (data.message || '"' + name + '" permanently deleted.'));
-                    loadDeletedPartners();
-                } else {
-                    alert('❌ ' + (data.detail || 'Error permanently deleting partner.'));
-                }
-            } catch (e) {
-                alert('❌ Network error.');
-            }
-        }
-
-        // ── Load Contact Messages ──
-        async function loadContactMessages() {
-            const container = document.getElementById('messagesList');
-            try {
-                const res = await fetch('/api/admin/contact-messages');
-                const data = await res.json();
-                const messages = data.messages || [];
-
-                if (messages.length === 0) {
-                    container.innerHTML = '<div class="alert alert-info" style="text-align:center;padding:30px;">No messages yet. Contact form submissions will appear here.</div>';
-                    return;
-                }
-
-                container.innerHTML = messages.map(m => `
-                    <div class="partner-card" style="border-left:4px solid #2c5f2d;padding:20px;background:white;border-radius:12px;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-                        <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:10px;">
-                            <div>
-                                <h3 style="color:#2c5f2d;margin:0;">📬 ${m.name || 'Anonymous'}</h3>
-                                <p style="color:#666;margin:5px 0;font-size:0.9rem;"><strong>${m.subject || '(no subject)'}</strong></p>
-                            </div>
-                            <span style="background:#2c5f2d;color:white;padding:4px 12px;border-radius:15px;font-size:0.82rem;font-weight:bold;">Received</span>
-                        </div>
-                        <div style="margin-top:12px;">
-                            <p style="font-size:0.9rem;color:#666;"><strong>📧 From:</strong> <a href="mailto:${m.email}">${m.email}</a></p>
-                            <p style="font-size:0.9rem;color:#666;"><strong>📍 IP:</strong> ${m.ip_address || '—'}</p>
-                            <div style="margin-top:10px;padding:12px;background:#f5f1e8;border-radius:8px;border-left:3px solid #2c5f2d;font-size:0.95rem;color:#333;line-height:1.6;">
-                                ${m.message.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-                            </div>
-                            <p style="margin-top:10px;font-size:0.8rem;color:#999;">ID: ${m.id} | Submitted: ${new Date(m.submitted_at).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})}</p>
-                        </div>
-                        <div style="margin-top:15px;">
-                            <a href="mailto:${m.email}?subject=Re: ${encodeURIComponent(m.subject || 'Your AmmoniteID message')}" class="btn btn-small" style="background:#2c5f2d;text-decoration:none;display:inline-block;">✉️ Reply</a>
-                            <button class="btn btn-small" style="background:#e74c3c;margin-left:8px;" onclick="deleteContactMessage('${m.id}', '${(m.name||'').replace(/'/g,"\\'")}')">🗑️ Delete</button>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Error loading messages:', error);
-                container.innerHTML = '<div class="alert alert-warning">Error loading messages. Please refresh.</div>';
-            }
-        }
-
-        // ── Delete Contact Message ──
-        async function deleteContactMessage(messageId, senderName) {
-            if (!confirm('Delete message from ' + senderName + '?\n\nThis cannot be undone.')) return;
-
-            try {
-                const res = await fetch('/api/admin/contact-messages/' + messageId, {
+                const response = await fetch(`/api/admin/partners/${partnerId}`, {
                     method: 'DELETE'
                 });
-                if (res.ok) {
-                    alert('✅ Message deleted.');
-                    loadContactMessages();
+
+                if (response.ok) {
+                    alert('✅ Partner deleted successfully!');
+                    loadPartners();
                 } else {
-                    const data = await res.json();
-                    alert('❌ ' + (data.detail || 'Error deleting message.'));
+                    alert('❌ Error deleting partner.');
                 }
-            } catch (e) {
-                alert('❌ Network error deleting message.');
+            } catch (error) {
+                console.error('Error deleting partner:', error);
+                alert('❌ Error deleting partner.');
             }
         }
 
