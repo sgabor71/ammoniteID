@@ -58,8 +58,9 @@ def scheduled_auto_delete():
 async def lifespan(app):
     # Startup
     scheduler.add_job(scheduled_auto_delete, 'cron', hour=2, minute=0, id='auto_delete')
+    scheduler.add_job(auto_delete_expired_reviews, 'cron', hour=2, minute=15, id='review_cleanup')
     scheduler.start()
-    print("⏰ Scheduler started — auto-delete runs daily at 2:00 AM UTC")
+    print("⏰ Scheduler started — identifications auto-delete at 2:00 AM, review items at 2:15 AM UTC")
     yield
     # Shutdown
     scheduler.shutdown()
@@ -119,25 +120,23 @@ def add_missing_columns():
     except Exception as e:
         print(f"Column check for users.updated_at: {e}")
     
-    # Check and add columns to partners table if missing
+    # Check and add updated_at column to partners table if missing
     try:
         c.execute("PRAGMA table_info(partners)")
         columns = [col[1] for col in c.fetchall()]
-        partner_cols = {
-            'updated_at':                    "TEXT DEFAULT ''",
-            'deletion_scheduled':            "INTEGER DEFAULT 0",
-            'deleted_at':                    "TEXT",
-            'deletion_grace_period_expires': "TEXT",
-            'name_font_size':                "TEXT DEFAULT '18'",
-            'name_font_color':               "TEXT DEFAULT '#2c2c2c'",
-            'name_font_weight':              "TEXT DEFAULT 'bold'",
-            'name_font_style':               "TEXT DEFAULT 'normal'",
-        }
-        for col, definition in partner_cols.items():
-            if col not in columns:
-                c.execute(f"ALTER TABLE partners ADD COLUMN {col} {definition}")
-                print(f"✅ Added {col} to partners table")
-        conn.commit()
+        if 'updated_at' not in columns:
+            c.execute("ALTER TABLE partners ADD COLUMN updated_at TEXT DEFAULT ''")
+            conn.commit()
+            print("✅ Added missing updated_at column to partners table")
+        if 'deletion_scheduled' not in columns:
+            c.execute("ALTER TABLE partners ADD COLUMN deletion_scheduled INTEGER DEFAULT 0")
+            conn.commit()
+        if 'deleted_at' not in columns:
+            c.execute("ALTER TABLE partners ADD COLUMN deleted_at TEXT")
+            conn.commit()
+        if 'deletion_grace_period_expires' not in columns:
+            c.execute("ALTER TABLE partners ADD COLUMN deletion_grace_period_expires TEXT")
+            conn.commit()
     except Exception as e:
         print(f"Column check for partners: {e}")
     
@@ -292,6 +291,16 @@ def init_db():
         c.execute("ALTER TABLE review_queue ADD COLUMN photos_cleaned INTEGER DEFAULT 0")
     if 'photos_cleaned_at' not in rq_cols:
         c.execute("ALTER TABLE review_queue ADD COLUMN photos_cleaned_at TEXT")
+    if 'keep_forever' not in rq_cols:
+        c.execute("ALTER TABLE review_queue ADD COLUMN keep_forever INTEGER DEFAULT 0")
+    if 'auto_delete_date' not in rq_cols:
+        c.execute("ALTER TABLE review_queue ADD COLUMN auto_delete_date TEXT")
+    # Backfill auto_delete_date for existing items that don't have one
+    c.execute("""
+        UPDATE review_queue
+        SET auto_delete_date = DATE(timestamp, '+30 days')
+        WHERE auto_delete_date IS NULL AND (keep_forever IS NULL OR keep_forever = 0)
+    """)
 
     # ── Partners table ────────────────────────────────────────
     c.execute('''
@@ -767,6 +776,105 @@ def get_stats():
         "top_families":          families,
         "model_version":         MODEL_VERSION,
     }
+
+
+@app.post("/queue/{review_id}/keep-forever")
+def toggle_keep_forever(review_id: str, keep: int = 1):
+    """Toggle keep_forever flag on a review queue item."""
+    conn = sqlite3.connect(str(DB_PATH))
+    c = conn.cursor()
+    if keep:
+        c.execute("UPDATE review_queue SET keep_forever=1, auto_delete_date=NULL WHERE id=?", (review_id,))
+    else:
+        c.execute("SELECT status, timestamp FROM review_queue WHERE id=?", (review_id,))
+        row = c.fetchone()
+        if row:
+            base = datetime.fromisoformat(row[1]) if row[1] else datetime.utcnow()
+            ad = base + timedelta(days=30)
+            c.execute("UPDATE review_queue SET keep_forever=0, auto_delete_date=? WHERE id=?",
+                      (ad.strftime('%Y-%m-%d'), review_id))
+    conn.commit()
+    conn.close()
+    return {"review_id": review_id, "keep_forever": bool(keep)}
+
+
+def auto_delete_expired_reviews():
+    """Delete review queue items past their auto_delete_date unless keep_forever."""
+    try:
+        conn = sqlite3.connect(str(DB_PATH))
+        c = conn.cursor()
+        today = datetime.utcnow().strftime('%Y-%m-%d')
+        c.execute("""
+            DELETE FROM review_queue
+            WHERE auto_delete_date IS NOT NULL
+              AND auto_delete_date <= ?
+              AND (keep_forever IS NULL OR keep_forever = 0)
+        """, (today,))
+        deleted = c.rowcount
+        conn.commit()
+        conn.close()
+        if deleted > 0:
+            print(f"🗑️ Auto-deleted {deleted} expired review queue items")
+    except Exception as e:
+        print(f"⚠️ Review auto-delete error: {e}")
+
+
+@app.get("/api/admin/users/{uid}/detail")
+def get_user_detail(uid: str):
+    """Get full user detail for admin management modal."""
+    conn = sqlite3.connect(str(DB_PATH))
+    c = conn.cursor()
+    c.execute("SELECT * FROM users WHERE firebase_uid=?", (uid,))
+    row = c.fetchone()
+    if not row:
+        conn.close()
+        raise HTTPException(status_code=404, detail="User not found")
+    cols = [d[0] for d in c.description]
+    user = dict(zip(cols, row))
+    # Get identification count for this user
+    c.execute("SELECT COUNT(*) FROM identifications WHERE user_id=? AND deleted_at IS NULL", (uid,))
+    user['identification_count'] = c.fetchone()[0]
+    # Get fossil collection count
+    try:
+        c.execute("SELECT COUNT(*) FROM fossil_collection WHERE user_id=? AND deleted_at IS NULL", (uid,))
+        user['fossil_count'] = c.fetchone()[0]
+    except Exception:
+        user['fossil_count'] = 0
+    conn.close()
+    return user
+
+
+@app.put("/api/admin/users/{uid}/tier")
+def update_user_tier(uid: str, tier: str):
+    """Update a user's subscription tier."""
+    valid = ('FREE', 'PREMIUM', 'EXPERT', 'ADMIN')
+    if tier.upper() not in valid:
+        raise HTTPException(status_code=400, detail=f"Invalid tier. Must be one of: {valid}")
+    conn = sqlite3.connect(str(DB_PATH))
+    c = conn.cursor()
+    c.execute("UPDATE users SET tier=?, premium_status=?, updated_at=? WHERE firebase_uid=?",
+              (tier.upper(), tier.upper(), datetime.utcnow().isoformat(), uid))
+    conn.commit()
+    conn.close()
+    return {"uid": uid, "tier": tier.upper(), "updated": True}
+
+
+@app.put("/api/admin/users/{uid}/status")
+def update_user_status(uid: str, status: str):
+    """Pause or unpause a user account."""
+    conn = sqlite3.connect(str(DB_PATH))
+    c = conn.cursor()
+    if status == 'paused':
+        c.execute("UPDATE users SET account_status='paused', updated_at=? WHERE firebase_uid=?",
+                  (datetime.utcnow().isoformat(), uid))
+    else:
+        c.execute("UPDATE users SET account_status='active', updated_at=? WHERE firebase_uid=?",
+                  (datetime.utcnow().isoformat(), uid))
+    conn.commit()
+    conn.close()
+    return {"uid": uid, "status": status, "updated": True}
+
+
 
 
 @app.get("/photo/{identification_id}/{photo_name}")
