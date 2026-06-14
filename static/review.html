@@ -874,23 +874,16 @@
 
         async function loadFromDB() {
             try {
-                const res = await fetch('/queue?status=pending');
-                const data = await res.json();
-
                 function mapItem(item, fallbackStatus) {
                     const photoPaths = item.photo_paths ? JSON.parse(item.photo_paths) : [];
                     const status = item.status || fallbackStatus;
-
-                    // Calculate auto_delete_date if not set
+                    // All items get 30-day auto-delete from submission date
                     let autoDelete = item.auto_delete_date || null;
                     if (!autoDelete && !item.keep_forever) {
-                        const baseDate = item.reviewed_at ? new Date(item.reviewed_at) : new Date(item.timestamp);
-                        const days = (status === 'ambiguous') ? 90 : 30;
-                        const ad = new Date(baseDate);
-                        ad.setDate(ad.getDate() + days);
-                        autoDelete = ad.toISOString().split('T')[0];
+                        const base = new Date(item.timestamp || item.reviewed_at || Date.now());
+                        base.setDate(base.getDate() + 30);
+                        autoDelete = base.toISOString().split('T')[0];
                     }
-
                     return {
                         id: item.id,
                         identification_id: item.identification_id,
@@ -912,23 +905,23 @@
                         correctedFamily: item.expert_family || '',
                         correctedGenus: item.expert_genus || '',
                         correctionNotes: item.expert_notes || '',
+                        userReportedError: false,
                     };
                 }
 
-                const pending = (data.items || []).map(i => mapItem(i, 'pending'));
-
-                // Also load reviewed/ambiguous/incorrect
-                const [rRes, aRes, iRes] = await Promise.all([
+                const [pRes, rRes, aRes, iRes] = await Promise.all([
+                    fetch('/queue?status=pending'),
                     fetch('/queue?status=reviewed'),
                     fetch('/queue?status=ambiguous'),
                     fetch('/queue?status=incorrect')
                 ]);
-                const reviewed = rRes.ok ? (await rRes.json()).items || [] : [];
+                const pending   = pRes.ok ? (await pRes.json()).items || [] : [];
+                const reviewed  = rRes.ok ? (await rRes.json()).items || [] : [];
                 const ambiguous = aRes.ok ? (await aRes.json()).items || [] : [];
                 const incorrect = iRes.ok ? (await iRes.json()).items || [] : [];
 
                 identifications = [
-                    ...pending,
+                    ...pending.map(i => mapItem(i, 'pending')),
                     ...reviewed.map(i => mapItem(i, 'reviewed')),
                     ...ambiguous.map(i => mapItem(i, 'ambiguous')),
                     ...incorrect.map(i => mapItem(i, 'incorrect')),
@@ -1048,10 +1041,9 @@
                     tr.classList.add('expanded');
                 }
 
-                const confClass = item.confidence >= 70 ? 'high' : 
+                const confClass = item.confidence >= 70 ? 'high' :
                                   item.confidence >= 50 ? 'medium' : 'low';
 
-                // Determine flag: Error Corrected (green) or Error Reported (red)
                 let flag = '';
                 if (item.mlTrainingFlag && item.correctedFamily) {
                     flag = '<div class="corrected-flag">✓ Error Corrected</div>';
@@ -1065,9 +1057,9 @@
                     countdownBadge = '<span style="display:inline-block;margin-top:4px;font-size:0.7rem;background:#d4edda;color:#155724;padding:2px 6px;border-radius:4px;">∞ Keep Forever</span>';
                 } else if (item.autoDeleteDate) {
                     const daysLeft = Math.ceil((new Date(item.autoDeleteDate) - new Date()) / (1000*60*60*24));
-                    const bgColor = daysLeft <= 7 ? '#f8d7da' : '#fff3cd';
-                    const txtColor = daysLeft <= 7 ? '#721c24' : '#856404';
-                    countdownBadge = `<span style="display:inline-block;margin-top:4px;font-size:0.7rem;background:${bgColor};color:${txtColor};padding:2px 6px;border-radius:4px;">⏱️ ${daysLeft}d left</span>`;
+                    const bg = daysLeft <= 7 ? '#f8d7da' : '#fff3cd';
+                    const tc = daysLeft <= 7 ? '#721c24' : '#856404';
+                    countdownBadge = `<span style="display:inline-block;margin-top:4px;font-size:0.7rem;background:${bg};color:${tc};padding:2px 6px;border-radius:4px;">⏱️ ${daysLeft}d left</span>`;
                 }
 
                 tr.innerHTML = `
@@ -1292,14 +1284,11 @@
             if (item) {
                 item.keepForever = !item.keepForever;
                 item.autoDeleteDate = item.keepForever ? null : calculateAutoDeleteFromStatus(item);
-
-                // Persist keep_forever to backend
                 fetch(`/queue/${item.id}/keep-forever`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: new URLSearchParams({ keep: item.keepForever ? '1' : '0' })
                 }).catch(e => console.warn('Could not save keep_forever:', e));
-
                 filterByStatus(currentTab);
             }
         }
@@ -1545,20 +1534,20 @@
             }
         });
 
-        // ── Expose functions to global scope for onclick handlers ──
-        window.switchTab = switchTab;
-        window.markAsReviewed = markAsReviewed;
-        window.markAsAmbiguous = markAsAmbiguous;
+        // ── Expose all functions to global scope for onclick handlers ──
+        window.switchTab            = switchTab;
+        window.markAsReviewed       = markAsReviewed;
+        window.markAsAmbiguous      = markAsAmbiguous;
         window.deleteIdentification = deleteIdentification;
-        window.toggleKeepForever = toggleKeepForever;
-        window.openCorrectionModal = openCorrectionModal;
+        window.toggleKeepForever    = toggleKeepForever;
+        window.openCorrectionModal  = openCorrectionModal;
         window.closeCorrectionModal = closeCorrectionModal;
-        window.submitCorrection = submitCorrection;
-        window.openZoom = openZoom;
-        window.closeZoom = closeZoom;
-        window.zoomIn = zoomIn;
-        window.zoomOut = zoomOut;
-        window.resetZoom = resetZoom;
+        window.submitCorrection     = submitCorrection;
+        window.openZoom             = openZoom;
+        window.closeZoom            = closeZoom;
+        window.zoomIn               = zoomIn;
+        window.zoomOut              = zoomOut;
+        window.resetZoom            = resetZoom;
     </script>
 
 </body>
