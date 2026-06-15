@@ -248,7 +248,7 @@ async def admin_list_users():
     c.execute("""
         SELECT user_id, firebase_uid, email, display_name,
                tier, premium_status, is_admin, premium_expires,
-               created_at, last_login
+               created_at, last_login, status
         FROM users ORDER BY created_at DESC
     """)
     users = [dict(r) for r in c.fetchall()]
@@ -294,6 +294,7 @@ async def admin_list_users():
             "email": u["email"] or "",
             "display_name": u["display_name"] or "",
             "tier": tier,
+            "status": u.get("status") or "active",
             "premium_expires": u["premium_expires"],
             "created_at": u["created_at"],
             "last_login": u["last_login"],
@@ -301,8 +302,9 @@ async def admin_list_users():
             "inactive": inactive,
         })
 
-    total = len(out)
-    tier_counts = {t: sum(1 for u in out if u["tier"] == t) for t in VALID_TIERS}
+    active_users = [u for u in out if u["status"] != "deleted"]
+    total = len(active_users)
+    tier_counts = {t: sum(1 for u in active_users if u["tier"] == t) for t in VALID_TIERS}
 
     return {
         "summary": {
