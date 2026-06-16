@@ -631,6 +631,99 @@
         }
 
         /* Responsive */
+        /* ── Mobile Card View ── */
+        .mobile-cards {
+            display: none;
+        }
+
+        .m-card {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .m-card:active {
+            transform: scale(0.98);
+        }
+
+        .m-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+        }
+
+        .m-card-thumb {
+            width: 56px;
+            height: 56px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+            border: 1px solid #e0e0e0;
+        }
+
+        .m-card-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .m-card-genus {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #1a1a1a;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .m-card-meta {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .m-card-conf {
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            flex-shrink: 0;
+        }
+
+        .m-card-conf.high { background: #d4edda; color: #28a745; }
+        .m-card-conf.medium { background: #fff3cd; color: #e67e22; }
+        .m-card-conf.low { background: #f8d7da; color: #c62828; }
+
+        .m-card-chevron {
+            font-size: 0.8rem;
+            color: #bbb;
+            flex-shrink: 0;
+            transition: transform 0.2s;
+        }
+
+        .m-card.expanded .m-card-chevron {
+            transform: rotate(180deg);
+        }
+
+        .m-card-body {
+            display: none;
+            padding: 0 12px 12px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .m-card.expanded .m-card-body {
+            display: block;
+        }
+
+        .m-card.expanded {
+            border-color: #2c5f2d;
+            box-shadow: 0 2px 12px rgba(44, 95, 45, 0.15);
+        }
+
         @media (max-width: 768px) {
             .detail-info {
                 grid-template-columns: 1fr;
@@ -668,6 +761,22 @@
             .stats-bar {
                 flex-wrap: wrap;
                 gap: 1rem;
+            }
+
+            /* Hide table, show cards on mobile */
+            .review-table {
+                display: none;
+            }
+
+            .mobile-cards {
+                display: block;
+                padding: 10px;
+            }
+
+            .detail-photos img {
+                width: 100%;
+                max-height: 250px;
+                object-fit: contain;
             }
         }
     </style>
@@ -770,6 +879,8 @@
                                 <!-- Populated by JavaScript -->
                             </tbody>
                         </table>
+                        <!-- Mobile card view -->
+                        <div class="mobile-cards" id="mobileCardContainer"></div>
                     </div>
                 </div>
             </div>
@@ -874,57 +985,35 @@
 
         async function loadFromDB() {
             try {
-                function mapItem(item, fallbackStatus) {
-                    const photoPaths = item.photo_paths ? JSON.parse(item.photo_paths) : [];
-                    const status = item.status || fallbackStatus;
-                    // All items get 30-day auto-delete from submission date
-                    let autoDelete = item.auto_delete_date || null;
-                    if (!autoDelete && !item.keep_forever) {
-                        const base = new Date(item.timestamp || item.reviewed_at || Date.now());
-                        base.setDate(base.getDate() + 30);
-                        autoDelete = base.toISOString().split('T')[0];
-                    }
-                    return {
-                        id: item.id,
-                        identification_id: item.identification_id,
-                        date: item.timestamp,
-                        family: item.ai_family || 'Unknown',
-                        genus: item.ai_genus || 'Unknown',
-                        confidence: item.ai_confidence || 0,
-                        status: status,
-                        expert_family: item.expert_family || '',
-                        expert_genus: item.expert_genus || '',
-                        expert_notes: item.expert_notes || '',
-                        photo: photoPaths[0]?.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2') || '',
-                        photos: photoPaths.map(p => p.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2')),
-                        allPhotos: photoPaths.map(p => p.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2')),
-                        keepForever: item.keep_forever === 1,
-                        autoDeleteDate: item.keep_forever === 1 ? null : autoDelete,
-                        reviewedAt: item.reviewed_at || null,
-                        mlTrainingFlag: item.ml_flagged === 1,
-                        correctedFamily: item.expert_family || '',
-                        correctedGenus: item.expert_genus || '',
-                        correctionNotes: item.expert_notes || '',
-                        userReportedError: false,
-                    };
-                }
+                const res = await fetch('/queue?status=pending');
+                const data = await res.json();
+                const pending = (data.items || []).map(item => ({
+                    id: item.id,
+                    identification_id: item.identification_id,
+                    date: item.timestamp,
+                    family: item.ai_family || 'Unknown',
+                    genus: item.ai_genus || 'Unknown',
+                    confidence: item.ai_confidence || 0,
+                    status: item.status || 'pending',
+                    expert_family: item.expert_family || '',
+                    expert_genus: item.expert_genus || '',
+                    expert_notes: item.expert_notes || '',
+                    photo: item.photo_paths ? JSON.parse(item.photo_paths)[0]?.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2') : '',
+                    photos: item.photo_paths ? JSON.parse(item.photo_paths).map(p => p.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2')) : [],
+                }));
 
-                const [pRes, rRes, aRes, iRes] = await Promise.all([
-                    fetch('/queue?status=pending'),
+                // Also load reviewed/ambiguous
+                const [rRes, aRes] = await Promise.all([
                     fetch('/queue?status=reviewed'),
-                    fetch('/queue?status=ambiguous'),
-                    fetch('/queue?status=incorrect')
+                    fetch('/queue?status=ambiguous')
                 ]);
-                const pending   = pRes.ok ? (await pRes.json()).items || [] : [];
-                const reviewed  = rRes.ok ? (await rRes.json()).items || [] : [];
+                const reviewed = rRes.ok ? (await rRes.json()).items || [] : [];
                 const ambiguous = aRes.ok ? (await aRes.json()).items || [] : [];
-                const incorrect = iRes.ok ? (await iRes.json()).items || [] : [];
 
                 identifications = [
-                    ...pending.map(i => mapItem(i, 'pending')),
-                    ...reviewed.map(i => mapItem(i, 'reviewed')),
-                    ...ambiguous.map(i => mapItem(i, 'ambiguous')),
-                    ...incorrect.map(i => mapItem(i, 'incorrect')),
+                    ...pending,
+                    ...reviewed.map(i => ({...i, status:'reviewed', photo: i.photo_paths ? JSON.parse(i.photo_paths)[0]?.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2') : ''})),
+                    ...ambiguous.map(i => ({...i, status:'ambiguous', photo: i.photo_paths ? JSON.parse(i.photo_paths)[0]?.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2') : ''})),
                 ];
 
                 updateCounts();
@@ -944,13 +1033,11 @@
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: new URLSearchParams({
                         status: item.status,
-                        expert_family: item.expert_family || item.correctedFamily || '',
-                        expert_genus: item.expert_genus || item.correctedGenus || '',
-                        expert_notes: item.expert_notes || item.correctionNotes || '',
+                        expert_family: item.expert_family || '',
+                        expert_genus: item.expert_genus || '',
+                        expert_notes: item.expert_notes || '',
                         reviewed_by: 'expert',
-                        ml_flag: item.mlTrainingFlag ? '1' : '0',
-                        keep_forever: item.keepForever ? '1' : '0',
-                        auto_delete_date: item.autoDeleteDate || ''
+                        ml_flag: item.mlTrainingFlag ? '1' : '0'
                     })
                 });
 
@@ -1018,17 +1105,21 @@
             renderGrid(filtered);
         }
 
-        // Render table
+        // Render table (desktop) + cards (mobile)
         function renderGrid(items) {
             const tbody = document.getElementById('reviewTableBody');
+            const mobileContainer = document.getElementById('mobileCardContainer');
             tbody.innerHTML = '';
+            mobileContainer.innerHTML = '';
 
             if (items.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 3rem; color: #999;">No entries in this category</td></tr>';
+                mobileContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: #999;">No entries in this category</p>';
                 return;
             }
 
             items.forEach(item => {
+                // === Desktop table row ===
                 const tr = document.createElement('tr');
                 tr.dataset.id = item.id;
                 tr.onclick = (e) => {
@@ -1041,7 +1132,7 @@
                     tr.classList.add('expanded');
                 }
 
-                const confClass = item.confidence >= 70 ? 'high' :
+                const confClass = item.confidence >= 70 ? 'high' : 
                                   item.confidence >= 50 ? 'medium' : 'low';
 
                 let flag = '';
@@ -1051,30 +1142,17 @@
                     flag = '<div class="error-flag">🚩 Error Reported</div>';
                 }
 
-                // Auto-delete countdown badge
-                let countdownBadge = '';
-                if (item.keepForever) {
-                    countdownBadge = '<span style="display:inline-block;margin-top:4px;font-size:0.7rem;background:#d4edda;color:#155724;padding:2px 6px;border-radius:4px;">∞ Keep Forever</span>';
-                } else if (item.autoDeleteDate) {
-                    const daysLeft = Math.ceil((new Date(item.autoDeleteDate) - new Date()) / (1000*60*60*24));
-                    const bg = daysLeft <= 7 ? '#f8d7da' : '#fff3cd';
-                    const tc = daysLeft <= 7 ? '#721c24' : '#856404';
-                    countdownBadge = `<span style="display:inline-block;margin-top:4px;font-size:0.7rem;background:${bg};color:${tc};padding:2px 6px;border-radius:4px;">⏱️ ${daysLeft}d left</span>`;
-                }
-
                 tr.innerHTML = `
                     <td><img src="${item.photo}" alt="${item.genus}" onclick="openZoom('${item.photo}'); event.stopPropagation();"></td>
                     <td>${item.family}</td>
                     <td>${flag}${item.genus}</td>
                     <td class="card-confidence ${confClass}">${item.confidence}%</td>
                     <td>${formatDate(item.date)}</td>
-                    <td>${item.status}<br>${countdownBadge}</td>
+                    <td>${item.status}</td>
                     <td style="text-align: center;">${expandedRow === item.id ? '▲' : '▼'}</td>
                 `;
-
                 tbody.appendChild(tr);
 
-                // Add expanded details if this row is expanded
                 if (expandedRow === item.id) {
                     const detailTr = document.createElement('tr');
                     detailTr.className = 'expanded-details';
@@ -1087,6 +1165,27 @@
                     `;
                     tbody.appendChild(detailTr);
                 }
+
+                // === Mobile card ===
+                const card = document.createElement('div');
+                card.className = `m-card${expandedRow === item.id ? ' expanded' : ''}`;
+                card.innerHTML = `
+                    <div class="m-card-header" onclick="toggleExpand(${item.id})">
+                        <img class="m-card-thumb" src="${item.photo}" alt="${item.genus}">
+                        <div class="m-card-info">
+                            <div class="m-card-genus">${flag}${item.genus}</div>
+                            <div class="m-card-meta">${item.family} · ${formatDate(item.date)}</div>
+                        </div>
+                        <span class="m-card-conf ${confClass}">${item.confidence}%</span>
+                        <span class="m-card-chevron">${expandedRow === item.id ? '▲' : '▼'}</span>
+                    </div>
+                    ${expandedRow === item.id ? `
+                        <div class="m-card-body" style="display:block;">
+                            ${renderDetailContent(item)}
+                        </div>
+                    ` : ''}
+                `;
+                mobileContainer.appendChild(card);
             });
         }
 
@@ -1284,11 +1383,13 @@
             if (item) {
                 item.keepForever = !item.keepForever;
                 item.autoDeleteDate = item.keepForever ? null : calculateAutoDeleteFromStatus(item);
-                fetch(`/queue/${item.id}/keep-forever`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ keep: item.keepForever ? '1' : '0' })
-                }).catch(e => console.warn('Could not save keep_forever:', e));
+                saveReviewToDB(item);
+
+                // Persist keep_forever to backend
+                if (window.toggleKeepForever) {
+                    window.toggleKeepForever(item.identification_id || item.id, item.keepForever);
+                }
+
                 filterByStatus(currentTab);
             }
         }
@@ -1534,20 +1635,21 @@
             }
         });
 
-        // ── Expose all functions to global scope for onclick handlers ──
-        window.switchTab            = switchTab;
-        window.markAsReviewed       = markAsReviewed;
-        window.markAsAmbiguous      = markAsAmbiguous;
-        window.deleteIdentification = deleteIdentification;
-        window.toggleKeepForever    = toggleKeepForever;
-        window.openCorrectionModal  = openCorrectionModal;
+        // ── Export all functions to window (required for inline onclick in module scope) ──
+        window.switchTab = switchTab;
+        window.markAsReviewed = markAsReviewed;
+        window.markAsAmbiguous = markAsAmbiguous;
+        window.openCorrectionModal = openCorrectionModal;
         window.closeCorrectionModal = closeCorrectionModal;
-        window.submitCorrection     = submitCorrection;
-        window.openZoom             = openZoom;
-        window.closeZoom            = closeZoom;
-        window.zoomIn               = zoomIn;
-        window.zoomOut              = zoomOut;
-        window.resetZoom            = resetZoom;
+        window.submitCorrection = submitCorrection;
+        window.deleteIdentification = deleteIdentification;
+        window.toggleKeepForever = toggleKeepForever;
+        window.toggleExpand = toggleExpand;
+        window.openZoom = openZoom;
+        window.closeZoom = closeZoom;
+        window.zoomIn = zoomIn;
+        window.zoomOut = zoomOut;
+        window.resetZoom = resetZoom;
     </script>
 
 </body>
