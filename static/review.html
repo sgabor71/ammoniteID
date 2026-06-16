@@ -588,13 +588,16 @@
 
         .zoom-container {
             position: relative;
-            max-width: 90vw;
-            max-height: 90vh;
+            width: 95vw;
+            height: 95vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             overflow: hidden;
         }
 
         .zoom-image {
-            max-width: 100%;
+            max-width: 95vw;
             max-height: 90vh;
             cursor: move;
             transition: transform 0.3s ease;
@@ -631,6 +634,60 @@
         }
 
         /* Responsive */
+        /* ── Floating Action Toolbar ── */
+        .action-toolbar {
+            position: fixed;
+            bottom: -100px;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 3px solid #2c5f2d;
+            padding: 12px 20px;
+            z-index: 500;
+            box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.18);
+            transition: bottom 0.3s ease;
+        }
+
+        .action-toolbar.visible {
+            bottom: 0;
+        }
+
+        .toolbar-label {
+            font-family: Arial, sans-serif;
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toolbar-label strong {
+            color: #1a1a1a;
+            font-size: 1rem;
+        }
+
+        .toolbar-btns {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-btns button {
+            padding: 10px 18px !important;
+            border: none !important;
+            border-radius: 8px !important;
+            cursor: pointer !important;
+            font-family: Arial, sans-serif !important;
+            font-weight: 600 !important;
+            font-size: 0.9rem !important;
+            transition: all 0.2s !important;
+            width: auto !important;
+            min-width: auto !important;
+            max-width: none !important;
+            flex-shrink: 0;
+        }
+
         @media (max-width: 768px) {
             .detail-info {
                 grid-template-columns: 1fr;
@@ -781,6 +838,32 @@
                 object-fit: contain !important;
                 height: auto !important;
             }
+
+            /* Toolbar mobile — horizontal scroll */
+            .toolbar-btns {
+                flex-wrap: nowrap !important;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                gap: 6px;
+                padding-bottom: 4px;
+            }
+
+            .toolbar-btns button {
+                padding: 10px 12px !important;
+                font-size: 0.8rem !important;
+                white-space: nowrap;
+            }
+
+            /* Zoom fullscreen on mobile */
+            .zoom-container {
+                width: 100vw !important;
+                height: 100vh !important;
+            }
+
+            .zoom-image {
+                max-width: 100vw !important;
+                max-height: 95vh !important;
+            }
         }
     </style>
 </head>
@@ -888,6 +971,20 @@
         </div>
     </div>
 
+    <!-- Floating Action Toolbar -->
+    <div class="action-toolbar" id="actionToolbar">
+        <div class="toolbar-label">
+            Reviewing: <strong id="toolbarItemName">—</strong>
+        </div>
+        <div class="toolbar-btns">
+            <button class="btn-correct" data-action="mark-reviewed">✓ Correct</button>
+            <button class="btn-incorrect" data-action="open-correction">✗ Incorrect</button>
+            <button class="btn-ambiguous" data-action="mark-ambiguous">❓ Ambiguous</button>
+            <button class="btn-delete" data-action="delete-item">❌ Delete</button>
+            <button class="btn-keep" data-action="toggle-keep" id="toolbarKeepBtn">☐ Keep Forever</button>
+        </div>
+    </div>
+
     <!-- Correction Modal -->
     <div class="modal" id="correctionModal">
         <div class="modal-content">
@@ -983,6 +1080,7 @@
         let identifications = [];
         let currentTab = 'pending';
         let expandedRow = null;
+        let selectedItemId = null;
 
         async function loadFromDB() {
             try {
@@ -1095,6 +1193,8 @@
         function switchTab(tab) {
             currentTab = tab;
             expandedRow = null;
+            selectedItemId = null;
+            document.getElementById('actionToolbar').classList.remove('visible');
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             const activeTab = document.querySelector(`.tab[data-tab="${tab}"]`);
             if (activeTab) activeTab.classList.add('active');
@@ -1169,12 +1269,25 @@
             });
         }
 
-        // Toggle expand row
+        // Toggle expand row + floating toolbar
         function toggleExpand(id) {
             if (expandedRow === id) {
                 expandedRow = null;
+                selectedItemId = null;
+                document.getElementById('actionToolbar').classList.remove('visible');
             } else {
                 expandedRow = id;
+                selectedItemId = id;
+                // Update toolbar with selected item info
+                const item = identifications.find(i => i.id === id);
+                if (item) {
+                    document.getElementById('toolbarItemName').textContent = 
+                        item.genus + ' (' + item.confidence + '%)';
+                    const keepBtn = document.getElementById('toolbarKeepBtn');
+                    keepBtn.textContent = item.keepForever ? '✓ Kept Forever' : '☐ Keep Forever';
+                    keepBtn.className = item.keepForever ? 'btn-keep active' : 'btn-keep';
+                }
+                document.getElementById('actionToolbar').classList.add('visible');
             }
             filterByStatus(currentTab);
         }
@@ -1273,16 +1386,6 @@
                 </div>
 
                 ${genusHTML}
-
-                <div class="detail-actions">
-                    <button class="btn-correct" data-action="mark-reviewed" data-id="${item.id}">✓ Correct</button>
-                    <button class="btn-incorrect" data-action="open-correction" data-id="${item.id}">✗ Incorrect - Correct It</button>
-                    <button class="btn-ambiguous" data-action="mark-ambiguous" data-id="${item.id}">❓ Ambiguous</button>
-                    <button class="btn-delete" data-action="delete-item" data-id="${item.id}">❌ Delete</button>
-                    <button class="btn-keep ${item.keepForever ? 'active' : ''}" data-action="toggle-keep" data-id="${item.id}">
-                        ${item.keepForever ? '✓ Keep Forever' : '☐ Keep Forever'}
-                    </button>
-                </div>
             `;
         }
 
@@ -1496,6 +1599,8 @@
 
                 closeCorrectionModal();
                 expandedRow = null;
+                selectedItemId = null;
+                document.getElementById('actionToolbar').classList.remove('visible');
 
                 setTimeout(() => {
                     updateCounts();
@@ -1622,24 +1727,35 @@
             if (!el) return;
 
             const action = el.dataset.action;
-            const id = el.dataset.id ? parseInt(el.dataset.id) : null;
+            // Use data-id if present (inline), otherwise use selectedItemId (toolbar)
+            const id = el.dataset.id ? parseInt(el.dataset.id) : selectedItemId;
 
             switch (action) {
-                case 'switch-tab':      switchTab(el.dataset.tab); break;
-                case 'mark-reviewed':   markAsReviewed(id); break;
-                case 'open-correction': openCorrectionModal(id); break;
-                case 'mark-ambiguous':  markAsAmbiguous(id); break;
-                case 'delete-item':     deleteIdentification(id); break;
-                case 'toggle-keep':     toggleKeepForever(id); break;
-                case 'open-zoom':       openZoom(el.dataset.src); e.stopPropagation(); break;
-                case 'close-zoom':      closeZoom(); break;
-                case 'zoom-in':         zoomIn(); break;
-                case 'zoom-out':        zoomOut(); break;
-                case 'reset-zoom':      resetZoom(); break;
+                case 'switch-tab':       switchTab(el.dataset.tab); break;
+                case 'mark-reviewed':    if (id != null) { markAsReviewed(id); document.getElementById('actionToolbar').classList.remove('visible'); selectedItemId = null; } break;
+                case 'open-correction':  if (id != null) openCorrectionModal(id); break;
+                case 'mark-ambiguous':   if (id != null) { markAsAmbiguous(id); document.getElementById('actionToolbar').classList.remove('visible'); selectedItemId = null; } break;
+                case 'delete-item':      if (id != null) { deleteIdentification(id); document.getElementById('actionToolbar').classList.remove('visible'); selectedItemId = null; } break;
+                case 'toggle-keep':      if (id != null) { toggleKeepForever(id); updateToolbarKeepState(); } break;
+                case 'open-zoom':        openZoom(el.dataset.src); e.stopPropagation(); break;
+                case 'close-zoom':       closeZoom(); break;
+                case 'zoom-in':          zoomIn(); break;
+                case 'zoom-out':         zoomOut(); break;
+                case 'reset-zoom':       resetZoom(); break;
                 case 'close-correction': closeCorrectionModal(); break;
                 case 'submit-correction': submitCorrection(); break;
             }
         });
+
+        // Update Keep Forever button text in toolbar after toggle
+        function updateToolbarKeepState() {
+            if (selectedItemId == null) return;
+            const item = identifications.find(i => i.id === selectedItemId);
+            if (!item) return;
+            const keepBtn = document.getElementById('toolbarKeepBtn');
+            keepBtn.textContent = item.keepForever ? '✓ Kept Forever' : '☐ Keep Forever';
+            keepBtn.className = item.keepForever ? 'btn-keep active' : 'btn-keep';
+        }
     </script>
 
 </body>
