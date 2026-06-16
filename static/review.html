@@ -631,99 +631,6 @@
         }
 
         /* Responsive */
-        /* ── Mobile Card View ── */
-        .mobile-cards {
-            display: none;
-        }
-
-        .m-card {
-            background: white;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            border: 1px solid #e0e0e0;
-            overflow: hidden;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .m-card:active {
-            transform: scale(0.98);
-        }
-
-        .m-card-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-        }
-
-        .m-card-thumb {
-            width: 56px;
-            height: 56px;
-            border-radius: 8px;
-            object-fit: cover;
-            flex-shrink: 0;
-            border: 1px solid #e0e0e0;
-        }
-
-        .m-card-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .m-card-genus {
-            font-weight: 700;
-            font-size: 0.95rem;
-            color: #1a1a1a;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .m-card-meta {
-            font-size: 0.8rem;
-            color: #888;
-            margin-top: 2px;
-        }
-
-        .m-card-conf {
-            font-weight: 700;
-            font-size: 0.9rem;
-            padding: 4px 10px;
-            border-radius: 20px;
-            flex-shrink: 0;
-        }
-
-        .m-card-conf.high { background: #d4edda; color: #28a745; }
-        .m-card-conf.medium { background: #fff3cd; color: #e67e22; }
-        .m-card-conf.low { background: #f8d7da; color: #c62828; }
-
-        .m-card-chevron {
-            font-size: 0.8rem;
-            color: #bbb;
-            flex-shrink: 0;
-            transition: transform 0.2s;
-        }
-
-        .m-card.expanded .m-card-chevron {
-            transform: rotate(180deg);
-        }
-
-        .m-card-body {
-            display: none;
-            padding: 0 12px 12px;
-            border-top: 1px solid #f0f0f0;
-        }
-
-        .m-card.expanded .m-card-body {
-            display: block;
-        }
-
-        .m-card.expanded {
-            border-color: #2c5f2d;
-            box-shadow: 0 2px 12px rgba(44, 95, 45, 0.15);
-        }
-
         @media (max-width: 768px) {
             .detail-info {
                 grid-template-columns: 1fr;
@@ -763,20 +670,116 @@
                 gap: 1rem;
             }
 
-            /* Hide table, show cards on mobile */
-            .review-table {
-                display: none;
+            /* ── Mobile compact rows ── */
+            .review-table thead {
+                display: none !important;
             }
 
-            .mobile-cards {
-                display: block;
-                padding: 10px;
+            .review-table tbody tr {
+                display: flex !important;
+                flex-wrap: nowrap !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                padding: 10px !important;
+                gap: 10px !important;
+                border-bottom: 2px solid #e8e8e8;
+                background: white;
+                border-radius: 8px;
+                margin-bottom: 6px;
+            }
+
+            .review-table tbody tr:active {
+                background: #f0f7f0;
+            }
+
+            .review-table tbody tr.expanded {
+                background: #e8f5e9;
+                border-left: 3px solid #2c5f2d;
+            }
+
+            .review-table tbody tr td {
+                padding: 0 !important;
+                border: none !important;
+            }
+
+            /* Photo — small thumbnail */
+            .review-table tbody tr td:nth-child(1) {
+                order: 1;
+                flex-shrink: 0;
+            }
+            .review-table tbody tr td:nth-child(1) img {
+                width: 50px !important;
+                height: 50px !important;
+                object-fit: cover !important;
+                border-radius: 6px !important;
+            }
+
+            /* Family — hide on mobile */
+            .review-table tbody tr td:nth-child(2) {
+                display: none !important;
+            }
+
+            /* Genus — main label */
+            .review-table tbody tr td:nth-child(3) {
+                order: 2;
+                flex: 1;
+                font-weight: 700;
+                font-size: 0.9rem !important;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                min-width: 0;
+            }
+
+            /* Confidence */
+            .review-table tbody tr td:nth-child(4) {
+                order: 3;
+                flex-shrink: 0;
+            }
+
+            /* Date — hide on mobile */
+            .review-table tbody tr td:nth-child(5) {
+                display: none !important;
+            }
+
+            /* Status — hide on mobile */
+            .review-table tbody tr td:nth-child(6) {
+                display: none !important;
+            }
+
+            /* Expand arrow */
+            .review-table tbody tr td:nth-child(7) {
+                order: 4;
+                flex-shrink: 0;
+                font-size: 0.8rem;
+                color: #999;
+            }
+
+            /* Expanded detail row — full width */
+            .review-table tbody tr.expanded-details {
+                display: block !important;
+                padding: 0 10px 10px !important;
+                margin-top: -6px;
+                border-radius: 0 0 8px 8px;
+                border: 1px solid #2c5f2d;
+                border-top: none;
+                margin-bottom: 8px;
+            }
+
+            .review-table tbody tr.expanded-details td {
+                display: block !important;
+                width: 100% !important;
+            }
+
+            .expanded-content {
+                padding: 10px 0 !important;
             }
 
             .detail-photos img {
-                width: 100%;
-                max-height: 250px;
-                object-fit: contain;
+                max-width: 100%;
+                max-height: 200px;
+                object-fit: contain !important;
+                height: auto !important;
             }
         }
     </style>
@@ -847,16 +850,16 @@
                 <div class="main-content">
                     <!-- Tabs -->
                     <div class="tabs">
-                        <button class="tab active" onclick="switchTab('pending')">
+                        <button class="tab active" data-action="switch-tab" data-tab="pending">
                             Pending <span class="tab-count" id="countPending">0</span>
                         </button>
-                        <button class="tab" onclick="switchTab('reviewed')">
+                        <button class="tab" data-action="switch-tab" data-tab="reviewed">
                             Reviewed <span class="tab-count" id="countReviewed">0</span>
                         </button>
-                        <button class="tab" onclick="switchTab('incorrect')">
+                        <button class="tab" data-action="switch-tab" data-tab="incorrect">
                             Incorrect <span class="tab-count" id="countIncorrect">0</span>
                         </button>
-                        <button class="tab" onclick="switchTab('ambiguous')">
+                        <button class="tab" data-action="switch-tab" data-tab="ambiguous">
                             Ambiguous <span class="tab-count" id="countAmbiguous">0</span>
                         </button>
                     </div>
@@ -879,8 +882,6 @@
                                 <!-- Populated by JavaScript -->
                             </tbody>
                         </table>
-                        <!-- Mobile card view -->
-                        <div class="mobile-cards" id="mobileCardContainer"></div>
                     </div>
                 </div>
             </div>
@@ -890,7 +891,7 @@
     <!-- Correction Modal -->
     <div class="modal" id="correctionModal">
         <div class="modal-content">
-            <button class="modal-close" onclick="closeCorrectionModal()">×</button>
+            <button class="modal-close" data-action="close-correction">×</button>
             
             <div class="detail-header">
                 <h2>Correct Identification</h2>
@@ -922,10 +923,10 @@
                 </div>
 
                 <div style="display: flex; gap: 1rem;">
-                    <button onclick="submitCorrection()" style="flex: 1; padding: 0.75rem; background: #2c5f2d; color: white; border: none; border-radius: 8px; font-family: Arial; font-weight: 600; font-size: 1rem; cursor: pointer;">
+                    <button data-action="submit-correction" style="flex: 1; padding: 0.75rem; background: #2c5f2d; color: white; border: none; border-radius: 8px; font-family: Arial; font-weight: 600; font-size: 1rem; cursor: pointer;">
                         ✓ Submit Correction
                     </button>
-                    <button onclick="closeCorrectionModal()" style="flex: 1; padding: 0.75rem; background: #e0e0e0; color: #666; border: none; border-radius: 8px; font-family: Arial; font-weight: 600; font-size: 1rem; cursor: pointer;">
+                    <button data-action="close-correction" style="flex: 1; padding: 0.75rem; background: #e0e0e0; color: #666; border: none; border-radius: 8px; font-family: Arial; font-weight: 600; font-size: 1rem; cursor: pointer;">
                         Cancel
                     </button>
                 </div>
@@ -938,10 +939,10 @@
         <div class="zoom-container" id="zoomContainer">
             <img id="zoomImage" class="zoom-image" alt="Zoomed photo">
             <div class="zoom-controls">
-                <button onclick="zoomIn()">+</button>
-                <button onclick="zoomOut()">−</button>
-                <button onclick="resetZoom()">⟲</button>
-                <button onclick="closeZoom()">✕</button>
+                <button data-action="zoom-in">+</button>
+                <button data-action="zoom-out">−</button>
+                <button data-action="reset-zoom">⟲</button>
+                <button data-action="close-zoom">✕</button>
             </div>
         </div>
     </div>
@@ -1093,9 +1094,10 @@
         // Switch tab
         function switchTab(tab) {
             currentTab = tab;
-            expandedRow = null; // Collapse any open row
+            expandedRow = null;
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
+            const activeTab = document.querySelector(`.tab[data-tab="${tab}"]`);
+            if (activeTab) activeTab.classList.add('active');
             filterByStatus(tab);
         }
 
@@ -1105,25 +1107,21 @@
             renderGrid(filtered);
         }
 
-        // Render table (desktop) + cards (mobile)
+        // Render table
         function renderGrid(items) {
             const tbody = document.getElementById('reviewTableBody');
-            const mobileContainer = document.getElementById('mobileCardContainer');
             tbody.innerHTML = '';
-            mobileContainer.innerHTML = '';
 
             if (items.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 3rem; color: #999;">No entries in this category</td></tr>';
-                mobileContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: #999;">No entries in this category</p>';
                 return;
             }
 
             items.forEach(item => {
-                // === Desktop table row ===
                 const tr = document.createElement('tr');
                 tr.dataset.id = item.id;
                 tr.onclick = (e) => {
-                    if (!e.target.closest('img') && !e.target.closest('button')) {
+                    if (!e.target.closest('[data-action]') && !e.target.closest('button')) {
                         toggleExpand(item.id);
                     }
                 };
@@ -1135,6 +1133,7 @@
                 const confClass = item.confidence >= 70 ? 'high' : 
                                   item.confidence >= 50 ? 'medium' : 'low';
 
+                // Determine flag: Error Corrected (green) or Error Reported (red)
                 let flag = '';
                 if (item.mlTrainingFlag && item.correctedFamily) {
                     flag = '<div class="corrected-flag">✓ Error Corrected</div>';
@@ -1143,7 +1142,7 @@
                 }
 
                 tr.innerHTML = `
-                    <td><img src="${item.photo}" alt="${item.genus}" onclick="openZoom('${item.photo}'); event.stopPropagation();"></td>
+                    <td><img src="${item.photo}" alt="${item.genus}" data-action="open-zoom" data-src="${item.photo}"></td>
                     <td>${item.family}</td>
                     <td>${flag}${item.genus}</td>
                     <td class="card-confidence ${confClass}">${item.confidence}%</td>
@@ -1151,8 +1150,10 @@
                     <td>${item.status}</td>
                     <td style="text-align: center;">${expandedRow === item.id ? '▲' : '▼'}</td>
                 `;
+
                 tbody.appendChild(tr);
 
+                // Add expanded details if this row is expanded
                 if (expandedRow === item.id) {
                     const detailTr = document.createElement('tr');
                     detailTr.className = 'expanded-details';
@@ -1165,27 +1166,6 @@
                     `;
                     tbody.appendChild(detailTr);
                 }
-
-                // === Mobile card ===
-                const card = document.createElement('div');
-                card.className = `m-card${expandedRow === item.id ? ' expanded' : ''}`;
-                card.innerHTML = `
-                    <div class="m-card-header" onclick="toggleExpand(${item.id})">
-                        <img class="m-card-thumb" src="${item.photo}" alt="${item.genus}">
-                        <div class="m-card-info">
-                            <div class="m-card-genus">${flag}${item.genus}</div>
-                            <div class="m-card-meta">${item.family} · ${formatDate(item.date)}</div>
-                        </div>
-                        <span class="m-card-conf ${confClass}">${item.confidence}%</span>
-                        <span class="m-card-chevron">${expandedRow === item.id ? '▲' : '▼'}</span>
-                    </div>
-                    ${expandedRow === item.id ? `
-                        <div class="m-card-body" style="display:block;">
-                            ${renderDetailContent(item)}
-                        </div>
-                    ` : ''}
-                `;
-                mobileContainer.appendChild(card);
             });
         }
 
@@ -1265,8 +1245,8 @@
 
                 <div class="detail-photos">
                     ${item.allPhotos ? item.allPhotos.map(p => `
-                        <img src="${p}" alt="${item.genus}" onclick="openZoom('${p}')">
-                    `).join('') : `<img src="${item.photo}" alt="${item.genus}" onclick="openZoom('${item.photo}')">`}
+                        <img src="${p}" alt="${item.genus}" data-action="open-zoom" data-src="${p}">
+                    `).join('') : `<img src="${item.photo}" alt="${item.genus}" data-action="open-zoom" data-src="${item.photo}">`}
                 </div>
 
                 <div class="detail-info">
@@ -1295,11 +1275,11 @@
                 ${genusHTML}
 
                 <div class="detail-actions">
-                    <button class="btn-correct" onclick="markAsReviewed(${item.id})">✓ Correct</button>
-                    <button class="btn-incorrect" onclick="openCorrectionModal(${item.id})">✗ Incorrect - Correct It</button>
-                    <button class="btn-ambiguous" onclick="markAsAmbiguous(${item.id})">❓ Ambiguous</button>
-                    <button class="btn-delete" onclick="deleteIdentification(${item.id})">❌ Delete</button>
-                    <button class="btn-keep ${item.keepForever ? 'active' : ''}" onclick="toggleKeepForever(${item.id})">
+                    <button class="btn-correct" data-action="mark-reviewed" data-id="${item.id}">✓ Correct</button>
+                    <button class="btn-incorrect" data-action="open-correction" data-id="${item.id}">✗ Incorrect - Correct It</button>
+                    <button class="btn-ambiguous" data-action="mark-ambiguous" data-id="${item.id}">❓ Ambiguous</button>
+                    <button class="btn-delete" data-action="delete-item" data-id="${item.id}">❌ Delete</button>
+                    <button class="btn-keep ${item.keepForever ? 'active' : ''}" data-action="toggle-keep" data-id="${item.id}">
                         ${item.keepForever ? '✓ Keep Forever' : '☐ Keep Forever'}
                     </button>
                 </div>
@@ -1635,21 +1615,31 @@
             }
         });
 
-        // ── Export all functions to window (required for inline onclick in module scope) ──
-        window.switchTab = switchTab;
-        window.markAsReviewed = markAsReviewed;
-        window.markAsAmbiguous = markAsAmbiguous;
-        window.openCorrectionModal = openCorrectionModal;
-        window.closeCorrectionModal = closeCorrectionModal;
-        window.submitCorrection = submitCorrection;
-        window.deleteIdentification = deleteIdentification;
-        window.toggleKeepForever = toggleKeepForever;
-        window.toggleExpand = toggleExpand;
-        window.openZoom = openZoom;
-        window.closeZoom = closeZoom;
-        window.zoomIn = zoomIn;
-        window.zoomOut = zoomOut;
-        window.resetZoom = resetZoom;
+        // ── Event delegation: handles ALL button/image clicks ──
+        // Works inside module scope — no window exports needed
+        document.addEventListener('click', function(e) {
+            const el = e.target.closest('[data-action]');
+            if (!el) return;
+
+            const action = el.dataset.action;
+            const id = el.dataset.id ? parseInt(el.dataset.id) : null;
+
+            switch (action) {
+                case 'switch-tab':      switchTab(el.dataset.tab); break;
+                case 'mark-reviewed':   markAsReviewed(id); break;
+                case 'open-correction': openCorrectionModal(id); break;
+                case 'mark-ambiguous':  markAsAmbiguous(id); break;
+                case 'delete-item':     deleteIdentification(id); break;
+                case 'toggle-keep':     toggleKeepForever(id); break;
+                case 'open-zoom':       openZoom(el.dataset.src); e.stopPropagation(); break;
+                case 'close-zoom':      closeZoom(); break;
+                case 'zoom-in':         zoomIn(); break;
+                case 'zoom-out':        zoomOut(); break;
+                case 'reset-zoom':      resetZoom(); break;
+                case 'close-correction': closeCorrectionModal(); break;
+                case 'submit-correction': submitCorrection(); break;
+            }
+        });
     </script>
 
 </body>
