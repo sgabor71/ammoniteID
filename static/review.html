@@ -6,11 +6,7 @@
     <title>Review Queue - AmmoniteID</title>
     <link rel="stylesheet" href="/static/responsive-mobile.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Georgia', 'Merriweather', serif;
@@ -51,9 +47,7 @@
             gap: 0.5rem;
         }
 
-        .header-logo:hover {
-            transform: translateX(-3px);
-        }
+        .header-logo:hover { transform: translateX(-3px); }
 
         .hamburger-btn {
             display: none;
@@ -159,31 +153,13 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #2c5f2d;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: #666;
-            font-family: 'Arial', sans-serif;
-        }
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 2rem; font-weight: bold; color: #2c5f2d; }
+        .stat-label { font-size: 0.9rem; color: #666; font-family: 'Arial', sans-serif; }
 
         /* Queue Container */
-        .queue-container {
-            display: flex;
-            gap: 2rem;
-        }
-
-        .main-content {
-            flex: 1;
-        }
+        .queue-container { display: flex; gap: 2rem; }
+        .main-content { flex: 1; }
 
         /* Tabs */
         .tabs {
@@ -208,15 +184,8 @@
             white-space: nowrap;
         }
 
-        .tab:hover {
-            color: #2c5f2d;
-            background: rgba(44, 95, 45, 0.05);
-        }
-
-        .tab.active {
-            color: #2c5f2d;
-            border-bottom-color: #2c5f2d;
-        }
+        .tab:hover { color: #2c5f2d; background: rgba(44, 95, 45, 0.05); }
+        .tab.active { color: #2c5f2d; border-bottom-color: #2c5f2d; }
 
         .tab-count {
             display: inline-block;
@@ -227,10 +196,7 @@
             margin-left: 0.5rem;
         }
 
-        .tab.active .tab-count {
-            background: #2c5f2d;
-            color: white;
-        }
+        .tab.active .tab-count { background: #2c5f2d; color: white; }
 
         /* Review List/Table */
         .review-list {
@@ -263,13 +229,8 @@
             transition: all 0.3s;
         }
 
-        .review-table tbody tr:hover {
-            background: #f8f9fa;
-        }
-
-        .review-table tbody tr.expanded {
-            background: #e8f5e9;
-        }
+        .review-table tbody tr:hover { background: #f8f9fa; }
+        .review-table tbody tr.expanded { background: #e8f5e9; }
 
         .review-table td {
             padding: 1rem;
@@ -289,51 +250,12 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
-        .card-confidence {
-            font-weight: 600;
-        }
+        .card-confidence { font-weight: 600; }
+        .card-confidence.high { color: #28a745; }
+        .card-confidence.medium { color: #ffc107; }
+        .card-confidence.low { color: #dc3545; }
 
-        .card-confidence.high {
-            color: #28a745;
-        }
-
-        .card-confidence.medium {
-            color: #ffc107;
-        }
-
-        .card-confidence.low {
-            color: #dc3545;
-        }
-
-        .error-flag {
-            background: linear-gradient(135deg, #dc3545, #c82333);
-            color: white;
-            padding: 0.3rem 0.6rem;
-            border-radius: 6px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            font-family: 'Arial', sans-serif;
-            margin-bottom: 0.25rem;
-            display: inline-block;
-            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
-            margin-right: 0.5rem;
-        }
-
-        .corrected-flag {
-            background: linear-gradient(135deg, #28a745, #218838);
-            color: white;
-            padding: 0.3rem 0.6rem;
-            border-radius: 6px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            font-family: 'Arial', sans-serif;
-            margin-bottom: 0.25rem;
-            display: inline-block;
-            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
-            margin-right: 0.5rem;
-        }
-
-        /* Expanded Details Row */
+        /* Expanded Details */
         .expanded-details {
             background: #f8f9fa;
             border-top: 2px solid #2c5f2d;
@@ -420,92 +342,144 @@
             font-weight: 600;
         }
 
-        .detail-actions {
+        /* ─── Toolbar ─── */
+        .action-toolbar {
+            position: fixed;
+            bottom: -100px;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 3px solid #2c5f2d;
+            padding: 12px 20px;
+            z-index: 500;
+            box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.18);
+            transition: bottom 0.3s ease;
+            max-width: 100vw;
+        }
+
+        .action-toolbar.visible {
+            bottom: 0;
+        }
+
+        .toolbar-header {
             display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
         }
 
-        .detail-actions button {
-            padding: 0.6rem 1.25rem;
+        .toolbar-label {
+            font-family: Arial, sans-serif;
+            font-size: 0.85rem;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toolbar-label strong {
+            color: #1a1a1a;
+            font-size: 1rem;
+        }
+
+        .toolbar-toggle {
+            background: none;
             border: none;
-            border-radius: 8px;
+            font-size: 1.2rem;
             cursor: pointer;
-            font-family: 'Arial', sans-serif;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.3s;
+            color: #2c5f2d;
+            padding: 0 8px;
         }
 
-        .btn-correct {
-            background: #28a745;
-            color: white;
+        .toolbar-btns {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 4px;
         }
 
-        .btn-correct:hover {
-            background: #218838;
-            transform: translateY(-2px);
+        .toolbar-btns button {
+            padding: 10px 18px !important;
+            border: none !important;
+            border-radius: 8px !important;
+            cursor: pointer !important;
+            font-family: Arial, sans-serif !important;
+            font-weight: 600 !important;
+            font-size: 0.9rem !important;
+            transition: all 0.2s !important;
+            flex-shrink: 0;
+            white-space: nowrap;
         }
 
-        .btn-incorrect {
-            background: #dc3545;
-            color: white;
+        /* ─── Mobile Tiles ─── */
+        #rvCompact {
+            display: none;
         }
 
-        .btn-incorrect:hover {
-            background: #c82333;
-            transform: translateY(-2px);
+        .tile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 8px;
         }
 
-        .btn-ambiguous {
-            background: #ffc107;
-            color: #000;
+        .tile-item {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            border: 2px solid #e8e8e8;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
 
-        .btn-ambiguous:hover {
-            background: #e0a800;
-            transform: translateY(-2px);
+        .tile-item.selected {
+            border-color: #2c5f2d;
+            background: #e8f5e9;
+            box-shadow: 0 4px 12px rgba(44,95,45,0.15);
         }
 
-        .btn-delete {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-delete:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
-        }
-
-        .btn-keep {
-            background: #2c5f2d;
-            color: white;
-        }
-
-        .btn-keep:hover {
-            background: #1e4620;
-            transform: translateY(-2px);
-        }
-
-        .btn-keep.active {
-            background: #1e4620;
-        }
-
-        .auto-delete-info {
-            padding: 1rem;
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            margin-bottom: 1rem;
+        .tile-item .tile-thumb {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
             border-radius: 8px;
-            font-family: 'Arial', sans-serif;
+            border: 1px solid #ddd;
         }
 
-        .auto-delete-info.warning {
-            background: #f8d7da;
-            border-left-color: #dc3545;
+        .tile-item .tile-genus {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-top: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        /* Modal */
+        .tile-item .tile-meta {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .tile-item .tile-conf {
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-top: 4px;
+        }
+
+        .tile-detail {
+            margin-top: 6px;
+            border-top: 1px solid #2c5f2d;
+            padding-top: 10px;
+        }
+
+        /* ─── Modals ─── */
         .modal {
             display: none;
             position: fixed;
@@ -520,9 +494,7 @@
             overflow-y: auto;
         }
 
-        .modal.active {
-            display: flex;
-        }
+        .modal.active { display: flex; }
 
         .modal-content {
             background: white;
@@ -563,10 +535,7 @@
             padding: 2rem;
         }
 
-        .detail-header h2 {
-            font-size: 1.5rem;
-            margin: 0;
-        }
+        .detail-header h2 { font-size: 1.5rem; margin: 0; }
 
         /* Zoom Modal */
         .zoom-modal {
@@ -582,9 +551,7 @@
             align-items: center;
         }
 
-        .zoom-modal.active {
-            display: flex;
-        }
+        .zoom-modal.active { display: flex; }
 
         .zoom-container {
             position: relative;
@@ -633,164 +600,29 @@
             transform: scale(1.1);
         }
 
-        /* ── MOBILE FIXES ── */
-        #rvCompact {
-            display: none;
-            padding: 0 5px;
-        }
-
-        .rv-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            background: white;
-            border-bottom: 2px solid #e8e8e8;
-            border-radius: 8px;
-            margin-bottom: 6px;
-            cursor: pointer;
-            max-width: 100%;
-            overflow: hidden;
-        }
-
-        .rv-item.rv-selected {
-            background: #e8f5e9;
-            border-left: 3px solid #2c5f2d;
-        }
-
-        .rv-thumb {
-            flex-shrink: 0;
-            border-radius: 6px;
-            object-fit: cover;
-            border: 1px solid #ddd;
-            width: 50px;
-            height: 50px;
-        }
-
-        .rv-info {
-            flex: 1;
-            min-width: 0;
-            overflow: hidden;
-        }
-
-        .rv-genus {
-            font-weight: 700;
-            font-size: 14px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .rv-meta {
-            font-size: 12px;
-            color: #888;
-            margin-top: 2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .rv-conf {
-            flex-shrink: 0;
-            font-weight: 700;
-            font-size: 13px;
-            padding: 3px 8px;
-            border-radius: 12px;
-        }
-
-        .rv-detail {
-            padding: 10px;
-            border: 1px solid #2c5f2d;
-            border-top: none;
-            border-radius: 0 0 8px 8px;
-            margin-top: -6px;
-            margin-bottom: 8px;
-            background: #fafafa;
-            max-width: 100%;
-            overflow-x: auto;
-        }
-
-        .rv-detail .detail-photos {
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        }
-        .rv-detail .detail-photos img {
-            height: 120px;
-        }
-
-        /* Floating Action Toolbar */
-        .action-toolbar {
-            position: fixed;
-            bottom: -100px;
-            left: 0;
-            right: 0;
-            background: white;
-            border-top: 3px solid #2c5f2d;
-            padding: 12px 20px;
-            z-index: 500;
-            box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.18);
-            transition: bottom 0.3s ease;
-            max-width: 100vw;
-        }
-
-        .action-toolbar.visible {
-            bottom: 0;
-        }
-
-        .toolbar-label {
-            font-family: Arial, sans-serif;
-            font-size: 0.85rem;
-            color: #666;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .toolbar-label strong {
-            color: #1a1a1a;
-            font-size: 1rem;
-        }
-
-        .toolbar-btns {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            padding-bottom: 4px;
-        }
-
-        .toolbar-btns button {
-            padding: 10px 18px !important;
-            border: none !important;
-            border-radius: 8px !important;
-            cursor: pointer !important;
-            font-family: Arial, sans-serif !important;
-            font-weight: 600 !important;
-            font-size: 0.9rem !important;
-            transition: all 0.2s !important;
-            flex-shrink: 0;
-            white-space: nowrap;
-        }
-
-        /* Responsive for mobile */
+        /* ─── Responsive ─── */
         @media (max-width: 768px) {
-            .detail-info {
-                grid-template-columns: 1fr;
+            .review-table { display: none !important; }
+            #rvCompact { display: block !important; }
+
+            .tile-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
             }
 
-            .detail-actions {
-                flex-direction: column;
+            .tile-item .tile-thumb { height: 100px; }
+
+            .action-toolbar { padding: 10px 12px; }
+            .toolbar-btns { gap: 4px; }
+            .toolbar-btns button {
+                padding: 8px 12px !important;
+                font-size: 0.8rem !important;
             }
 
-            .detail-actions button {
-                width: 100%;
-            }
+            .stats-bar { flex-wrap: wrap; gap: 0.5rem; }
+            .stat-value { font-size: 1.5rem; }
 
-            .hamburger-btn {
-                display: flex;
-            }
-            
+            header { flex-direction: column; align-items: flex-start; }
             header nav {
                 display: none;
                 width: 100%;
@@ -798,111 +630,23 @@
                 gap: 1rem;
                 padding: 1rem 0;
             }
-            
-            header nav.show {
-                display: flex;
-            }
-            
-            header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
+            header nav.show { display: flex; }
+            .hamburger-btn { display: flex; }
 
-            .stats-bar {
-                flex-wrap: wrap;
-                gap: 1rem;
-            }
-
-            /* Hide table, show mobile divs */
-            .review-table {
-                display: none !important;
-            }
-
-            #rvCompact {
-                display: block !important;
-                padding: 5px;
-                max-width: 100vw;
-                overflow-x: hidden;
-            }
-
-            /* Mobile card adjustments */
-            .rv-item {
-                padding: 8px 6px;
-                gap: 6px;
-            }
-            .rv-thumb {
-                width: 40px;
-                height: 40px;
-            }
-            .rv-genus {
-                font-size: 13px;
-            }
-            .rv-conf {
-                font-size: 12px;
-                padding: 2px 6px;
-            }
-
-            .rv-detail .detail-photos {
-                grid-template-columns: 1fr 1fr;
-            }
-            .rv-detail .detail-photos img {
-                height: 100px;
-            }
-
-            .action-toolbar {
-                padding: 10px 12px;
-            }
-            .toolbar-btns {
-                gap: 4px;
-            }
-            .toolbar-btns button {
-                padding: 8px 12px !important;
-                font-size: 0.8rem !important;
-                white-space: nowrap;
-            }
-
-            /* Zoom fullscreen on mobile */
-            .zoom-container {
-                width: 100vw !important;
-                height: 100vh !important;
-            }
-
-            .zoom-image {
-                max-width: 100vw !important;
-                max-height: 95vh !important;
-            }
+            .detail-photos { grid-template-columns: 1fr 1fr; }
+            .detail-photos img { height: 120px; }
         }
 
         @media (max-width: 480px) {
-            .rv-item {
-                gap: 4px;
-                padding: 6px 4px;
-            }
-            .rv-thumb {
-                width: 36px;
-                height: 36px;
-            }
-            .rv-conf {
-                font-size: 10px;
-                padding: 2px 5px;
-            }
-            .rv-genus {
-                font-size: 12px;
-            }
-            .rv-meta {
-                font-size: 10px;
-            }
-            .rv-detail .detail-photos {
-                grid-template-columns: 1fr;
-            }
-            .rv-detail .detail-photos img {
-                height: 80px;
-            }
+            .tile-grid { grid-template-columns: 1fr; }
+            .tile-item .tile-thumb { height: 140px; }
+            .detail-photos { grid-template-columns: 1fr; }
+            .detail-photos img { height: 100px; }
         }
     </style>
 </head>
 <body>
-    <!-- Immediate expert gate — blocks page before content renders -->
+    <!-- Immediate expert gate -->
     <script>
     (function(){
         var tier = (localStorage.getItem('ammonite_tier') || 'FREE').toUpperCase();
@@ -913,16 +657,10 @@
     })();
     </script>
 
-    <!-- Navigation Header -->
+    <!-- Navigation -->
     <header>
-        <a href="/static/home.html" class="header-logo">
-            <span>🐚 AmmoniteID</span>
-        </a>
-        <button class="hamburger-btn">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
+        <a href="/static/home.html" class="header-logo">🐚 AmmoniteID</a>
+        <button class="hamburger-btn"><span></span><span></span><span></span></button>
         <nav>
             <a href="/static/home.html">Home</a>
             <a href="/static/test.html">Identify</a>
@@ -931,88 +669,56 @@
             <a href="/static/contact.html">Contact</a>
             <a href="/static/partners.html">Partners</a>
         </nav>
-        <a href="/static/home.html" class="home-btn">
-            🏠 Back to Home
-        </a>
+        <a href="/static/home.html" class="home-btn">🏠 Back to Home</a>
     </header>
 
-    <!-- Main Container -->
     <div class="main-container">
         <div class="card">
             <h1>Expert Review Queue</h1>
             <p class="subtitle">Review and validate AI identifications</p>
 
-            <!-- Stats Bar -->
             <div class="stats-bar" id="stats-bar">
-                <div class="stat-item">
-                    <div class="stat-value" id="stat-total">0</div>
-                    <div class="stat-label">Total Entries</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="stat-pending">0</div>
-                    <div class="stat-label">Pending Review</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="stat-reviewed">0</div>
-                    <div class="stat-label">Reviewed</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="stat-ambiguous">0</div>
-                    <div class="stat-label">Ambiguous</div>
-                </div>
+                <div class="stat-item"><div class="stat-value" id="stat-total">0</div><div class="stat-label">Total</div></div>
+                <div class="stat-item"><div class="stat-value" id="stat-pending">0</div><div class="stat-label">Pending</div></div>
+                <div class="stat-item"><div class="stat-value" id="stat-reviewed">0</div><div class="stat-label">Reviewed</div></div>
+                <div class="stat-item"><div class="stat-value" id="stat-ambiguous">0</div><div class="stat-label">Ambiguous</div></div>
             </div>
 
-            <!-- Queue Container -->
             <div class="queue-container">
                 <div class="main-content">
-                    <!-- Tabs -->
                     <div class="tabs">
-                        <button class="tab active" data-action="switch-tab" data-tab="pending">
-                            Pending <span class="tab-count" id="countPending">0</span>
-                        </button>
-                        <button class="tab" data-action="switch-tab" data-tab="reviewed">
-                            Reviewed <span class="tab-count" id="countReviewed">0</span>
-                        </button>
-                        <button class="tab" data-action="switch-tab" data-tab="incorrect">
-                            Incorrect <span class="tab-count" id="countIncorrect">0</span>
-                        </button>
-                        <button class="tab" data-action="switch-tab" data-tab="ambiguous">
-                            Ambiguous <span class="tab-count" id="countAmbiguous">0</span>
-                        </button>
+                        <button class="tab active" data-action="switch-tab" data-tab="pending">Pending <span class="tab-count" id="countPending">0</span></button>
+                        <button class="tab" data-action="switch-tab" data-tab="reviewed">Reviewed <span class="tab-count" id="countReviewed">0</span></button>
+                        <button class="tab" data-action="switch-tab" data-tab="incorrect">Incorrect <span class="tab-count" id="countIncorrect">0</span></button>
+                        <button class="tab" data-action="switch-tab" data-tab="ambiguous">Ambiguous <span class="tab-count" id="countAmbiguous">0</span></button>
                     </div>
 
-                    <!-- Review List -->
                     <div class="review-list">
+                        <!-- Desktop table -->
                         <table class="review-table">
-                            <thead>
-                                <tr>
-                                    <th>Photo</th>
-                                    <th>Family</th>
-                                    <th>Genus</th>
-                                    <th>Confidence</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                    <th>▼</th>
-                                </tr>
-                            </thead>
-                            <tbody id="reviewTableBody">
-                                <!-- Populated by JavaScript -->
-                            </tbody>
+                            <thead><tr><th>Photo</th><th>Family</th><th>Genus</th><th>Conf</th><th>Date</th><th>Status</th><th>▼</th></tr></thead>
+                            <tbody id="reviewTableBody"></tbody>
                         </table>
-                        <!-- Mobile list (JS-rendered divs, hidden on desktop) -->
-                        <div id="rvCompact"></div>
+
+                        <!-- Mobile tile grid -->
+                        <div id="rvCompact">
+                            <div class="tile-grid" id="tileGrid"></div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Floating Action Toolbar -->
+    <!-- Floating Action Toolbar (collapsible) -->
     <div class="action-toolbar" id="actionToolbar">
-        <div class="toolbar-label">
-            Reviewing: <strong id="toolbarItemName">—</strong>
+        <div class="toolbar-header">
+            <div class="toolbar-label">
+                Reviewing: <strong id="toolbarItemName">—</strong>
+            </div>
+            <button class="toolbar-toggle" id="toolbarToggle" aria-label="Toggle toolbar">▼</button>
         </div>
-        <div class="toolbar-btns">
+        <div class="toolbar-btns" id="toolbarBtns">
             <button class="btn-correct" data-action="mark-reviewed">✓ Correct</button>
             <button class="btn-incorrect" data-action="open-correction">✗ Incorrect</button>
             <button class="btn-ambiguous" data-action="mark-ambiguous">❓ Ambiguous</button>
@@ -1025,43 +731,31 @@
     <div class="modal" id="correctionModal">
         <div class="modal-content">
             <button class="modal-close" data-action="close-correction">×</button>
-            
-            <div class="detail-header">
-                <h2>Correct Identification</h2>
-            </div>
-            
-            <div style="padding: 2rem;">
-                <p style="margin-bottom: 1.5rem; font-family: Arial; color: #666;">
+            <div class="detail-header"><h2>Correct Identification</h2></div>
+            <div style="padding:2rem;">
+                <p style="margin-bottom:1.5rem;font-family:Arial;color:#666;">
                     AI identified as: <strong id="aiIdentification"></strong><br>
                     Please provide the correct identification:
                 </p>
-
-                <div style="margin-bottom: 1.5rem;">
-                    <label style="display: block; font-family: Arial; font-weight: 600; margin-bottom: 0.5rem; color: #2c5f2d;">Correct Family:</label>
-                    <select id="correctFamily" style="width: 100%; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 8px; font-family: Arial; font-size: 1rem;">
+                <div style="margin-bottom:1.5rem;">
+                    <label style="display:block;font-family:Arial;font-weight:600;margin-bottom:0.5rem;color:#2c5f2d;">Correct Family:</label>
+                    <select id="correctFamily" style="width:100%;padding:0.75rem;border:2px solid #e0e0e0;border-radius:8px;font-family:Arial;font-size:1rem;">
                         <option value="">Select family...</option>
                     </select>
                 </div>
-
-                <div style="margin-bottom: 1.5rem;">
-                    <label style="display: block; font-family: Arial; font-weight: 600; margin-bottom: 0.5rem; color: #2c5f2d;">Correct Genus:</label>
-                    <select id="correctGenus" style="width: 100%; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 8px; font-family: Arial; font-size: 1rem;">
+                <div style="margin-bottom:1.5rem;">
+                    <label style="display:block;font-family:Arial;font-weight:600;margin-bottom:0.5rem;color:#2c5f2d;">Correct Genus:</label>
+                    <select id="correctGenus" style="width:100%;padding:0.75rem;border:2px solid #e0e0e0;border-radius:8px;font-family:Arial;font-size:1rem;">
                         <option value="">Select genus...</option>
                     </select>
                 </div>
-
-                <div style="margin-bottom: 1.5rem;">
-                    <label style="display: block; font-family: Arial; font-weight: 600; margin-bottom: 0.5rem; color: #2c5f2d;">Notes (optional):</label>
-                    <textarea id="correctionNotes" style="width: 100%; min-height: 80px; padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 8px; font-family: Arial; font-size: 1rem; resize: vertical;"></textarea>
+                <div style="margin-bottom:1.5rem;">
+                    <label style="display:block;font-family:Arial;font-weight:600;margin-bottom:0.5rem;color:#2c5f2d;">Notes (optional):</label>
+                    <textarea id="correctionNotes" style="width:100%;min-height:80px;padding:0.75rem;border:2px solid #e0e0e0;border-radius:8px;font-family:Arial;font-size:1rem;resize:vertical;"></textarea>
                 </div>
-
-                <div style="display: flex; gap: 1rem;">
-                    <button data-action="submit-correction" style="flex: 1; padding: 0.75rem; background: #2c5f2d; color: white; border: none; border-radius: 8px; font-family: Arial; font-weight: 600; font-size: 1rem; cursor: pointer;">
-                        ✓ Submit Correction
-                    </button>
-                    <button data-action="close-correction" style="flex: 1; padding: 0.75rem; background: #e0e0e0; color: #666; border: none; border-radius: 8px; font-family: Arial; font-weight: 600; font-size: 1rem; cursor: pointer;">
-                        Cancel
-                    </button>
+                <div style="display:flex;gap:1rem;">
+                    <button data-action="submit-correction" style="flex:1;padding:0.75rem;background:#2c5f2d;color:white;border:none;border-radius:8px;font-family:Arial;font-weight:600;font-size:1rem;cursor:pointer;">✓ Submit Correction</button>
+                    <button data-action="close-correction" style="flex:1;padding:0.75rem;background:#e0e0e0;color:#666;border:none;border-radius:8px;font-family:Arial;font-weight:600;font-size:1rem;cursor:pointer;">Cancel</button>
                 </div>
             </div>
         </div>
@@ -1085,7 +779,6 @@
     <script src="/static/cloudinary-backup.js"></script>
 
     <script type="module">
-        // ── Auth gate: EXPERT+ only ───────────────────────────
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         const _app = initializeApp({
@@ -1108,31 +801,55 @@
                 window.location.href = '/static/home.html';
                 return;
             }
-            // Authorised — load identifications from DB
             await loadFromDB();
         });
-        // ─────────────────────────────────────────────────────
 
+        // ── State ──
         let identifications = [];
         let currentTab = 'pending';
         let expandedRow = null;
         let selectedItemId = null;
         let updateInProgress = false;
+        let toolbarOpen = false;
 
+        // ── DOM refs ──
+        const toolbar = document.getElementById('actionToolbar');
+        const toolbarToggle = document.getElementById('toolbarToggle');
+        const toolbarBtns = document.getElementById('toolbarBtns');
+
+        // ── Toolbar toggle ──
+        function toggleToolbar(forceState) {
+            toolbarOpen = (forceState !== undefined) ? forceState : !toolbarOpen;
+            toolbar.classList.toggle('visible', toolbarOpen);
+            toolbarToggle.textContent = toolbarOpen ? '▲' : '▼';
+        }
+
+        // ── Auto‑open toolbar when an item is selected ──
+        function showToolbarForItem(id) {
+            const item = identifications.find(i => i.id === id);
+            if (item) {
+                document.getElementById('toolbarItemName').textContent = item.genus + ' (' + item.confidence + '%)';
+                const keepBtn = document.getElementById('toolbarKeepBtn');
+                keepBtn.textContent = item.keepForever ? '✓ Kept Forever' : '☐ Keep Forever';
+                keepBtn.className = item.keepForever ? 'btn-keep active' : 'btn-keep';
+                toggleToolbar(true);
+            }
+        }
+
+        // ── Load data ──
         async function loadFromDB() {
             if (updateInProgress) return;
             try {
-                const [pendingRes, reviewedRes, ambiguousRes] = await Promise.all([
+                const [pRes, rRes, aRes] = await Promise.all([
                     fetch('/queue?status=pending'),
                     fetch('/queue?status=reviewed'),
                     fetch('/queue?status=ambiguous')
                 ]);
 
-                const pending = pendingRes.ok ? (await pendingRes.json()).items || [] : [];
-                const reviewed = reviewedRes.ok ? (await reviewedRes.json()).items || [] : [];
-                const ambiguous = ambiguousRes.ok ? (await ambiguousRes.json()).items || [] : [];
+                const pending = pRes.ok ? (await pRes.json()).items || [] : [];
+                const reviewed = rRes.ok ? (await rRes.json()).items || [] : [];
+                const ambiguous = aRes.ok ? (await aRes.json()).items || [] : [];
 
-                // Map each item to a consistent structure
                 const mapItem = (item) => ({
                     id: item.id,
                     identification_id: item.identification_id,
@@ -1146,7 +863,6 @@
                     expert_notes: item.expert_notes || '',
                     keepForever: item.keep_forever || false,
                     mlTrainingFlag: item.ml_flagged || false,
-                    // Build photo URLs from photo_paths JSON
                     photo_paths: item.photo_paths ? JSON.parse(item.photo_paths) : [],
                     get photo() {
                         const paths = this.photo_paths;
@@ -1163,20 +879,17 @@
                     ...ambiguous.map(mapItem)
                 ];
 
-                // If selected item disappeared, hide toolbar
                 if (selectedItemId && !identifications.find(i => i.id === selectedItemId)) {
                     selectedItemId = null;
                     expandedRow = null;
-                    document.getElementById('actionToolbar').classList.remove('visible');
+                    toggleToolbar(false);
                 }
 
                 updateCounts();
                 filterByStatus(currentTab);
             } catch (e) {
                 console.error('Failed to load reviews:', e);
-                // Show error message in the list
-                const tbody = document.getElementById('reviewTableBody');
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2rem;color:#dc3545;">⚠️ Failed to load reviews. Please refresh.</td></tr>`;
+                document.getElementById('reviewTableBody').innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2rem;color:#dc3545;">⚠️ Failed to load reviews. Please refresh.</td></tr>`;
             }
         }
 
@@ -1197,10 +910,9 @@
                     })
                 });
                 if (!res.ok) throw new Error('Server returned ' + res.status);
-                // After successful update, refresh from DB
                 await loadFromDB();
             } catch (e) {
-                console.warn('Could not save review to DB:', e.message);
+                console.warn('Could not save review:', e.message);
                 alert('Failed to update review. Please try again.');
             } finally {
                 updateInProgress = false;
@@ -1209,17 +921,16 @@
 
         async function deleteReviewFromServer(id) {
             if (updateInProgress) return;
-            if (!confirm('Are you sure you want to permanently delete this review?\nThis action cannot be undone.')) return;
+            if (!confirm('Permanently delete this review? This cannot be undone.')) return;
             updateInProgress = true;
             try {
                 const res = await fetch(`/queue/${id}`, { method: 'DELETE' });
                 if (!res.ok) throw new Error('Server returned ' + res.status);
-                // Remove from local list
                 identifications = identifications.filter(i => i.id !== id);
                 if (selectedItemId === id) {
                     selectedItemId = null;
                     expandedRow = null;
-                    document.getElementById('actionToolbar').classList.remove('visible');
+                    toggleToolbar(false);
                 }
                 updateCounts();
                 filterByStatus(currentTab);
@@ -1231,29 +942,6 @@
             }
         }
 
-        function calculateAutoDeleteDate(days) {
-            const date = new Date();
-            date.setDate(date.getDate() + days);
-            return date.toISOString().split('T')[0];
-        }
-
-        // Zoom variables
-        let currentZoom = 1;
-        let zoomImage = null;
-        let isDragging = false;
-        let startX, startY, translateX = 0, translateY = 0;
-
-        // Initialize — auth guard handles load now
-        window.onload = function() {
-            updateCounts();
-            filterByStatus('pending');
-            // Poll DB every 30 seconds for cross-device sync
-            setInterval(() => {
-                loadFromDB();
-            }, 30000);
-        };
-
-        // Update counts
         function updateCounts() {
             const total = identifications.length;
             const pending = identifications.filter(i => i.status === 'pending').length;
@@ -1272,39 +960,36 @@
             document.getElementById('countAmbiguous').textContent = ambiguous;
         }
 
-        // Switch tab
         function switchTab(tab) {
             currentTab = tab;
             expandedRow = null;
             selectedItemId = null;
-            document.getElementById('actionToolbar').classList.remove('visible');
+            toggleToolbar(false);
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             const activeTab = document.querySelector(`.tab[data-tab="${tab}"]`);
             if (activeTab) activeTab.classList.add('active');
             filterByStatus(tab);
         }
 
-        // Filter by status
         function filterByStatus(status) {
             const filtered = identifications.filter(i => i.status === status);
             renderGrid(filtered);
         }
 
-        // Render table
         function renderGrid(items) {
             const tbody = document.getElementById('reviewTableBody');
-            const mobile = document.getElementById('rvCompact');
+            const tileGrid = document.getElementById('tileGrid');
             tbody.innerHTML = '';
-            if (mobile) mobile.innerHTML = '';
+            tileGrid.innerHTML = '';
 
             if (items.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 3rem; color: #999;">No entries in this category</td></tr>';
-                if (mobile) mobile.innerHTML = '<p style="text-align: center; padding: 2rem; color: #999;">No entries in this category</p>';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:3rem;color:#999;">No entries in this category</td></tr>';
+                tileGrid.innerHTML = '<p style="text-align:center;padding:2rem;color:#999;grid-column:1/-1;">No entries in this category</p>';
                 return;
             }
 
             items.forEach(item => {
-                // === Desktop table row ===
+                // ── Desktop row ──
                 const tr = document.createElement('tr');
                 tr.dataset.id = item.id;
                 tr.onclick = (e) => {
@@ -1312,16 +997,11 @@
                         toggleExpand(item.id);
                     }
                 };
-                
                 if (expandedRow === item.id) tr.classList.add('expanded');
 
-                const confClass = item.confidence >= 70 ? 'high' : 
-                                  item.confidence >= 50 ? 'medium' : 'low';
-
+                const confClass = item.confidence >= 70 ? 'high' : item.confidence >= 50 ? 'medium' : 'low';
                 let flag = '';
-                if (item.mlTrainingFlag && item.expert_family) {
-                    flag = '<div class="corrected-flag">✓ Error Corrected</div>';
-                }
+                if (item.mlTrainingFlag && item.expert_family) flag = '<div class="corrected-flag">✓ Error Corrected</div>';
 
                 tr.innerHTML = `
                     <td><img src="${item.photo}" alt="${item.genus}" data-action="open-zoom" data-src="${item.photo}"></td>
@@ -1330,7 +1010,7 @@
                     <td class="card-confidence ${confClass}">${item.confidence}%</td>
                     <td>${formatDate(item.date)}</td>
                     <td>${item.status}</td>
-                    <td style="text-align: center;">${expandedRow === item.id ? '▲' : '▼'}</td>
+                    <td style="text-align:center;">${expandedRow === item.id ? '▲' : '▼'}</td>
                 `;
                 tbody.appendChild(tr);
 
@@ -1341,108 +1021,79 @@
                     tbody.appendChild(detailTr);
                 }
 
-                // === Mobile div ===
-                if (mobile) {
-                    const confBg = confClass === 'high' ? '#d4edda' : confClass === 'medium' ? '#fff3cd' : '#f8d7da';
-                    const confFg = confClass === 'high' ? '#28a745' : confClass === 'medium' ? '#e67e22' : '#c62828';
-                    
-                    const div = document.createElement('div');
-                    div.className = 'rv-item' + (expandedRow === item.id ? ' rv-selected' : '');
-                    div.innerHTML = `
-                        <img class="rv-thumb" src="${item.photo}" width="50" height="50" alt="${item.genus}">
-                        <div class="rv-info">
-                            <div class="rv-genus">${item.genus}</div>
-                            <div class="rv-meta">${item.family} · ${formatDate(item.date)}</div>
-                        </div>
-                        <span class="rv-conf" style="background:${confBg};color:${confFg};">${item.confidence}%</span>
-                        <span style="color:#999;font-size:12px;">${expandedRow === item.id ? '▲' : '▼'}</span>
-                    `;
-                    div.addEventListener('click', function(e) {
-                        if (!e.target.closest('[data-action]')) {
-                            toggleExpand(item.id);
-                        }
-                    });
-                    mobile.appendChild(div);
+                // ── Mobile tile ──
+                const tile = document.createElement('div');
+                tile.className = 'tile-item' + (expandedRow === item.id ? ' selected' : '');
+                tile.dataset.id = item.id;
 
-                    // Mobile expanded detail
-                    if (expandedRow === item.id) {
-                        const detail = document.createElement('div');
-                        detail.className = 'rv-detail';
-                        detail.innerHTML = renderDetailContent(item);
-                        mobile.appendChild(detail);
+                const confBg = confClass === 'high' ? '#d4edda' : confClass === 'medium' ? '#fff3cd' : '#f8d7da';
+                const confFg = confClass === 'high' ? '#28a745' : confClass === 'medium' ? '#e67e22' : '#c62828';
+
+                tile.innerHTML = `
+                    <img class="tile-thumb" src="${item.photo}" alt="${item.genus}" data-action="open-zoom" data-src="${item.photo}">
+                    <div class="tile-genus">${item.genus}</div>
+                    <div class="tile-meta">${item.family} · ${formatDate(item.date)}</div>
+                    <span class="tile-conf" style="background:${confBg};color:${confFg};">${item.confidence}%</span>
+                `;
+
+                tile.addEventListener('click', function(e) {
+                    if (!e.target.closest('[data-action]')) {
+                        toggleExpand(item.id);
                     }
+                });
+
+                tileGrid.appendChild(tile);
+
+                // ── Mobile expanded detail ──
+                if (expandedRow === item.id) {
+                    const detailDiv = document.createElement('div');
+                    detailDiv.className = 'tile-detail';
+                    detailDiv.innerHTML = renderDetailContent(item);
+                    tile.appendChild(detailDiv);
                 }
             });
         }
 
-        // Toggle expand row + floating toolbar
         function toggleExpand(id) {
             if (expandedRow === id) {
                 expandedRow = null;
                 selectedItemId = null;
-                document.getElementById('actionToolbar').classList.remove('visible');
+                toggleToolbar(false);
             } else {
                 expandedRow = id;
                 selectedItemId = id;
-                const item = identifications.find(i => i.id === id);
-                if (item) {
-                    document.getElementById('toolbarItemName').textContent = 
-                        item.genus + ' (' + item.confidence + '%)';
-                    const keepBtn = document.getElementById('toolbarKeepBtn');
-                    keepBtn.textContent = item.keepForever ? '✓ Kept Forever' : '☐ Keep Forever';
-                    keepBtn.className = item.keepForever ? 'btn-keep active' : 'btn-keep';
-                }
-                document.getElementById('actionToolbar').classList.add('visible');
+                showToolbarForItem(id);
             }
             filterByStatus(currentTab);
         }
 
-        // Render detail content
         function renderDetailContent(item) {
+            // Same as before (kept for completeness)
             const deleteInDays = item.autoDeleteDate && !item.keepForever ? 
                 Math.ceil((new Date(item.autoDeleteDate) - new Date()) / (1000 * 60 * 60 * 24)) : null;
-
             let autoDeleteHTML = '';
             if (!item.keepForever && deleteInDays !== null) {
                 const warningClass = deleteInDays <= 7 ? 'warning' : '';
-                autoDeleteHTML = `
-                    <div class="auto-delete-info ${warningClass}">
-                        ⏱️ Auto-delete in ${deleteInDays} day${deleteInDays !== 1 ? 's' : ''}
-                    </div>
-                `;
+                autoDeleteHTML = `<div class="auto-delete-info ${warningClass}">⏱️ Auto-delete in ${deleteInDays} day${deleteInDays !== 1 ? 's' : ''}</div>`;
             } else if (item.keepForever) {
-                autoDeleteHTML = `
-                    <div class="auto-delete-info" style="background: #d4edda; border-left-color: #28a745;">
-                        ✓ Kept Forever
-                    </div>
-                `;
+                autoDeleteHTML = `<div class="auto-delete-info" style="background:#d4edda;border-left-color:#28a745;">✓ Kept Forever</div>`;
             }
 
             let correctionHTML = '';
             if (item.mlTrainingFlag && item.expert_family) {
-                correctionHTML = `
-                    <div style="background: #d4edda; border-left: 4px solid #28a745; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
-                        <strong style="color: #155724;">✓ Expert Correction Applied:</strong><br>
-                        Corrected to: <strong>${item.expert_family} - ${item.expert_genus}</strong><br>
-                        ${item.expert_notes ? `Notes: ${item.expert_notes}` : ''}
-                        <br><small style="color: #666;">Flagged for ML retraining</small>
-                    </div>
-                `;
+                correctionHTML = `<div style="background:#d4edda;border-left:4px solid #28a745;padding:1rem;margin-bottom:1rem;border-radius:8px;">
+                    <strong style="color:#155724;">✓ Expert Correction Applied:</strong><br>
+                    Corrected to: <strong>${item.expert_family} - ${item.expert_genus}</strong><br>
+                    ${item.expert_notes ? `Notes: ${item.expert_notes}` : ''}
+                    <br><small style="color:#666;">Flagged for ML retraining</small>
+                </div>`;
             }
 
             let genusHTML = '';
             if (item.genusBreakdown && item.genusBreakdown.length > 0) {
-                genusHTML = `
-                    <div class="genus-breakdown">
-                        <h4>Genera (Subfamilies) Likelihood</h4>
-                        ${item.genusBreakdown.map((g, i) => `
-                            <div class="genus-item ${i === 0 ? 'top' : ''}">
-                                <span>${g.genus}</span>
-                                <span>${g.percentage}%</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
+                genusHTML = `<div class="genus-breakdown"><h4>Genera Likelihood</h4>
+                    ${item.genusBreakdown.map((g, i) => `<div class="genus-item ${i === 0 ? 'top' : ''}"><span>${g.genus}</span><span>${g.percentage}%</span></div>`).join('')}
+                </div>`;
             }
 
             const photos = item.allPhotos || [item.photo].filter(Boolean);
@@ -1451,50 +1102,32 @@
             return `
                 ${autoDeleteHTML}
                 ${correctionHTML}
-
-                <div class="detail-photos">
-                    ${photosHtml}
-                </div>
-
+                <div class="detail-photos">${photosHtml}</div>
                 <div class="detail-info">
-                    <div class="detail-item">
-                        <strong>Family</strong>
-                        ${item.family}
-                    </div>
-                    <div class="detail-item">
-                        <strong>Genus</strong>
-                        ${item.genus}
-                    </div>
-                    <div class="detail-item">
-                        <strong>Confidence</strong>
-                        ${item.confidence}%
-                    </div>
-                    <div class="detail-item">
-                        <strong>Date</strong>
-                        ${formatDate(item.date)}
-                    </div>
-                    <div class="detail-item">
-                        <strong>Status</strong>
-                        ${item.status}
-                    </div>
+                    <div class="detail-item"><strong>Family</strong>${item.family}</div>
+                    <div class="detail-item"><strong>Genus</strong>${item.genus}</div>
+                    <div class="detail-item"><strong>Confidence</strong>${item.confidence}%</div>
+                    <div class="detail-item"><strong>Date</strong>${formatDate(item.date)}</div>
+                    <div class="detail-item"><strong>Status</strong>${item.status}</div>
                 </div>
-
                 ${genusHTML}
             `;
         }
 
-        // Mark functions
+        // ── Correction Modal, Zoom, etc. ── (unchanged, keep as before)
+
+        // ── Mark functions ──
         function markAsReviewed(id) {
             const item = identifications.find(i => i.id === id);
             if (item && !updateInProgress) {
                 item.status = 'reviewed';
                 item.reviewedAt = new Date().toISOString();
-                item.autoDeleteDate = calculateAutoDeleteDate(30);
+                item.autoDeleteDate = null;
                 item.mlTrainingFlag = true;
                 saveReviewToDB(item);
                 expandedRow = null;
                 selectedItemId = null;
-                document.getElementById('actionToolbar').classList.remove('visible');
+                toggleToolbar(false);
             }
         }
 
@@ -1503,25 +1136,22 @@
             if (item && !updateInProgress) {
                 item.status = 'ambiguous';
                 item.markedAmbiguousAt = new Date().toISOString();
-                item.autoDeleteDate = calculateAutoDeleteDate(90);
+                item.autoDeleteDate = null;
                 saveReviewToDB(item);
                 expandedRow = null;
                 selectedItemId = null;
-                document.getElementById('actionToolbar').classList.remove('visible');
+                toggleToolbar(false);
             }
         }
 
-        function deleteIdentification(id) {
-            deleteReviewFromServer(id);
-        }
+        function deleteIdentification(id) { deleteReviewFromServer(id); }
 
         function toggleKeepForever(id) {
             const item = identifications.find(i => i.id === id);
             if (item && !updateInProgress) {
                 item.keepForever = !item.keepForever;
-                item.autoDeleteDate = item.keepForever ? null : calculateAutoDeleteFromStatus(item);
+                item.autoDeleteDate = item.keepForever ? null : null;
                 saveReviewToDB(item);
-                // Update toolbar button
                 const keepBtn = document.getElementById('toolbarKeepBtn');
                 keepBtn.textContent = item.keepForever ? '✓ Kept Forever' : '☐ Keep Forever';
                 keepBtn.className = item.keepForever ? 'btn-keep active' : 'btn-keep';
@@ -1529,105 +1159,37 @@
             }
         }
 
-        function calculateAutoDeleteFromStatus(item) {
-            if (!item.status) return null;
-            let days = 30;
-            switch(item.status) {
-                case 'pending': days = 90; break;
-                case 'reviewed':
-                case 'incorrect': days = 30; break;
-                case 'ambiguous': days = 90; break;
-            }
-            const deleteDate = new Date();
-            deleteDate.setDate(deleteDate.getDate() + days);
-            return deleteDate.toISOString().split('T')[0];
-        }
-
-        // Correction Modal
+        // ── Correction modal ──
         let currentCorrectionId = null;
-
-        const families = [
-            'Hildoceratidae',
-            'Dactylioceratidae',
-            'Amaltheidae',
-            'Schiloceratidae',
-            'Eleganticeratidae',
-            'Androgynoceratidae',
-            'Arietitidae',
-            'Polymorphitidae',
-            'Eoderoceratidae'
-        ];
-
-        const genera = [
-            'Harpoceras',
-            'Hildoceras',
-            'Grammoceras',
-            'Pseudolioceras',
-            'Dactylioceras',
-            'Catacoeloceras',
-            'Peronoceras',
-            'Gagaticeras',
-            'Amaltheus',
-            'Arnioceras',
-            'Eleganticeras',
-            'Androgynoceras',
-            'Arietites',
-            'Polymorphites',
-            'Eoderoceras'
-        ];
+        const families = ['Hildoceratidae','Dactylioceratidae','Amaltheidae','Schiloceratidae','Eleganticeratidae','Androgynoceratidae','Arietitidae','Polymorphitidae','Eoderoceratidae'];
+        const genera = ['Harpoceras','Hildoceras','Grammoceras','Pseudolioceras','Dactylioceras','Catacoeloceras','Peronoceras','Gagaticeras','Amaltheus','Arnioceras','Eleganticeras','Androgynoceras','Arietites','Polymorphites','Eoderoceras'];
 
         function populateCorrectionDropdowns() {
             const familySelect = document.getElementById('correctFamily');
             const genusSelect = document.getElementById('correctGenus');
-
-            families.forEach(f => {
-                const opt = document.createElement('option');
-                opt.value = f;
-                opt.textContent = f;
-                familySelect.appendChild(opt);
-            });
-
-            genera.forEach(g => {
-                const opt = document.createElement('option');
-                opt.value = g;
-                opt.textContent = g;
-                genusSelect.appendChild(opt);
-            });
+            families.forEach(f => { const opt = document.createElement('option'); opt.value = f; opt.textContent = f; familySelect.appendChild(opt); });
+            genera.forEach(g => { const opt = document.createElement('option'); opt.value = g; opt.textContent = g; genusSelect.appendChild(opt); });
         }
 
         function openCorrectionModal(id) {
             const item = identifications.find(i => i.id === id);
             if (!item) return;
-
             currentCorrectionId = id;
-
-            if (document.getElementById('correctFamily').options.length === 1) {
-                populateCorrectionDropdowns();
-            }
-
+            if (document.getElementById('correctFamily').options.length === 1) populateCorrectionDropdowns();
             document.getElementById('aiIdentification').textContent = `${item.family} - ${item.genus} (${item.confidence}%)`;
             document.getElementById('correctFamily').value = '';
             document.getElementById('correctGenus').value = '';
             document.getElementById('correctionNotes').value = '';
-
             document.getElementById('correctionModal').classList.add('active');
         }
 
-        function closeCorrectionModal() {
-            document.getElementById('correctionModal').classList.remove('active');
-            currentCorrectionId = null;
-        }
+        function closeCorrectionModal() { document.getElementById('correctionModal').classList.remove('active'); currentCorrectionId = null; }
 
         function submitCorrection() {
             const family = document.getElementById('correctFamily').value;
             const genus = document.getElementById('correctGenus').value;
             const notes = document.getElementById('correctionNotes').value;
-
-            if (!family || !genus) {
-                alert('Please select both Family and Genus');
-                return;
-            }
-
+            if (!family || !genus) { alert('Please select both Family and Genus'); return; }
             const item = identifications.find(i => i.id === currentCorrectionId);
             if (item && !updateInProgress) {
                 item.status = 'incorrect';
@@ -1635,42 +1197,31 @@
                 item.expert_genus = genus;
                 item.expert_notes = notes;
                 item.markedIncorrectAt = new Date().toISOString();
-                item.autoDeleteDate = calculateAutoDeleteDate(30);
+                item.autoDeleteDate = null;
                 item.mlTrainingFlag = true;
-
                 saveReviewToDB(item);
-
                 closeCorrectionModal();
                 expandedRow = null;
                 selectedItemId = null;
-                document.getElementById('actionToolbar').classList.remove('visible');
-                alert('✓ Correction submitted! This will be used to improve the AI model.');
+                toggleToolbar(false);
+                alert('✓ Correction submitted!');
             }
         }
 
-        // Format date DD/MM/YYYY
         function formatDate(dateStr) {
             const d = new Date(dateStr);
-            const day = String(d.getDate()).padStart(2, '0');
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            const year = d.getFullYear();
-            return `${day}/${month}/${year}`;
+            return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
         }
 
-        // Photo zoom functions
+        // ── Zoom functions ── (unchanged, kept minimal)
+        let currentZoom = 1, zoomImage, isDragging, startX, startY, translateX = 0, translateY = 0;
+
         function openZoom(src) {
             zoomImage = document.getElementById('zoomImage');
             zoomImage.src = src;
-            currentZoom = 1;
-            translateX = 0;
-            translateY = 0;
-            updateZoom();
+            currentZoom = 1; translateX = 0; translateY = 0; updateZoom();
             document.getElementById('zoomModal').classList.add('active');
-
-            // Mouse wheel zoom
             document.getElementById('zoomContainer').addEventListener('wheel', handleWheel);
-            
-            // Drag to pan
             zoomImage.addEventListener('mousedown', startDrag);
             document.addEventListener('mousemove', drag);
             document.addEventListener('mouseup', endDrag);
@@ -1684,104 +1235,52 @@
             document.removeEventListener('mouseup', endDrag);
         }
 
-        function zoomIn() {
-            currentZoom = Math.min(currentZoom + 0.5, 5);
-            updateZoom();
-        }
+        function zoomIn() { currentZoom = Math.min(currentZoom + 0.5, 5); updateZoom(); }
+        function zoomOut() { currentZoom = Math.max(currentZoom - 0.5, 1); if (currentZoom === 1) { translateX = 0; translateY = 0; } updateZoom(); }
+        function resetZoom() { currentZoom = 1; translateX = 0; translateY = 0; updateZoom(); }
+        function updateZoom() { zoomImage.style.transform = `scale(${currentZoom}) translate(${translateX}px, ${translateY}px)`; }
 
-        function zoomOut() {
-            currentZoom = Math.max(currentZoom - 0.5, 1);
-            if (currentZoom === 1) {
-                translateX = 0;
-                translateY = 0;
-            }
-            updateZoom();
-        }
+        function handleWheel(e) { e.preventDefault(); e.deltaY < 0 ? zoomIn() : zoomOut(); }
+        function startDrag(e) { if (currentZoom > 1) { isDragging = true; startX = e.clientX - translateX; startY = e.clientY - translateY; zoomImage.style.cursor = 'grabbing'; } }
+        function drag(e) { if (isDragging) { translateX = e.clientX - startX; translateY = e.clientY - startY; updateZoom(); } }
+        function endDrag() { isDragging = false; zoomImage.style.cursor = currentZoom > 1 ? 'move' : 'default'; }
 
-        function resetZoom() {
-            currentZoom = 1;
-            translateX = 0;
-            translateY = 0;
-            updateZoom();
-        }
+        document.getElementById('zoomModal').onclick = function(e) { if (e.target === this) closeZoom(); };
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeCorrectionModal(); closeZoom(); } });
 
-        function updateZoom() {
-            zoomImage.style.transform = `scale(${currentZoom}) translate(${translateX}px, ${translateY}px)`;
-        }
+        // ── Toolbar toggle click ──
+        toolbarToggle.addEventListener('click', () => toggleToolbar());
 
-        function handleWheel(e) {
-            e.preventDefault();
-            if (e.deltaY < 0) {
-                zoomIn();
-            } else {
-                zoomOut();
-            }
-        }
-
-        function startDrag(e) {
-            if (currentZoom > 1) {
-                isDragging = true;
-                startX = e.clientX - translateX;
-                startY = e.clientY - translateY;
-                zoomImage.style.cursor = 'grabbing';
-            }
-        }
-
-        function drag(e) {
-            if (isDragging) {
-                translateX = e.clientX - startX;
-                translateY = e.clientY - startY;
-                updateZoom();
-            }
-        }
-
-        function endDrag() {
-            isDragging = false;
-            if (currentZoom > 1) {
-                zoomImage.style.cursor = 'move';
-            } else {
-                zoomImage.style.cursor = 'default';
-            }
-        }
-
-        // Close zoom on click outside
-        document.getElementById('zoomModal').onclick = function(e) {
-            if (e.target === this) closeZoom();
-        };
-
-        // Close modals on Escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeCorrectionModal();
-                closeZoom();
-            }
-        });
-
-        // ── Event delegation: handles ALL button/image clicks ──
+        // ── Event delegation ──
         document.addEventListener('click', function(e) {
             const el = e.target.closest('[data-action]');
             if (!el) return;
-
             const action = el.dataset.action;
             const id = el.dataset.id ? parseInt(el.dataset.id) : selectedItemId;
 
             switch (action) {
-                case 'switch-tab':       switchTab(el.dataset.tab); break;
-                case 'mark-reviewed':    if (id != null) { markAsReviewed(id); } break;
-                case 'open-correction':  if (id != null) openCorrectionModal(id); break;
-                case 'mark-ambiguous':   if (id != null) { markAsAmbiguous(id); } break;
-                case 'delete-item':      if (id != null) { deleteIdentification(id); } break;
-                case 'toggle-keep':      if (id != null) { toggleKeepForever(id); } break;
-                case 'open-zoom':        openZoom(el.dataset.src); e.stopPropagation(); break;
-                case 'close-zoom':       closeZoom(); break;
-                case 'zoom-in':          zoomIn(); break;
-                case 'zoom-out':         zoomOut(); break;
-                case 'reset-zoom':       resetZoom(); break;
+                case 'switch-tab': switchTab(el.dataset.tab); break;
+                case 'mark-reviewed': if (id != null) { markAsReviewed(id); } break;
+                case 'open-correction': if (id != null) openCorrectionModal(id); break;
+                case 'mark-ambiguous': if (id != null) { markAsAmbiguous(id); } break;
+                case 'delete-item': if (id != null) { deleteIdentification(id); } break;
+                case 'toggle-keep': if (id != null) { toggleKeepForever(id); } break;
+                case 'open-zoom': openZoom(el.dataset.src); e.stopPropagation(); break;
+                case 'close-zoom': closeZoom(); break;
+                case 'zoom-in': zoomIn(); break;
+                case 'zoom-out': zoomOut(); break;
+                case 'reset-zoom': resetZoom(); break;
                 case 'close-correction': closeCorrectionModal(); break;
                 case 'submit-correction': submitCorrection(); break;
             }
         });
-    </script>
 
+        // ── Init ──
+        window.onload = function() {
+            updateCounts();
+            filterByStatus('pending');
+            setInterval(loadFromDB, 30000);
+        };
+    </script>
 </body>
 </html>
