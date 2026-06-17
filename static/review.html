@@ -400,20 +400,94 @@
             padding-bottom: 4px;
         }
 
-        .toolbar-btns button {
-            padding: 10px 18px !important;
-            border: none !important;
-            border-radius: 8px !important;
-            cursor: pointer !important;
-            font-family: Arial, sans-serif !important;
-            font-weight: 600 !important;
-            font-size: 0.9rem !important;
-            transition: all 0.2s !important;
+        /* Button styles — restored colours */
+        .toolbar-btns .btn-correct {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
             flex-shrink: 0;
             white-space: nowrap;
         }
 
-        /* ─── Mobile Tiles ─── */
+        .toolbar-btns .btn-correct:hover { background: #218838; }
+
+        .toolbar-btns .btn-incorrect {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .toolbar-btns .btn-incorrect:hover { background: #c82333; }
+
+        .toolbar-btns .btn-ambiguous {
+            background: #ffc107;
+            color: #000;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .toolbar-btns .btn-ambiguous:hover { background: #e0a800; }
+
+        .toolbar-btns .btn-delete {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .toolbar-btns .btn-delete:hover { background: #5a6268; }
+
+        .toolbar-btns .btn-keep {
+            background: #2c5f2d;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .toolbar-btns .btn-keep:hover { background: #1e4620; }
+        .toolbar-btns .btn-keep.active { background: #1e4620; }
+
+        /* ─── Mobile Tiles (smaller) ─── */
         #rvCompact {
             display: none;
         }
@@ -421,62 +495,63 @@
         .tile-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            padding: 8px;
+            gap: 6px;
+            padding: 4px;
         }
 
         .tile-item {
             background: white;
-            border-radius: 12px;
-            padding: 12px;
+            border-radius: 10px;
+            padding: 8px;
             border: 2px solid #e8e8e8;
             cursor: pointer;
             transition: all 0.2s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
         }
 
         .tile-item.selected {
             border-color: #2c5f2d;
             background: #e8f5e9;
-            box-shadow: 0 4px 12px rgba(44,95,45,0.15);
+            box-shadow: 0 2px 8px rgba(44,95,45,0.15);
         }
 
         .tile-item .tile-thumb {
             width: 100%;
-            height: 120px;
+            height: 70px; /* reduced from 120px */
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: 6px;
             border: 1px solid #ddd;
         }
 
         .tile-item .tile-genus {
             font-weight: 700;
-            font-size: 1rem;
-            margin-top: 6px;
+            font-size: 0.85rem; /* smaller */
+            margin-top: 4px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .tile-item .tile-meta {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: #888;
-            margin-top: 2px;
+            margin-top: 1px;
         }
 
         .tile-item .tile-conf {
             font-weight: 700;
-            font-size: 0.85rem;
-            padding: 2px 8px;
-            border-radius: 12px;
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 10px;
             display: inline-block;
-            margin-top: 4px;
+            margin-top: 2px;
         }
 
         .tile-detail {
             margin-top: 6px;
             border-top: 1px solid #2c5f2d;
-            padding-top: 10px;
+            padding-top: 8px;
+            font-size: 0.85rem;
         }
 
         /* ─── Modals ─── */
@@ -607,16 +682,21 @@
 
             .tile-grid {
                 grid-template-columns: 1fr 1fr;
-                gap: 10px;
+                gap: 6px;
+                padding: 4px;
             }
 
-            .tile-item .tile-thumb { height: 100px; }
+            .tile-item .tile-thumb { height: 70px; }
 
-            .action-toolbar { padding: 10px 12px; }
+            .action-toolbar { padding: 8px 12px; }
             .toolbar-btns { gap: 4px; }
-            .toolbar-btns button {
-                padding: 8px 12px !important;
-                font-size: 0.8rem !important;
+            .toolbar-btns .btn-correct,
+            .toolbar-btns .btn-incorrect,
+            .toolbar-btns .btn-ambiguous,
+            .toolbar-btns .btn-delete,
+            .toolbar-btns .btn-keep {
+                padding: 6px 10px !important;
+                font-size: 0.75rem !important;
             }
 
             .stats-bar { flex-wrap: wrap; gap: 0.5rem; }
@@ -639,7 +719,7 @@
 
         @media (max-width: 480px) {
             .tile-grid { grid-template-columns: 1fr; }
-            .tile-item .tile-thumb { height: 140px; }
+            .tile-item .tile-thumb { height: 80px; }
             .detail-photos { grid-template-columns: 1fr; }
             .detail-photos img { height: 100px; }
         }
@@ -1068,7 +1148,6 @@
         }
 
         function renderDetailContent(item) {
-            // Same as before (kept for completeness)
             const deleteInDays = item.autoDeleteDate && !item.keepForever ? 
                 Math.ceil((new Date(item.autoDeleteDate) - new Date()) / (1000 * 60 * 60 * 24)) : null;
             let autoDeleteHTML = '';
@@ -1113,8 +1192,6 @@
                 ${genusHTML}
             `;
         }
-
-        // ── Correction Modal, Zoom, etc. ── (unchanged, keep as before)
 
         // ── Mark functions ──
         function markAsReviewed(id) {
@@ -1213,7 +1290,7 @@
             return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
         }
 
-        // ── Zoom functions ── (unchanged, kept minimal)
+        // ── Zoom functions ──
         let currentZoom = 1, zoomImage, isDragging, startX, startY, translateX = 0, translateY = 0;
 
         function openZoom(src) {
