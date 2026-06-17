@@ -633,9 +633,13 @@
             transform: scale(1.1);
         }
 
-        /* Responsive */
-        /* ── Mobile styles ── */
-        #rvCompact .rv-item {
+        /* ── MOBILE FIXES ── */
+        #rvCompact {
+            display: none;
+            padding: 0 5px;
+        }
+
+        .rv-item {
             display: flex;
             align-items: center;
             gap: 10px;
@@ -645,27 +649,31 @@
             border-radius: 8px;
             margin-bottom: 6px;
             cursor: pointer;
+            max-width: 100%;
+            overflow: hidden;
         }
 
-        #rvCompact .rv-item.rv-selected {
+        .rv-item.rv-selected {
             background: #e8f5e9;
             border-left: 3px solid #2c5f2d;
         }
 
-        #rvCompact .rv-thumb {
+        .rv-thumb {
             flex-shrink: 0;
             border-radius: 6px;
             object-fit: cover;
             border: 1px solid #ddd;
+            width: 50px;
+            height: 50px;
         }
 
-        #rvCompact .rv-info {
+        .rv-info {
             flex: 1;
             min-width: 0;
             overflow: hidden;
         }
 
-        #rvCompact .rv-genus {
+        .rv-genus {
             font-weight: 700;
             font-size: 14px;
             white-space: nowrap;
@@ -673,13 +681,16 @@
             text-overflow: ellipsis;
         }
 
-        #rvCompact .rv-meta {
+        .rv-meta {
             font-size: 12px;
             color: #888;
             margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        #rvCompact .rv-conf {
+        .rv-conf {
             flex-shrink: 0;
             font-weight: 700;
             font-size: 13px;
@@ -687,7 +698,7 @@
             border-radius: 12px;
         }
 
-        #rvCompact .rv-detail {
+        .rv-detail {
             padding: 10px;
             border: 1px solid #2c5f2d;
             border-top: none;
@@ -695,15 +706,74 @@
             margin-top: -6px;
             margin-bottom: 8px;
             background: #fafafa;
+            max-width: 100%;
+            overflow-x: auto;
         }
 
-        #rvCompact .rv-detail img {
-            max-height: 200px;
-            object-fit: contain;
-            border-radius: 6px;
-            margin: 4px;
+        .rv-detail .detail-photos {
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        }
+        .rv-detail .detail-photos img {
+            height: 120px;
         }
 
+        /* Floating Action Toolbar */
+        .action-toolbar {
+            position: fixed;
+            bottom: -100px;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 3px solid #2c5f2d;
+            padding: 12px 20px;
+            z-index: 500;
+            box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.18);
+            transition: bottom 0.3s ease;
+            max-width: 100vw;
+        }
+
+        .action-toolbar.visible {
+            bottom: 0;
+        }
+
+        .toolbar-label {
+            font-family: Arial, sans-serif;
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toolbar-label strong {
+            color: #1a1a1a;
+            font-size: 1rem;
+        }
+
+        .toolbar-btns {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 4px;
+        }
+
+        .toolbar-btns button {
+            padding: 10px 18px !important;
+            border: none !important;
+            border-radius: 8px !important;
+            cursor: pointer !important;
+            font-family: Arial, sans-serif !important;
+            font-weight: 600 !important;
+            font-size: 0.9rem !important;
+            transition: all 0.2s !important;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        /* Responsive for mobile */
         @media (max-width: 768px) {
             .detail-info {
                 grid-template-columns: 1fr;
@@ -751,23 +821,44 @@
             #rvCompact {
                 display: block !important;
                 padding: 5px;
+                max-width: 100vw;
+                overflow-x: hidden;
             }
 
-            /* Toolbar mobile — horizontal scroll */
-            .toolbar-btns {
-                flex-wrap: nowrap !important;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
+            /* Mobile card adjustments */
+            .rv-item {
+                padding: 8px 6px;
                 gap: 6px;
-                padding-bottom: 4px;
+            }
+            .rv-thumb {
+                width: 40px;
+                height: 40px;
+            }
+            .rv-genus {
+                font-size: 13px;
+            }
+            .rv-conf {
+                font-size: 12px;
+                padding: 2px 6px;
             }
 
+            .rv-detail .detail-photos {
+                grid-template-columns: 1fr 1fr;
+            }
+            .rv-detail .detail-photos img {
+                height: 100px;
+            }
+
+            .action-toolbar {
+                padding: 10px 12px;
+            }
+            .toolbar-btns {
+                gap: 4px;
+            }
             .toolbar-btns button {
-                padding: 10px 12px !important;
-                font-size: 13px !important;
+                padding: 8px 12px !important;
+                font-size: 0.8rem !important;
                 white-space: nowrap;
-                width: auto !important;
-                max-width: none !important;
             }
 
             /* Zoom fullscreen on mobile */
@@ -781,59 +872,33 @@
                 max-height: 95vh !important;
             }
         }
-        .action-toolbar {
-            position: fixed;
-            bottom: -100px;
-            left: 0;
-            right: 0;
-            background: white;
-            border-top: 3px solid #2c5f2d;
-            padding: 12px 20px;
-            z-index: 500;
-            box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.18);
-            transition: bottom 0.3s ease;
-        }
 
-        .action-toolbar.visible {
-            bottom: 0;
+        @media (max-width: 480px) {
+            .rv-item {
+                gap: 4px;
+                padding: 6px 4px;
+            }
+            .rv-thumb {
+                width: 36px;
+                height: 36px;
+            }
+            .rv-conf {
+                font-size: 10px;
+                padding: 2px 5px;
+            }
+            .rv-genus {
+                font-size: 12px;
+            }
+            .rv-meta {
+                font-size: 10px;
+            }
+            .rv-detail .detail-photos {
+                grid-template-columns: 1fr;
+            }
+            .rv-detail .detail-photos img {
+                height: 80px;
+            }
         }
-
-        .toolbar-label {
-            font-family: Arial, sans-serif;
-            font-size: 0.85rem;
-            color: #666;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .toolbar-label strong {
-            color: #1a1a1a;
-            font-size: 1rem;
-        }
-
-        .toolbar-btns {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .toolbar-btns button {
-            padding: 10px 18px !important;
-            border: none !important;
-            border-radius: 8px !important;
-            cursor: pointer !important;
-            font-family: Arial, sans-serif !important;
-            font-weight: 600 !important;
-            font-size: 0.9rem !important;
-            transition: all 0.2s !important;
-            width: auto !important;
-            min-width: auto !important;
-            max-width: none !important;
-            flex-shrink: 0;
-        }
-
     </style>
 </head>
 <body>
@@ -935,7 +1000,7 @@
                             </tbody>
                         </table>
                         <!-- Mobile list (JS-rendered divs, hidden on desktop) -->
-                        <div id="rvCompact" style="display:none;"></div>
+                        <div id="rvCompact"></div>
                     </div>
                 </div>
             </div>
@@ -1052,12 +1117,23 @@
         let currentTab = 'pending';
         let expandedRow = null;
         let selectedItemId = null;
+        let updateInProgress = false;
 
         async function loadFromDB() {
+            if (updateInProgress) return;
             try {
-                const res = await fetch('/queue?status=pending');
-                const data = await res.json();
-                const pending = (data.items || []).map(item => ({
+                const [pendingRes, reviewedRes, ambiguousRes] = await Promise.all([
+                    fetch('/queue?status=pending'),
+                    fetch('/queue?status=reviewed'),
+                    fetch('/queue?status=ambiguous')
+                ]);
+
+                const pending = pendingRes.ok ? (await pendingRes.json()).items || [] : [];
+                const reviewed = reviewedRes.ok ? (await reviewedRes.json()).items || [] : [];
+                const ambiguous = ambiguousRes.ok ? (await ambiguousRes.json()).items || [] : [];
+
+                // Map each item to a consistent structure
+                const mapItem = (item) => ({
                     id: item.id,
                     identification_id: item.identification_id,
                     date: item.timestamp,
@@ -1068,25 +1144,26 @@
                     expert_family: item.expert_family || '',
                     expert_genus: item.expert_genus || '',
                     expert_notes: item.expert_notes || '',
-                    photo: item.photo_paths ? JSON.parse(item.photo_paths)[0]?.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2') : '',
-                    photos: item.photo_paths ? JSON.parse(item.photo_paths).map(p => p.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2')) : [],
-                }));
-
-                // Also load reviewed/ambiguous
-                const [rRes, aRes] = await Promise.all([
-                    fetch('/queue?status=reviewed'),
-                    fetch('/queue?status=ambiguous')
-                ]);
-                const reviewed = rRes.ok ? (await rRes.json()).items || [] : [];
-                const ambiguous = aRes.ok ? (await aRes.json()).items || [] : [];
+                    keepForever: item.keep_forever || false,
+                    mlTrainingFlag: item.ml_flagged || false,
+                    // Build photo URLs from photo_paths JSON
+                    photo_paths: item.photo_paths ? JSON.parse(item.photo_paths) : [],
+                    get photo() {
+                        const paths = this.photo_paths;
+                        return paths && paths.length ? paths[0].replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2') : '';
+                    },
+                    get allPhotos() {
+                        return this.photo_paths.map(p => p.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2'));
+                    }
+                });
 
                 identifications = [
-                    ...pending,
-                    ...reviewed.map(i => ({...i, status:'reviewed', photo: i.photo_paths ? JSON.parse(i.photo_paths)[0]?.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2') : ''})),
-                    ...ambiguous.map(i => ({...i, status:'ambiguous', photo: i.photo_paths ? JSON.parse(i.photo_paths)[0]?.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2') : ''})),
+                    ...pending.map(mapItem),
+                    ...reviewed.map(mapItem),
+                    ...ambiguous.map(mapItem)
                 ];
 
-                // If selected item was reviewed by another expert, hide toolbar
+                // If selected item disappeared, hide toolbar
                 if (selectedItemId && !identifications.find(i => i.id === selectedItemId)) {
                     selectedItemId = null;
                     expandedRow = null;
@@ -1095,12 +1172,17 @@
 
                 updateCounts();
                 filterByStatus(currentTab);
-            } catch(e) {
-                console.error('Failed to load from DB:', e);
+            } catch (e) {
+                console.error('Failed to load reviews:', e);
+                // Show error message in the list
+                const tbody = document.getElementById('reviewTableBody');
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2rem;color:#dc3545;">⚠️ Failed to load reviews. Please refresh.</td></tr>`;
             }
         }
 
         async function saveReviewToDB(item) {
+            if (updateInProgress) return;
+            updateInProgress = true;
             try {
                 const res = await fetch(`/queue/${item.id}/update`, {
                     method: 'POST',
@@ -1114,16 +1196,38 @@
                         ml_flag: item.mlTrainingFlag ? '1' : '0'
                     })
                 });
-
-                if (res.ok) {
-                    const result = await res.json();
-                    // Images are now deleted server-side after verdict
-                    if (result.updated && ['reviewed', 'incorrect', 'ambiguous'].includes(item.status)) {
-                        console.log(`Photos cleaned for review ${item.id}`);
-                    }
-                }
-            } catch(e) {
+                if (!res.ok) throw new Error('Server returned ' + res.status);
+                // After successful update, refresh from DB
+                await loadFromDB();
+            } catch (e) {
                 console.warn('Could not save review to DB:', e.message);
+                alert('Failed to update review. Please try again.');
+            } finally {
+                updateInProgress = false;
+            }
+        }
+
+        async function deleteReviewFromServer(id) {
+            if (updateInProgress) return;
+            if (!confirm('Are you sure you want to permanently delete this review?\nThis action cannot be undone.')) return;
+            updateInProgress = true;
+            try {
+                const res = await fetch(`/queue/${id}`, { method: 'DELETE' });
+                if (!res.ok) throw new Error('Server returned ' + res.status);
+                // Remove from local list
+                identifications = identifications.filter(i => i.id !== id);
+                if (selectedItemId === id) {
+                    selectedItemId = null;
+                    expandedRow = null;
+                    document.getElementById('actionToolbar').classList.remove('visible');
+                }
+                updateCounts();
+                filterByStatus(currentTab);
+            } catch (e) {
+                console.warn('Delete failed:', e.message);
+                alert('Failed to delete. Please try again.');
+            } finally {
+                updateInProgress = false;
             }
         }
 
@@ -1215,10 +1319,8 @@
                                   item.confidence >= 50 ? 'medium' : 'low';
 
                 let flag = '';
-                if (item.mlTrainingFlag && item.correctedFamily) {
+                if (item.mlTrainingFlag && item.expert_family) {
                     flag = '<div class="corrected-flag">✓ Error Corrected</div>';
-                } else if (item.userReportedError) {
-                    flag = '<div class="error-flag">🚩 Error Reported</div>';
                 }
 
                 tr.innerHTML = `
@@ -1255,7 +1357,6 @@
                         <span class="rv-conf" style="background:${confBg};color:${confFg};">${item.confidence}%</span>
                         <span style="color:#999;font-size:12px;">${expandedRow === item.id ? '▲' : '▼'}</span>
                     `;
-                    // Direct click handler — no module scope issues
                     div.addEventListener('click', function(e) {
                         if (!e.target.closest('[data-action]')) {
                             toggleExpand(item.id);
@@ -1283,7 +1384,6 @@
             } else {
                 expandedRow = id;
                 selectedItemId = id;
-                // Update toolbar with selected item info
                 const item = identifications.find(i => i.id === id);
                 if (item) {
                     document.getElementById('toolbarItemName').textContent = 
@@ -1318,24 +1418,13 @@
                 `;
             }
 
-            let errorReportHTML = '';
-            if (item.userReportedError && !item.mlTrainingFlag) {
-                errorReportHTML = `
-                    <div style="background: #fff3cd; border-left: 4px solid #ff9800; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
-                        <strong style="color: #856404;">🚩 User Reported Error:</strong><br>
-                        Suggested Genus: <strong>${item.reportedGenus || 'Not specified'}</strong><br>
-                        ${item.reportNotes ? `Notes: ${item.reportNotes}` : ''}
-                    </div>
-                `;
-            }
-
             let correctionHTML = '';
-            if (item.mlTrainingFlag && item.correctedFamily) {
+            if (item.mlTrainingFlag && item.expert_family) {
                 correctionHTML = `
                     <div style="background: #d4edda; border-left: 4px solid #28a745; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
                         <strong style="color: #155724;">✓ Expert Correction Applied:</strong><br>
-                        Corrected to: <strong>${item.correctedFamily} - ${item.correctedGenus}</strong><br>
-                        ${item.correctionNotes ? `Notes: ${item.correctionNotes}` : ''}
+                        Corrected to: <strong>${item.expert_family} - ${item.expert_genus}</strong><br>
+                        ${item.expert_notes ? `Notes: ${item.expert_notes}` : ''}
                         <br><small style="color: #666;">Flagged for ML retraining</small>
                     </div>
                 `;
@@ -1356,15 +1445,15 @@
                 `;
             }
 
+            const photos = item.allPhotos || [item.photo].filter(Boolean);
+            const photosHtml = photos.map(p => `<img src="${p}" alt="${item.genus}" data-action="open-zoom" data-src="${p}">`).join('');
+
             return `
                 ${autoDeleteHTML}
-                ${errorReportHTML}
                 ${correctionHTML}
 
                 <div class="detail-photos">
-                    ${item.allPhotos ? item.allPhotos.map(p => `
-                        <img src="${p}" alt="${item.genus}" data-action="open-zoom" data-src="${p}">
-                    `).join('') : `<img src="${item.photo}" alt="${item.genus}" data-action="open-zoom" data-src="${item.photo}">`}
+                    ${photosHtml}
                 </div>
 
                 <div class="detail-info">
@@ -1397,106 +1486,58 @@
         // Mark functions
         function markAsReviewed(id) {
             const item = identifications.find(i => i.id === id);
-            if (item) {
+            if (item && !updateInProgress) {
                 item.status = 'reviewed';
                 item.reviewedAt = new Date().toISOString();
                 item.autoDeleteDate = calculateAutoDeleteDate(30);
-                item.mlTrainingFlag = true; // Positive training example for ML
-                saveReviewToDB(item).then(() => loadFromDB()); // Refresh from DB
-                
+                item.mlTrainingFlag = true;
+                saveReviewToDB(item);
                 expandedRow = null;
-                
-                setTimeout(() => {
-                    updateCounts();
-                    filterByStatus(currentTab);
-                }, 100);
+                selectedItemId = null;
+                document.getElementById('actionToolbar').classList.remove('visible');
             }
         }
 
         function markAsAmbiguous(id) {
             const item = identifications.find(i => i.id === id);
-            if (item) {
+            if (item && !updateInProgress) {
                 item.status = 'ambiguous';
                 item.markedAmbiguousAt = new Date().toISOString();
                 item.autoDeleteDate = calculateAutoDeleteDate(90);
-                saveReviewToDB(item).then(() => loadFromDB());
-                
+                saveReviewToDB(item);
                 expandedRow = null;
-                
-                setTimeout(() => {
-                    updateCounts();
-                    filterByStatus(currentTab);
-                }, 100);
+                selectedItemId = null;
+                document.getElementById('actionToolbar').classList.remove('visible');
             }
         }
 
         function deleteIdentification(id) {
-            if (confirm('Are you sure you want to permanently delete this entry?\n\nThis will also delete from Cloudinary backup.')) {
-                const index = identifications.findIndex(i => i.id === id);
-                
-                if (index > -1) {
-                    const item = identifications[index];
-                    const userId = localStorage.getItem('ammonite_user_id');
-
-                    // Sync delete via API (local + Cloudinary)
-                    if (window.syncDelete && userId) {
-                        window.syncDelete(userId, item.identification_id || item.id).then(result => {
-                            if (result && result.success) {
-                                console.log('Sync delete successful');
-                            }
-                            loadFromDB(); // Refresh from server
-                        });
-                    } else {
-                        identifications.splice(index, 1);
-                        loadFromDB(); // Refresh from server
-                    }
-                    
-                    expandedRow = null;
-                    selectedItemId = null;
-                    document.getElementById('actionToolbar').classList.remove('visible');
-                    
-                    setTimeout(() => {
-                        updateCounts();
-                        filterByStatus(currentTab);
-                    }, 100);
-                }
-            }
+            deleteReviewFromServer(id);
         }
 
         function toggleKeepForever(id) {
             const item = identifications.find(i => i.id === id);
-            if (item) {
+            if (item && !updateInProgress) {
                 item.keepForever = !item.keepForever;
                 item.autoDeleteDate = item.keepForever ? null : calculateAutoDeleteFromStatus(item);
                 saveReviewToDB(item);
-
-                // Persist keep_forever to backend
-                if (window.toggleKeepForever) {
-                    window.toggleKeepForever(item.identification_id || item.id, item.keepForever);
-                }
-
+                // Update toolbar button
+                const keepBtn = document.getElementById('toolbarKeepBtn');
+                keepBtn.textContent = item.keepForever ? '✓ Kept Forever' : '☐ Keep Forever';
+                keepBtn.className = item.keepForever ? 'btn-keep active' : 'btn-keep';
                 filterByStatus(currentTab);
             }
         }
 
         function calculateAutoDeleteFromStatus(item) {
             if (!item.status) return null;
-            
             let days = 30;
-            
             switch(item.status) {
-                case 'pending':
-                    days = 90;
-                    break;
+                case 'pending': days = 90; break;
                 case 'reviewed':
-                case 'incorrect':
-                    days = 30;
-                    break;
-                case 'ambiguous':
-                    days = 90;
-                    break;
+                case 'incorrect': days = 30; break;
+                case 'ambiguous': days = 90; break;
             }
-            
             const deleteDate = new Date();
             deleteDate.setDate(deleteDate.getDate() + days);
             return deleteDate.toISOString().split('T')[0];
@@ -1588,16 +1629,16 @@
             }
 
             const item = identifications.find(i => i.id === currentCorrectionId);
-            if (item) {
+            if (item && !updateInProgress) {
                 item.status = 'incorrect';
-                item.correctedFamily = family;
-                item.correctedGenus = genus;
-                item.correctionNotes = notes;
+                item.expert_family = family;
+                item.expert_genus = genus;
+                item.expert_notes = notes;
                 item.markedIncorrectAt = new Date().toISOString();
                 item.autoDeleteDate = calculateAutoDeleteDate(30);
                 item.mlTrainingFlag = true;
 
-                saveReviewToDB(item).then(() => loadFromDB());
+                saveReviewToDB(item);
 
                 closeCorrectionModal();
                 expandedRow = null;
@@ -1717,22 +1758,20 @@
         });
 
         // ── Event delegation: handles ALL button/image clicks ──
-        // Works inside module scope — no window exports needed
         document.addEventListener('click', function(e) {
             const el = e.target.closest('[data-action]');
             if (!el) return;
 
             const action = el.dataset.action;
-            // Use data-id if present (inline), otherwise use selectedItemId (toolbar)
             const id = el.dataset.id ? parseInt(el.dataset.id) : selectedItemId;
 
             switch (action) {
                 case 'switch-tab':       switchTab(el.dataset.tab); break;
-                case 'mark-reviewed':    if (id != null) { markAsReviewed(id); document.getElementById('actionToolbar').classList.remove('visible'); selectedItemId = null; } break;
+                case 'mark-reviewed':    if (id != null) { markAsReviewed(id); } break;
                 case 'open-correction':  if (id != null) openCorrectionModal(id); break;
-                case 'mark-ambiguous':   if (id != null) { markAsAmbiguous(id); document.getElementById('actionToolbar').classList.remove('visible'); selectedItemId = null; } break;
-                case 'delete-item':      if (id != null) { deleteIdentification(id); document.getElementById('actionToolbar').classList.remove('visible'); selectedItemId = null; } break;
-                case 'toggle-keep':      if (id != null) { toggleKeepForever(id); updateToolbarKeepState(); } break;
+                case 'mark-ambiguous':   if (id != null) { markAsAmbiguous(id); } break;
+                case 'delete-item':      if (id != null) { deleteIdentification(id); } break;
+                case 'toggle-keep':      if (id != null) { toggleKeepForever(id); } break;
                 case 'open-zoom':        openZoom(el.dataset.src); e.stopPropagation(); break;
                 case 'close-zoom':       closeZoom(); break;
                 case 'zoom-in':          zoomIn(); break;
@@ -1742,16 +1781,6 @@
                 case 'submit-correction': submitCorrection(); break;
             }
         });
-
-        // Update Keep Forever button text in toolbar after toggle
-        function updateToolbarKeepState() {
-            if (selectedItemId == null) return;
-            const item = identifications.find(i => i.id === selectedItemId);
-            if (!item) return;
-            const keepBtn = document.getElementById('toolbarKeepBtn');
-            keepBtn.textContent = item.keepForever ? '✓ Kept Forever' : '☐ Keep Forever';
-            keepBtn.className = item.keepForever ? 'btn-keep active' : 'btn-keep';
-        }
     </script>
 
 </body>
