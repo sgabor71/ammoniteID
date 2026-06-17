@@ -728,6 +728,16 @@
             }
 
             /* ── Mobile compact rows ── */
+            .review-table {
+                display: block !important;
+                width: 100% !important;
+            }
+
+            .review-table tbody {
+                display: block !important;
+                width: 100% !important;
+            }
+
             .review-table thead {
                 display: none !important;
             }
@@ -1115,13 +1125,17 @@
                     ...ambiguous.map(i => ({...i, status:'ambiguous', photo: i.photo_paths ? JSON.parse(i.photo_paths)[0]?.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2') : ''})),
                 ];
 
+                // If selected item was reviewed by another expert, hide toolbar
+                if (selectedItemId && !identifications.find(i => i.id === selectedItemId)) {
+                    selectedItemId = null;
+                    expandedRow = null;
+                    document.getElementById('actionToolbar').classList.remove('visible');
+                }
+
                 updateCounts();
-                filterByStatus('pending');
+                filterByStatus(currentTab);
             } catch(e) {
                 console.error('Failed to load from DB:', e);
-                identifications = [];
-                updateCounts();
-                filterByStatus('pending');
             }
         }
 
@@ -1168,6 +1182,10 @@
         window.onload = function() {
             updateCounts();
             filterByStatus('pending');
+            // Poll DB every 30 seconds for cross-device sync
+            setInterval(() => {
+                loadFromDB();
+            }, 30000);
         };
 
         // Update counts
@@ -1396,7 +1414,8 @@
                 item.status = 'reviewed';
                 item.reviewedAt = new Date().toISOString();
                 item.autoDeleteDate = calculateAutoDeleteDate(30);
-                saveReviewToDB(item);
+                item.mlTrainingFlag = true; // Positive training example for ML
+                saveReviewToDB(item).then(() => loadFromDB()); // Refresh from DB
                 
                 expandedRow = null;
                 
@@ -1413,7 +1432,7 @@
                 item.status = 'ambiguous';
                 item.markedAmbiguousAt = new Date().toISOString();
                 item.autoDeleteDate = calculateAutoDeleteDate(90);
-                saveReviewToDB(item);
+                saveReviewToDB(item).then(() => loadFromDB());
                 
                 expandedRow = null;
                 
@@ -1438,20 +1457,16 @@
                             if (result && result.success) {
                                 console.log('Sync delete successful');
                             }
+                            loadFromDB(); // Refresh from server
                         });
-                    }
-
-                    identifications.splice(index, 1);
-                    
-                    // Also remove from My Log
-                    let myLogs = JSON.parse(localStorage.getItem('ammoniteMyLogs') || '[]');
-                    const logIndex = myLogs.findIndex(log => log.id === id);
-                    if (logIndex > -1) {
-                        myLogs.splice(logIndex, 1);
-                        localStorage.setItem('ammoniteMyLogs', JSON.stringify(myLogs));
+                    } else {
+                        identifications.splice(index, 1);
+                        loadFromDB(); // Refresh from server
                     }
                     
                     expandedRow = null;
+                    selectedItemId = null;
+                    document.getElementById('actionToolbar').classList.remove('visible');
                     
                     setTimeout(() => {
                         updateCounts();
@@ -1595,18 +1610,12 @@
                 item.autoDeleteDate = calculateAutoDeleteDate(30);
                 item.mlTrainingFlag = true;
 
-                saveReviewToDB(item);
+                saveReviewToDB(item).then(() => loadFromDB());
 
                 closeCorrectionModal();
                 expandedRow = null;
                 selectedItemId = null;
                 document.getElementById('actionToolbar').classList.remove('visible');
-
-                setTimeout(() => {
-                    updateCounts();
-                    filterByStatus(currentTab);
-                }, 100);
-
                 alert('✓ Correction submitted! This will be used to improve the AI model.');
             }
         }
