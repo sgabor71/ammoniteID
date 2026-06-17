@@ -345,7 +345,7 @@
         /* ─── Toolbar ─── */
         .action-toolbar {
             position: fixed;
-            bottom: -100px;
+            bottom: -200px; /* fully hidden when collapsed */
             left: 0;
             right: 0;
             background: white;
@@ -355,10 +355,12 @@
             box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.18);
             transition: bottom 0.3s ease;
             max-width: 100vw;
+            visibility: hidden; /* completely hidden when collapsed */
         }
 
         .action-toolbar.visible {
             bottom: 0;
+            visibility: visible;
         }
 
         .toolbar-header {
@@ -393,7 +395,7 @@
 
         .toolbar-btns {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             flex-wrap: wrap;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -405,12 +407,12 @@
             background: #28a745;
             color: white;
             border: none;
-            padding: 10px 18px;
+            padding: 8px 14px;
             border-radius: 8px;
             cursor: pointer;
             font-family: Arial, sans-serif;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             transition: all 0.2s;
             flex-shrink: 0;
             white-space: nowrap;
@@ -422,12 +424,12 @@
             background: #dc3545;
             color: white;
             border: none;
-            padding: 10px 18px;
+            padding: 8px 14px;
             border-radius: 8px;
             cursor: pointer;
             font-family: Arial, sans-serif;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             transition: all 0.2s;
             flex-shrink: 0;
             white-space: nowrap;
@@ -439,12 +441,12 @@
             background: #ffc107;
             color: #000;
             border: none;
-            padding: 10px 18px;
+            padding: 8px 14px;
             border-radius: 8px;
             cursor: pointer;
             font-family: Arial, sans-serif;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             transition: all 0.2s;
             flex-shrink: 0;
             white-space: nowrap;
@@ -456,12 +458,12 @@
             background: #6c757d;
             color: white;
             border: none;
-            padding: 10px 18px;
+            padding: 8px 14px;
             border-radius: 8px;
             cursor: pointer;
             font-family: Arial, sans-serif;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             transition: all 0.2s;
             flex-shrink: 0;
             white-space: nowrap;
@@ -473,12 +475,12 @@
             background: #2c5f2d;
             color: white;
             border: none;
-            padding: 10px 18px;
+            padding: 8px 14px;
             border-radius: 8px;
             cursor: pointer;
             font-family: Arial, sans-serif;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             transition: all 0.2s;
             flex-shrink: 0;
             white-space: nowrap;
@@ -487,7 +489,7 @@
         .toolbar-btns .btn-keep:hover { background: #1e4620; }
         .toolbar-btns .btn-keep.active { background: #1e4620; }
 
-        /* ─── Mobile Tiles (smaller) ─── */
+        /* ─── Mobile Tiles (even smaller) ─── */
         #rvCompact {
             display: none;
         }
@@ -495,63 +497,63 @@
         .tile-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 6px;
+            gap: 4px;
             padding: 4px;
         }
 
         .tile-item {
             background: white;
-            border-radius: 10px;
-            padding: 8px;
-            border: 2px solid #e8e8e8;
+            border-radius: 8px;
+            padding: 4px;
+            border: 1.5px solid #e8e8e8;
             cursor: pointer;
             transition: all 0.2s;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
         }
 
         .tile-item.selected {
             border-color: #2c5f2d;
             background: #e8f5e9;
-            box-shadow: 0 2px 8px rgba(44,95,45,0.15);
+            box-shadow: 0 2px 6px rgba(44,95,45,0.12);
         }
 
         .tile-item .tile-thumb {
             width: 100%;
-            height: 70px; /* reduced from 120px */
+            height: 40px; /* even smaller */
             object-fit: cover;
-            border-radius: 6px;
+            border-radius: 4px;
             border: 1px solid #ddd;
         }
 
         .tile-item .tile-genus {
             font-weight: 700;
-            font-size: 0.85rem; /* smaller */
-            margin-top: 4px;
+            font-size: 0.7rem;
+            margin-top: 2px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .tile-item .tile-meta {
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             color: #888;
             margin-top: 1px;
         }
 
         .tile-item .tile-conf {
             font-weight: 700;
-            font-size: 0.75rem;
-            padding: 2px 6px;
-            border-radius: 10px;
+            font-size: 0.65rem;
+            padding: 1px 5px;
+            border-radius: 8px;
             display: inline-block;
-            margin-top: 2px;
+            margin-top: 1px;
         }
 
         .tile-detail {
-            margin-top: 6px;
+            margin-top: 4px;
             border-top: 1px solid #2c5f2d;
-            padding-top: 8px;
-            font-size: 0.85rem;
+            padding-top: 6px;
+            font-size: 0.75rem;
         }
 
         /* ─── Modals ─── */
@@ -682,21 +684,20 @@
 
             .tile-grid {
                 grid-template-columns: 1fr 1fr;
-                gap: 6px;
+                gap: 4px;
                 padding: 4px;
             }
 
-            .tile-item .tile-thumb { height: 70px; }
+            .tile-item .tile-thumb { height: 40px; }
 
-            .action-toolbar { padding: 8px 12px; }
-            .toolbar-btns { gap: 4px; }
+            .action-toolbar { padding: 6px 10px; }
             .toolbar-btns .btn-correct,
             .toolbar-btns .btn-incorrect,
             .toolbar-btns .btn-ambiguous,
             .toolbar-btns .btn-delete,
             .toolbar-btns .btn-keep {
-                padding: 6px 10px !important;
-                font-size: 0.75rem !important;
+                padding: 5px 8px !important;
+                font-size: 0.7rem !important;
             }
 
             .stats-bar { flex-wrap: wrap; gap: 0.5rem; }
@@ -719,7 +720,7 @@
 
         @media (max-width: 480px) {
             .tile-grid { grid-template-columns: 1fr; }
-            .tile-item .tile-thumb { height: 80px; }
+            .tile-item .tile-thumb { height: 50px; }
             .detail-photos { grid-template-columns: 1fr; }
             .detail-photos img { height: 100px; }
         }
