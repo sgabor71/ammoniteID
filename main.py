@@ -26,7 +26,7 @@ from typing import List
 import uuid
 import json
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from contextlib import asynccontextmanager
 
@@ -120,23 +120,25 @@ def add_missing_columns():
     except Exception as e:
         print(f"Column check for users.updated_at: {e}")
     
-    # Check and add updated_at column to partners table if missing
+    # Check and add columns to partners table if missing
     try:
         c.execute("PRAGMA table_info(partners)")
         columns = [col[1] for col in c.fetchall()]
-        if 'updated_at' not in columns:
-            c.execute("ALTER TABLE partners ADD COLUMN updated_at TEXT DEFAULT ''")
-            conn.commit()
-            print("✅ Added missing updated_at column to partners table")
-        if 'deletion_scheduled' not in columns:
-            c.execute("ALTER TABLE partners ADD COLUMN deletion_scheduled INTEGER DEFAULT 0")
-            conn.commit()
-        if 'deleted_at' not in columns:
-            c.execute("ALTER TABLE partners ADD COLUMN deleted_at TEXT")
-            conn.commit()
-        if 'deletion_grace_period_expires' not in columns:
-            c.execute("ALTER TABLE partners ADD COLUMN deletion_grace_period_expires TEXT")
-            conn.commit()
+        partner_cols = {
+            'updated_at': "TEXT DEFAULT ''",
+            'deletion_scheduled': "INTEGER DEFAULT 0",
+            'deleted_at': "TEXT",
+            'deletion_grace_period_expires': "TEXT",
+            'name_font_size': "TEXT DEFAULT '18'",
+            'name_font_color': "TEXT DEFAULT '#2c2c2c'",
+            'name_font_weight': "TEXT DEFAULT 'bold'",
+            'name_font_style': "TEXT DEFAULT 'normal'",
+        }
+        for col, definition in partner_cols.items():
+            if col not in columns:
+                c.execute(f"ALTER TABLE partners ADD COLUMN {col} {definition}")
+                print(f"✅ Added {col} to partners table")
+        conn.commit()
     except Exception as e:
         print(f"Column check for partners: {e}")
     
@@ -469,11 +471,14 @@ def save_to_review_queue(
         ai_genus = top_genus
         ai_confidence = result.get('top_family_score')
     
+    # Set auto_delete_date for review items (30 days from now)
+    auto_delete_date = (datetime.utcnow() + timedelta(days=30)).strftime('%Y-%m-%d')
+    
     c.execute('''
         INSERT INTO review_queue
         (id, identification_id, timestamp,
-         ai_family, ai_genus, ai_confidence, status, photo_paths)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+         ai_family, ai_genus, ai_confidence, status, photo_paths, auto_delete_date)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', (
         review_id,
         identification_id,
@@ -482,11 +487,46 @@ def save_to_review_queue(
         ai_genus,
         ai_confidence,
         'pending',
-        photo_paths_json
+        photo_paths_json,
+        auto_delete_date
     ))
     conn.commit()
     conn.close()
     return review_id
+
+
+def auto_delete_expired_reviews():
+    """Delete review queue items past their auto_delete_date unless keep_forever."""
+    try:
+        conn = sqlite3.connect(str(DB_PATH))
+        c = conn.cursor()
+        today = datetime.utcnow().strftime('%Y-%m-%d')
+        # Get identification_ids of items to delete so we can clean up photos
+        c.execute("""
+            SELECT id, identification_id FROM review_queue
+            WHERE auto_delete_date IS NOT NULL
+              AND auto_delete_date <= ?
+              AND (keep_forever IS NULL OR keep_forever = 0)
+        """, (today,))
+        items = c.fetchall()
+        
+        deleted = 0
+        for review_id, identification_id in items:
+            # Delete the associated photos
+            photo_dir = DB_REVIEW_DIR / identification_id
+            if photo_dir.exists():
+                import shutil
+                shutil.rmtree(str(photo_dir))
+            # Delete the review record
+            c.execute("DELETE FROM review_queue WHERE id = ?", (review_id,))
+            deleted += 1
+        
+        conn.commit()
+        conn.close()
+        if deleted > 0:
+            print(f"🗑️ Auto-deleted {deleted} expired review queue items")
+    except Exception as e:
+        print(f"⚠️ Review auto-delete error: {e}")
 
 
 # ============================================================
@@ -644,7 +684,7 @@ def get_review_queue(status: str = "pending"):
     conn = sqlite3.connect(str(DB_PATH))
     c    = conn.cursor()
     c.execute(
-        "SELECT * FROM review_queue WHERE status=?"
+        "SELECT * FROM review_queue WHERE status=? AND (deleted_at IS NULL OR deleted_at = '')"
         " ORDER BY timestamp DESC",
         (status,)
     )
@@ -728,6 +768,60 @@ def update_review(
     }
 
 
+@app.delete("/queue/{review_id}")
+async def delete_review(review_id: str):
+    """
+    Permanently delete a review queue item and its associated photos.
+    Uses soft-delete (sets deleted_at) to preserve audit trail.
+    """
+    conn = sqlite3.connect(str(DB_PATH))
+    c = conn.cursor()
+
+    # Check if review exists and isn't already deleted
+    c.execute("SELECT identification_id FROM review_queue WHERE id = ? AND (deleted_at IS NULL OR deleted_at = '')", (review_id,))
+    row = c.fetchone()
+    if not row:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Review not found or already deleted")
+
+    identification_id = row[0]
+
+    # Soft-delete the review
+    now = datetime.utcnow().isoformat()
+    c.execute("UPDATE review_queue SET deleted_at = ? WHERE id = ?", (now, review_id))
+
+    # Also delete the local photos folder
+    photo_dir = DB_REVIEW_DIR / identification_id
+    if photo_dir.exists():
+        import shutil
+        shutil.rmtree(str(photo_dir))
+
+    conn.commit()
+    conn.close()
+
+    return {"deleted": True, "review_id": review_id}
+
+
+@app.post("/queue/{review_id}/keep-forever")
+def toggle_keep_forever(review_id: str, keep: int = 1):
+    """Toggle keep_forever flag on a review queue item."""
+    conn = sqlite3.connect(str(DB_PATH))
+    c = conn.cursor()
+    if keep:
+        c.execute("UPDATE review_queue SET keep_forever=1, auto_delete_date=NULL WHERE id=?", (review_id,))
+    else:
+        c.execute("SELECT status, timestamp FROM review_queue WHERE id=?", (review_id,))
+        row = c.fetchone()
+        if row:
+            base = datetime.fromisoformat(row[1]) if row[1] else datetime.utcnow()
+            ad = base + timedelta(days=30)
+            c.execute("UPDATE review_queue SET keep_forever=0, auto_delete_date=? WHERE id=?",
+                      (ad.strftime('%Y-%m-%d'), review_id))
+    conn.commit()
+    conn.close()
+    return {"review_id": review_id, "keep_forever": bool(keep)}
+
+
 @app.get("/stats")
 def get_stats():
     """
@@ -763,7 +857,7 @@ def get_stats():
     # Pending reviews
     c.execute('''
         SELECT COUNT(*) FROM review_queue
-        WHERE status='pending'
+        WHERE status='pending' AND (deleted_at IS NULL OR deleted_at = '')
     ''')
     pending_reviews = c.fetchone()[0]
 
@@ -776,47 +870,6 @@ def get_stats():
         "top_families":          families,
         "model_version":         MODEL_VERSION,
     }
-
-
-@app.post("/queue/{review_id}/keep-forever")
-def toggle_keep_forever(review_id: str, keep: int = 1):
-    """Toggle keep_forever flag on a review queue item."""
-    conn = sqlite3.connect(str(DB_PATH))
-    c = conn.cursor()
-    if keep:
-        c.execute("UPDATE review_queue SET keep_forever=1, auto_delete_date=NULL WHERE id=?", (review_id,))
-    else:
-        c.execute("SELECT status, timestamp FROM review_queue WHERE id=?", (review_id,))
-        row = c.fetchone()
-        if row:
-            base = datetime.fromisoformat(row[1]) if row[1] else datetime.utcnow()
-            ad = base + timedelta(days=30)
-            c.execute("UPDATE review_queue SET keep_forever=0, auto_delete_date=? WHERE id=?",
-                      (ad.strftime('%Y-%m-%d'), review_id))
-    conn.commit()
-    conn.close()
-    return {"review_id": review_id, "keep_forever": bool(keep)}
-
-
-def auto_delete_expired_reviews():
-    """Delete review queue items past their auto_delete_date unless keep_forever."""
-    try:
-        conn = sqlite3.connect(str(DB_PATH))
-        c = conn.cursor()
-        today = datetime.utcnow().strftime('%Y-%m-%d')
-        c.execute("""
-            DELETE FROM review_queue
-            WHERE auto_delete_date IS NOT NULL
-              AND auto_delete_date <= ?
-              AND (keep_forever IS NULL OR keep_forever = 0)
-        """, (today,))
-        deleted = c.rowcount
-        conn.commit()
-        conn.close()
-        if deleted > 0:
-            print(f"🗑️ Auto-deleted {deleted} expired review queue items")
-    except Exception as e:
-        print(f"⚠️ Review auto-delete error: {e}")
 
 
 @app.get("/api/admin/users/{uid}/detail")
@@ -873,8 +926,6 @@ def update_user_status(uid: str, status: str):
     conn.commit()
     conn.close()
     return {"uid": uid, "status": status, "updated": True}
-
-
 
 
 @app.get("/photo/{identification_id}/{photo_name}")
