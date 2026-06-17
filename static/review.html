@@ -7,738 +7,138 @@
     <link rel="stylesheet" href="/static/responsive-mobile.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Georgia', 'Merriweather', serif;
-            background: #F5F1E8;
-            color: #000000;
-            line-height: 1.6;
-            background-image: url('background.jpg');
-            background-size: cover;
-            background-attachment: fixed;
-            background-position: center;
-            min-height: 100vh;
-        }
-
-        /* Navigation Header */
-        header {
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(20px);
-            padding: 1.25rem 2rem;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .header-logo {
-            font-size: 1.6rem;
-            font-weight: bold;
-            color: #2c5f2d;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .header-logo:hover { transform: translateX(-3px); }
-
-        .hamburger-btn {
-            display: none;
-            flex-direction: column;
-            gap: 5px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px;
-        }
-
-        .hamburger-btn span {
-            width: 25px;
-            height: 3px;
-            background: #2c5f2d;
-            border-radius: 3px;
-            transition: all 0.3s;
-        }
-
-        header nav {
-            display: flex;
-            gap: 1.5rem;
-            align-items: center;
-        }
-
-        header nav a {
-            color: #5D4E3A;
-            text-decoration: none;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: all 0.3s;
-            padding: 0.5rem 0.75rem;
-            border-radius: 8px;
-        }
-
-        header nav a:hover {
-            background: rgba(44, 95, 45, 0.1);
-            color: #2c5f2d;
-        }
-
-        .home-btn {
-            padding: 0.75rem 1.75rem;
-            background: linear-gradient(135deg, #2c5f2d 0%, #1e4620 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            text-decoration: none;
-            font-family: 'Arial', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.6rem;
-            box-shadow: 0 4px 12px rgba(44, 95, 45, 0.2);
-        }
-
-        .home-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(44, 95, 45, 0.3);
-        }
-
-        /* Main Container */
-        .main-container {
-            max-width: 1400px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
-
-        .card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 16px;
-            padding: 2rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            margin-bottom: 2rem;
-        }
-
-        h1 {
-            color: #2c5f2d;
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #1a1a1a;
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
-            font-family: 'Arial', sans-serif;
-        }
-
-        /* Stats Bar */
-        .stats-bar {
-            display: flex;
-            justify-content: space-around;
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
+        body { font-family: 'Georgia', 'Merriweather', serif; background: #F5F1E8; color: #000000; line-height: 1.6; background-image: url('background.jpg'); background-size: cover; background-attachment: fixed; background-position: center; min-height: 100vh; }
+        header { background: rgba(255,255,255,0.98); backdrop-filter: blur(20px); padding: 1.25rem 2rem; box-shadow: 0 4px 16px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .header-logo { font-size: 1.6rem; font-weight: bold; color: #2c5f2d; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
+        .hamburger-btn { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 8px; }
+        .hamburger-btn span { width: 25px; height: 3px; background: #2c5f2d; border-radius: 3px; }
+        header nav { display: flex; gap: 1.5rem; align-items: center; }
+        header nav a { color: #5D4E3A; text-decoration: none; font-size: 1rem; font-weight: 600; padding: 0.5rem 0.75rem; border-radius: 8px; }
+        header nav a:hover { background: rgba(44,95,45,0.1); color: #2c5f2d; }
+        .home-btn { padding: 0.75rem 1.75rem; background: linear-gradient(135deg,#2c5f2d,#1e4620); color: white; border: none; border-radius: 10px; text-decoration: none; font-family: Arial; font-size: 0.95rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.6rem; box-shadow: 0 4px 12px rgba(44,95,45,0.2); }
+        .main-container { max-width: 1400px; margin: 2rem auto; padding: 0 2rem; }
+        .card { background: rgba(255,255,255,0.95); border-radius: 16px; padding: 2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.05); margin-bottom: 2rem; }
+        h1 { color: #2c5f2d; font-size: 2.5rem; margin-bottom: 1rem; text-align: center; }
+        .subtitle { text-align: center; color: #1a1a1a; font-size: 1.1rem; margin-bottom: 2rem; font-family: Arial; }
+        .stats-bar { display: flex; justify-content: space-around; background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .stat-item { text-align: center; }
         .stat-value { font-size: 2rem; font-weight: bold; color: #2c5f2d; }
-        .stat-label { font-size: 0.9rem; color: #666; font-family: 'Arial', sans-serif; }
-
-        /* Queue Container */
+        .stat-label { font-size: 0.9rem; color: #666; font-family: Arial; }
         .queue-container { display: flex; gap: 2rem; }
         .main-content { flex: 1; }
-
-        /* Tabs */
-        .tabs {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 2rem;
-            border-bottom: 2px solid #e0e0e0;
-            overflow-x: auto;
-        }
-
-        .tab {
-            padding: 1rem 1.5rem;
-            background: transparent;
-            border: none;
-            border-bottom: 3px solid transparent;
-            cursor: pointer;
-            font-family: 'Arial', sans-serif;
-            font-weight: 600;
-            font-size: 1rem;
-            color: #666;
-            transition: all 0.3s;
-            white-space: nowrap;
-        }
-
-        .tab:hover { color: #2c5f2d; background: rgba(44, 95, 45, 0.05); }
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 2rem; border-bottom: 2px solid #e0e0e0; overflow-x: auto; }
+        .tab { padding: 1rem 1.5rem; background: transparent; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-family: Arial; font-weight: 600; font-size: 1rem; color: #666; white-space: nowrap; }
+        .tab:hover { color: #2c5f2d; background: rgba(44,95,45,0.05); }
         .tab.active { color: #2c5f2d; border-bottom-color: #2c5f2d; }
-
-        .tab-count {
-            display: inline-block;
-            background: #e0e0e0;
-            padding: 0.2rem 0.6rem;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            margin-left: 0.5rem;
-        }
-
+        .tab-count { display: inline-block; background: #e0e0e0; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.85rem; margin-left: 0.5rem; }
         .tab.active .tab-count { background: #2c5f2d; color: white; }
-
-        /* Review List/Table */
-        .review-list {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid #e0e0e0;
-        }
-
-        .review-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .review-table thead {
-            background: linear-gradient(135deg, #2c5f2d, #1e4620);
-            color: white;
-        }
-
-        .review-table th {
-            padding: 1rem;
-            text-align: left;
-            font-weight: 600;
-            font-family: 'Arial', sans-serif;
-        }
-
-        .review-table tbody tr {
-            border-bottom: 1px solid #f0f0f0;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
+        .review-list { background: white; border-radius: 12px; overflow: hidden; border: 1px solid #e0e0e0; }
+        .review-table { width: 100%; border-collapse: collapse; }
+        .review-table thead { background: linear-gradient(135deg,#2c5f2d,#1e4620); color: white; }
+        .review-table th { padding: 1rem; text-align: left; font-weight: 600; font-family: Arial; }
+        .review-table tbody tr { border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: all 0.3s; }
         .review-table tbody tr:hover { background: #f8f9fa; }
         .review-table tbody tr.expanded { background: #e8f5e9; }
-
-        .review-table td {
-            padding: 1rem;
-            color: #1a1a1a;
-        }
-
-        .review-table td img {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        .review-table td img:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-
+        .review-table td { padding: 1rem; color: #1a1a1a; }
+        .review-table td img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; cursor: pointer; }
         .card-confidence { font-weight: 600; }
         .card-confidence.high { color: #28a745; }
         .card-confidence.medium { color: #ffc107; }
         .card-confidence.low { color: #dc3545; }
+        .expanded-details { background: #f8f9fa; border-top: 2px solid #2c5f2d; }
+        .expanded-content { padding: 2rem; max-height: 500px; overflow-y: auto; }
+        .detail-photos { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .detail-photos img { width: 100%; height: 150px; object-fit: cover; border-radius: 12px; cursor: pointer; border: 2px solid #e0e0e0; }
+        .detail-photos img:hover { border-color: #2c5f2d; }
+        .detail-info { display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .detail-item { background: white; padding: 1rem; border-radius: 8px; border-left: 4px solid #2c5f2d; }
+        .detail-item strong { color: #2c5f2d; display: block; margin-bottom: 0.25rem; font-family: Arial; }
+        .genus-breakdown { background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; }
+        .genus-breakdown h4 { color: #2c5f2d; margin-bottom: 0.75rem; }
+        .genus-item { display: flex; justify-content: space-between; padding: 0.5rem; margin-bottom: 0.5rem; background: #f8f9fa; border-radius: 6px; font-family: Arial; font-size: 0.9rem; }
+        .genus-item.top { background: rgba(44,95,45,0.1); border-left: 3px solid #2c5f2d; font-weight: 600; }
 
-        /* Expanded Details */
-        .expanded-details {
-            background: #f8f9fa;
-            border-top: 2px solid #2c5f2d;
-        }
-
-        .expanded-content {
-            padding: 2rem;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        .detail-photos {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .detail-photos img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 2px solid #e0e0e0;
-        }
-
-        .detail-photos img:hover {
-            transform: scale(1.05);
-            border-color: #2c5f2d;
-            box-shadow: 0 4px 12px rgba(44, 95, 45, 0.3);
-        }
-
-        .detail-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .detail-item {
-            background: white;
-            padding: 1rem;
-            border-radius: 8px;
-            border-left: 4px solid #2c5f2d;
-        }
-
-        .detail-item strong {
-            color: #2c5f2d;
-            display: block;
-            margin-bottom: 0.25rem;
-            font-family: 'Arial', sans-serif;
-        }
-
-        .genus-breakdown {
-            background: white;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-        }
-
-        .genus-breakdown h4 {
-            color: #2c5f2d;
-            margin-bottom: 0.75rem;
-            font-size: 1rem;
-        }
-
-        .genus-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.5rem;
-            margin-bottom: 0.5rem;
-            background: #f8f9fa;
-            border-radius: 6px;
-            font-family: 'Arial', sans-serif;
-            font-size: 0.9rem;
-        }
-
-        .genus-item.top {
-            background: rgba(44, 95, 45, 0.1);
-            border-left: 3px solid #2c5f2d;
-            font-weight: 600;
-        }
-
-        /* ─── Toolbar ─── */
-        .action-toolbar {
-            position: fixed;
-            bottom: -200px; /* fully hidden when collapsed */
-            left: 0;
-            right: 0;
-            background: white;
-            border-top: 3px solid #2c5f2d;
-            padding: 12px 20px;
-            z-index: 500;
-            box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.18);
-            transition: bottom 0.3s ease;
-            max-width: 100vw;
-            visibility: hidden; /* completely hidden when collapsed */
-        }
-
-        .action-toolbar.visible {
-            bottom: 0;
-            visibility: visible;
-        }
-
-        .toolbar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .toolbar-label {
-            font-family: Arial, sans-serif;
-            font-size: 0.85rem;
-            color: #666;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .toolbar-label strong {
-            color: #1a1a1a;
-            font-size: 1rem;
-        }
-
-        .toolbar-toggle {
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            cursor: pointer;
-            color: #2c5f2d;
-            padding: 0 8px;
-        }
-
-        .toolbar-btns {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            padding-bottom: 4px;
-        }
-
-        /* Button styles — restored colours */
-        .toolbar-btns .btn-correct {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: Arial, sans-serif;
-            font-weight: 600;
-            font-size: 0.85rem;
-            transition: all 0.2s;
-            flex-shrink: 0;
-            white-space: nowrap;
-        }
-
+        /* Toolbar */
+        .action-toolbar { position: fixed; bottom: -200px; left: 0; right: 0; background: white; border-top: 3px solid #2c5f2d; padding: 12px 20px; z-index: 500; box-shadow: 0 -4px 24px rgba(0,0,0,0.18); transition: bottom 0.3s ease; visibility: hidden; }
+        .action-toolbar.visible { bottom: 0; visibility: visible; }
+        .toolbar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .toolbar-label { font-family: Arial; font-size: 0.85rem; color: #666; display: flex; align-items: center; gap: 8px; }
+        .toolbar-label strong { color: #1a1a1a; font-size: 1rem; }
+        .toolbar-toggle { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #2c5f2d; padding: 0 8px; }
+        .toolbar-btns { display: flex; gap: 6px; flex-wrap: wrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+        .toolbar-btns .btn-correct { background: #28a745; color: white; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-family: Arial; font-weight: 600; font-size: 0.85rem; flex-shrink: 0; white-space: nowrap; }
         .toolbar-btns .btn-correct:hover { background: #218838; }
-
-        .toolbar-btns .btn-incorrect {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: Arial, sans-serif;
-            font-weight: 600;
-            font-size: 0.85rem;
-            transition: all 0.2s;
-            flex-shrink: 0;
-            white-space: nowrap;
-        }
-
+        .toolbar-btns .btn-incorrect { background: #dc3545; color: white; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-family: Arial; font-weight: 600; font-size: 0.85rem; flex-shrink: 0; white-space: nowrap; }
         .toolbar-btns .btn-incorrect:hover { background: #c82333; }
-
-        .toolbar-btns .btn-ambiguous {
-            background: #ffc107;
-            color: #000;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: Arial, sans-serif;
-            font-weight: 600;
-            font-size: 0.85rem;
-            transition: all 0.2s;
-            flex-shrink: 0;
-            white-space: nowrap;
-        }
-
+        .toolbar-btns .btn-ambiguous { background: #ffc107; color: #000; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-family: Arial; font-weight: 600; font-size: 0.85rem; flex-shrink: 0; white-space: nowrap; }
         .toolbar-btns .btn-ambiguous:hover { background: #e0a800; }
-
-        .toolbar-btns .btn-delete {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: Arial, sans-serif;
-            font-weight: 600;
-            font-size: 0.85rem;
-            transition: all 0.2s;
-            flex-shrink: 0;
-            white-space: nowrap;
-        }
-
+        .toolbar-btns .btn-delete { background: #6c757d; color: white; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-family: Arial; font-weight: 600; font-size: 0.85rem; flex-shrink: 0; white-space: nowrap; }
         .toolbar-btns .btn-delete:hover { background: #5a6268; }
-
-        .toolbar-btns .btn-keep {
-            background: #2c5f2d;
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: Arial, sans-serif;
-            font-weight: 600;
-            font-size: 0.85rem;
-            transition: all 0.2s;
-            flex-shrink: 0;
-            white-space: nowrap;
-        }
-
+        .toolbar-btns .btn-keep { background: #2c5f2d; color: white; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-family: Arial; font-weight: 600; font-size: 0.85rem; flex-shrink: 0; white-space: nowrap; }
         .toolbar-btns .btn-keep:hover { background: #1e4620; }
         .toolbar-btns .btn-keep.active { background: #1e4620; }
 
-        /* ─── Mobile Tiles (even smaller) ─── */
-        #rvCompact {
-            display: none;
-        }
+        /* Mobile Tiles */
+        #rvCompact { display: none; }
+        .tile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 2px; }
+        .tile-item { background: white; border-radius: 6px; padding: 2px; border: 1px solid #e8e8e8; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+        .tile-item.selected { border-color: #2c5f2d; background: #e8f5e9; }
+        .tile-item .tile-thumb { width: 100%; height: 20px; object-fit: cover; border-radius: 3px; border: 1px solid #ddd; }
+        .tile-item .tile-genus { font-weight: 700; font-size: 0.55rem; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .tile-item .tile-meta { font-size: 0.5rem; color: #888; }
+        .tile-item .tile-conf { font-weight: 700; font-size: 0.5rem; padding: 1px 3px; border-radius: 6px; display: inline-block; }
+        .tile-detail { margin-top: 2px; border-top: 1px solid #2c5f2d; padding-top: 4px; font-size: 0.7rem; }
 
-        .tile-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4px;
-            padding: 4px;
-        }
-
-        .tile-item {
-            background: white;
-            border-radius: 8px;
-            padding: 4px;
-            border: 1.5px solid #e8e8e8;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-        }
-
-        .tile-item.selected {
-            border-color: #2c5f2d;
-            background: #e8f5e9;
-            box-shadow: 0 2px 6px rgba(44,95,45,0.12);
-        }
-
-        .tile-item .tile-thumb {
-            width: 100%;
-            height: 40px; /* even smaller */
-            object-fit: cover;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-        }
-
-        .tile-item .tile-genus {
-            font-weight: 700;
-            font-size: 0.7rem;
-            margin-top: 2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .tile-item .tile-meta {
-            font-size: 0.6rem;
-            color: #888;
-            margin-top: 1px;
-        }
-
-        .tile-item .tile-conf {
-            font-weight: 700;
-            font-size: 0.65rem;
-            padding: 1px 5px;
-            border-radius: 8px;
-            display: inline-block;
-            margin-top: 1px;
-        }
-
-        .tile-detail {
-            margin-top: 4px;
-            border-top: 1px solid #2c5f2d;
-            padding-top: 6px;
-            font-size: 0.75rem;
-        }
-
-        /* ─── Modals ─── */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            overflow-y: auto;
-        }
-
+        /* Modals */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; overflow-y: auto; }
         .modal.active { display: flex; }
-
-        .modal-content {
-            background: white;
-            border-radius: 16px;
-            max-width: 600px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-            margin: 2rem;
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: #dc3545;
-            color: white;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.5rem;
-            font-weight: bold;
-            transition: all 0.3s;
-            z-index: 10;
-        }
-
-        .modal-close:hover {
-            background: #c82333;
-            transform: rotate(90deg);
-        }
-
-        .detail-header {
-            background: linear-gradient(135deg, #2c5f2d, #1e4620);
-            color: white;
-            padding: 2rem;
-        }
-
+        .modal-content { background: white; border-radius: 16px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; position: relative; margin: 2rem; }
+        .modal-close { position: absolute; top: 1rem; right: 1rem; background: #dc3545; color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.5rem; font-weight: bold; z-index: 10; }
+        .detail-header { background: linear-gradient(135deg,#2c5f2d,#1e4620); color: white; padding: 2rem; }
         .detail-header h2 { font-size: 1.5rem; margin: 0; }
-
-        /* Zoom Modal */
-        .zoom-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
-
+        .zoom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; justify-content: center; align-items: center; }
         .zoom-modal.active { display: flex; }
+        .zoom-container { position: relative; width: 95vw; height: 95vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .zoom-image { max-width: 95vw; max-height: 90vh; cursor: move; transition: transform 0.3s ease; }
+        .zoom-controls { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; background: rgba(0,0,0,0.7); padding: 1rem; border-radius: 50px; }
+        .zoom-controls button { background: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; font-weight: bold; }
 
-        .zoom-container {
-            position: relative;
-            width: 95vw;
-            height: 95vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-
-        .zoom-image {
-            max-width: 95vw;
-            max-height: 90vh;
-            cursor: move;
-            transition: transform 0.3s ease;
-        }
-
-        .zoom-controls {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 1rem;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 1rem;
-            border-radius: 50px;
-        }
-
-        .zoom-controls button {
-            background: white;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.2rem;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-
-        .zoom-controls button:hover {
-            background: #2c5f2d;
-            color: white;
-            transform: scale(1.1);
-        }
-
-        /* ─── Responsive ─── */
+        /* Responsive */
         @media (max-width: 768px) {
             .review-table { display: none !important; }
             #rvCompact { display: block !important; }
-
-            .tile-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 4px;
-                padding: 4px;
-            }
-
-            .tile-item .tile-thumb { height: 40px; }
-
+            .tile-grid { grid-template-columns: 1fr 1fr; gap: 2px; padding: 2px; }
+            .tile-item .tile-thumb { height: 20px; }
             .action-toolbar { padding: 6px 10px; }
-            .toolbar-btns .btn-correct,
-            .toolbar-btns .btn-incorrect,
-            .toolbar-btns .btn-ambiguous,
-            .toolbar-btns .btn-delete,
-            .toolbar-btns .btn-keep {
-                padding: 5px 8px !important;
-                font-size: 0.7rem !important;
-            }
-
+            .toolbar-btns .btn-correct, .toolbar-btns .btn-incorrect, .toolbar-btns .btn-ambiguous, .toolbar-btns .btn-delete, .toolbar-btns .btn-keep { padding: 5px 8px !important; font-size: 0.7rem !important; }
             .stats-bar { flex-wrap: wrap; gap: 0.5rem; }
             .stat-value { font-size: 1.5rem; }
-
             header { flex-direction: column; align-items: flex-start; }
-            header nav {
-                display: none;
-                width: 100%;
-                flex-direction: column;
-                gap: 1rem;
-                padding: 1rem 0;
-            }
+            header nav { display: none; width: 100%; flex-direction: column; gap: 1rem; padding: 1rem 0; }
             header nav.show { display: flex; }
             .hamburger-btn { display: flex; }
-
             .detail-photos { grid-template-columns: 1fr 1fr; }
-            .detail-photos img { height: 120px; }
+            .detail-photos img { height: 100px; }
+            .zoom-container { width: 100vw !important; height: 100vh !important; }
+            .zoom-image { max-width: 100vw !important; max-height: 95vh !important; }
         }
-
         @media (max-width: 480px) {
             .tile-grid { grid-template-columns: 1fr; }
-            .tile-item .tile-thumb { height: 50px; }
+            .tile-item .tile-thumb { height: 30px; }
             .detail-photos { grid-template-columns: 1fr; }
-            .detail-photos img { height: 100px; }
+            .detail-photos img { height: 80px; }
         }
     </style>
 </head>
 <body>
-    <!-- Immediate expert gate -->
     <script>
     (function(){
         var tier = (localStorage.getItem('ammonite_tier') || 'FREE').toUpperCase();
         if (tier !== 'EXPERT' && tier !== 'ADMIN') {
-            document.body.innerHTML = '<div style="text-align:center;padding:4rem;font-family:Arial,sans-serif;"><h2 style="color:#1565c0;">Access Denied</h2><p>Expert or Admin access required.</p><a href="/static/home.html" style="color:#2c5f2d;font-weight:bold;">← Back to Home</a></div>';
-            return;
+            document.body.innerHTML = '<div style="text-align:center;padding:4rem;font-family:Arial;"><h2 style="color:#1565c0;">Access Denied</h2><p>Expert or Admin access required.</p><a href="/static/home.html" style="color:#2c5f2d;font-weight:bold;">← Back to Home</a></div>';
         }
     })();
     </script>
-
-    <!-- Navigation -->
     <header>
         <a href="/static/home.html" class="header-logo">🐚 AmmoniteID</a>
         <button class="hamburger-btn"><span></span><span></span><span></span></button>
@@ -752,19 +152,16 @@
         </nav>
         <a href="/static/home.html" class="home-btn">🏠 Back to Home</a>
     </header>
-
     <div class="main-container">
         <div class="card">
             <h1>Expert Review Queue</h1>
             <p class="subtitle">Review and validate AI identifications</p>
-
             <div class="stats-bar" id="stats-bar">
                 <div class="stat-item"><div class="stat-value" id="stat-total">0</div><div class="stat-label">Total</div></div>
                 <div class="stat-item"><div class="stat-value" id="stat-pending">0</div><div class="stat-label">Pending</div></div>
                 <div class="stat-item"><div class="stat-value" id="stat-reviewed">0</div><div class="stat-label">Reviewed</div></div>
                 <div class="stat-item"><div class="stat-value" id="stat-ambiguous">0</div><div class="stat-label">Ambiguous</div></div>
             </div>
-
             <div class="queue-container">
                 <div class="main-content">
                     <div class="tabs">
@@ -773,31 +170,22 @@
                         <button class="tab" data-action="switch-tab" data-tab="incorrect">Incorrect <span class="tab-count" id="countIncorrect">0</span></button>
                         <button class="tab" data-action="switch-tab" data-tab="ambiguous">Ambiguous <span class="tab-count" id="countAmbiguous">0</span></button>
                     </div>
-
                     <div class="review-list">
-                        <!-- Desktop table -->
                         <table class="review-table">
                             <thead><tr><th>Photo</th><th>Family</th><th>Genus</th><th>Conf</th><th>Date</th><th>Status</th><th>▼</th></tr></thead>
                             <tbody id="reviewTableBody"></tbody>
                         </table>
-
-                        <!-- Mobile tile grid -->
-                        <div id="rvCompact">
-                            <div class="tile-grid" id="tileGrid"></div>
-                        </div>
+                        <div id="rvCompact"><div class="tile-grid" id="tileGrid"></div></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Floating Action Toolbar (collapsible) -->
     <div class="action-toolbar" id="actionToolbar">
         <div class="toolbar-header">
-            <div class="toolbar-label">
-                Reviewing: <strong id="toolbarItemName">—</strong>
-            </div>
-            <button class="toolbar-toggle" id="toolbarToggle" aria-label="Toggle toolbar">▼</button>
+            <div class="toolbar-label">Reviewing: <strong id="toolbarItemName">—</strong></div>
+            <button class="toolbar-toggle" id="toolbarToggle">▼</button>
         </div>
         <div class="toolbar-btns" id="toolbarBtns">
             <button class="btn-correct" data-action="mark-reviewed">✓ Correct</button>
@@ -808,27 +196,19 @@
         </div>
     </div>
 
-    <!-- Correction Modal -->
     <div class="modal" id="correctionModal">
         <div class="modal-content">
             <button class="modal-close" data-action="close-correction">×</button>
             <div class="detail-header"><h2>Correct Identification</h2></div>
             <div style="padding:2rem;">
-                <p style="margin-bottom:1.5rem;font-family:Arial;color:#666;">
-                    AI identified as: <strong id="aiIdentification"></strong><br>
-                    Please provide the correct identification:
-                </p>
+                <p style="margin-bottom:1.5rem;font-family:Arial;color:#666;">AI identified as: <strong id="aiIdentification"></strong><br>Please provide the correct identification:</p>
                 <div style="margin-bottom:1.5rem;">
                     <label style="display:block;font-family:Arial;font-weight:600;margin-bottom:0.5rem;color:#2c5f2d;">Correct Family:</label>
-                    <select id="correctFamily" style="width:100%;padding:0.75rem;border:2px solid #e0e0e0;border-radius:8px;font-family:Arial;font-size:1rem;">
-                        <option value="">Select family...</option>
-                    </select>
+                    <select id="correctFamily" style="width:100%;padding:0.75rem;border:2px solid #e0e0e0;border-radius:8px;font-family:Arial;font-size:1rem;"><option value="">Select family...</option></select>
                 </div>
                 <div style="margin-bottom:1.5rem;">
                     <label style="display:block;font-family:Arial;font-weight:600;margin-bottom:0.5rem;color:#2c5f2d;">Correct Genus:</label>
-                    <select id="correctGenus" style="width:100%;padding:0.75rem;border:2px solid #e0e0e0;border-radius:8px;font-family:Arial;font-size:1rem;">
-                        <option value="">Select genus...</option>
-                    </select>
+                    <select id="correctGenus" style="width:100%;padding:0.75rem;border:2px solid #e0e0e0;border-radius:8px;font-family:Arial;font-size:1rem;"><option value="">Select genus...</option></select>
                 </div>
                 <div style="margin-bottom:1.5rem;">
                     <label style="display:block;font-family:Arial;font-weight:600;margin-bottom:0.5rem;color:#2c5f2d;">Notes (optional):</label>
@@ -842,7 +222,6 @@
         </div>
     </div>
 
-    <!-- Photo Zoom Modal -->
     <div class="zoom-modal" id="zoomModal">
         <div class="zoom-container" id="zoomContainer">
             <img id="zoomImage" class="zoom-image" alt="Zoomed photo">
@@ -862,12 +241,7 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        const _app = initializeApp({
-            apiKey: "AIzaSyChXqOpXgpkLrn44mfIcPoTVPBk6neicBQ",
-            authDomain: "ammoniteid-f9d8e.firebaseapp.com",
-            projectId: "ammoniteid-f9d8e",
-            appId: "1:828376677091:web:e302f3ff538b78bc83e3d6"
-        });
+        const _app = initializeApp({ apiKey: "AIzaSyChXqOpXgpkLrn44mfIcPoTVPBk6neicBQ", authDomain: "ammoniteid-f9d8e.firebaseapp.com", projectId: "ammoniteid-f9d8e", appId: "1:828376677091:web:e302f3ff538b78bc83e3d6" });
         const _auth = getAuth(_app);
 
         onAuthStateChanged(_auth, async (user) => {
@@ -877,35 +251,17 @@
             const data = await res.json();
             const tier = (data.tier || 'FREE').toUpperCase();
             localStorage.setItem('ammonite_tier', tier);
-            if (!tierAtLeast(tier, 'EXPERT')) {
-                alert('Access denied. Expert or Admin access required.');
-                window.location.href = '/static/home.html';
-                return;
-            }
+            if (!tierAtLeast(tier, 'EXPERT')) { alert('Access denied.'); window.location.href = '/static/home.html'; return; }
             await loadFromDB();
         });
 
-        // ── State ──
-        let identifications = [];
-        let currentTab = 'pending';
-        let expandedRow = null;
-        let selectedItemId = null;
-        let updateInProgress = false;
-        let toolbarOpen = false;
-
-        // ── DOM refs ──
+        let identifications = [], currentTab = 'pending', expandedRow = null, selectedItemId = null, updateInProgress = false, toolbarOpen = false;
         const toolbar = document.getElementById('actionToolbar');
         const toolbarToggle = document.getElementById('toolbarToggle');
         const toolbarBtns = document.getElementById('toolbarBtns');
 
-        // ── Toolbar toggle ──
-        function toggleToolbar(forceState) {
-            toolbarOpen = (forceState !== undefined) ? forceState : !toolbarOpen;
-            toolbar.classList.toggle('visible', toolbarOpen);
-            toolbarToggle.textContent = toolbarOpen ? '▲' : '▼';
-        }
+        function toggleToolbar(forceState) { toolbarOpen = (forceState !== undefined) ? forceState : !toolbarOpen; toolbar.classList.toggle('visible', toolbarOpen); toolbarToggle.textContent = toolbarOpen ? '▲' : '▼'; }
 
-        // ── Auto‑open toolbar when an item is selected ──
         function showToolbarForItem(id) {
             const item = identifications.find(i => i.id === id);
             if (item) {
@@ -917,432 +273,170 @@
             }
         }
 
-        // ── Load data ──
         async function loadFromDB() {
             if (updateInProgress) return;
             try {
-                const [pRes, rRes, aRes] = await Promise.all([
-                    fetch('/queue?status=pending'),
-                    fetch('/queue?status=reviewed'),
-                    fetch('/queue?status=ambiguous')
-                ]);
-
+                const [pRes, rRes, aRes] = await Promise.all([ fetch('/queue?status=pending'), fetch('/queue?status=reviewed'), fetch('/queue?status=ambiguous') ]);
                 const pending = pRes.ok ? (await pRes.json()).items || [] : [];
                 const reviewed = rRes.ok ? (await rRes.json()).items || [] : [];
                 const ambiguous = aRes.ok ? (await aRes.json()).items || [] : [];
-
                 const mapItem = (item) => ({
-                    id: item.id,
-                    identification_id: item.identification_id,
-                    date: item.timestamp,
-                    family: item.ai_family || 'Unknown',
-                    genus: item.ai_genus || 'Unknown',
-                    confidence: item.ai_confidence || 0,
-                    status: item.status || 'pending',
-                    expert_family: item.expert_family || '',
-                    expert_genus: item.expert_genus || '',
-                    expert_notes: item.expert_notes || '',
-                    keepForever: item.keep_forever || false,
-                    mlTrainingFlag: item.ml_flagged || false,
-                    photo_paths: item.photo_paths ? JSON.parse(item.photo_paths) : [],
-                    get photo() {
-                        const paths = this.photo_paths;
-                        return paths && paths.length ? paths[0].replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2') : '';
-                    },
-                    get allPhotos() {
-                        return this.photo_paths.map(p => p.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2'));
-                    }
+                    id: item.id, identification_id: item.identification_id, date: item.timestamp, family: item.ai_family || 'Unknown', genus: item.ai_genus || 'Unknown', confidence: item.ai_confidence || 0, status: item.status || 'pending', expert_family: item.expert_family || '', expert_genus: item.expert_genus || '', expert_notes: item.expert_notes || '', keepForever: item.keep_forever || false, mlTrainingFlag: item.ml_flagged || false, photo_paths: item.photo_paths ? JSON.parse(item.photo_paths) : [],
+                    get photo() { return this.photo_paths.length ? this.photo_paths[0].replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2') : ''; },
+                    get allPhotos() { return this.photo_paths.map(p => p.replace(/.*review_queue\/([^/]+)\/(.+)/, '/photo/$1/$2')); }
                 });
-
-                identifications = [
-                    ...pending.map(mapItem),
-                    ...reviewed.map(mapItem),
-                    ...ambiguous.map(mapItem)
-                ];
-
-                if (selectedItemId && !identifications.find(i => i.id === selectedItemId)) {
-                    selectedItemId = null;
-                    expandedRow = null;
-                    toggleToolbar(false);
-                }
-
+                identifications = [...pending.map(mapItem), ...reviewed.map(mapItem), ...ambiguous.map(mapItem)];
+                if (selectedItemId && !identifications.find(i => i.id === selectedItemId)) { selectedItemId = null; expandedRow = null; toggleToolbar(false); }
                 updateCounts();
                 filterByStatus(currentTab);
-            } catch (e) {
-                console.error('Failed to load reviews:', e);
-                document.getElementById('reviewTableBody').innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2rem;color:#dc3545;">⚠️ Failed to load reviews. Please refresh.</td></tr>`;
-            }
+            } catch (e) { console.error('Failed to load:', e); }
         }
 
         async function saveReviewToDB(item) {
             if (updateInProgress) return;
             updateInProgress = true;
             try {
-                const res = await fetch(`/queue/${item.id}/update`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({
-                        status: item.status,
-                        expert_family: item.expert_family || '',
-                        expert_genus: item.expert_genus || '',
-                        expert_notes: item.expert_notes || '',
-                        reviewed_by: 'expert',
-                        ml_flag: item.mlTrainingFlag ? '1' : '0'
-                    })
-                });
-                if (!res.ok) throw new Error('Server returned ' + res.status);
+                const res = await fetch(`/queue/${item.id}/update`, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ status: item.status, expert_family: item.expert_family || '', expert_genus: item.expert_genus || '', expert_notes: item.expert_notes || '', reviewed_by: 'expert', ml_flag: item.mlTrainingFlag ? '1' : '0' }) });
+                if (!res.ok) throw new Error('Server ' + res.status);
                 await loadFromDB();
-            } catch (e) {
-                console.warn('Could not save review:', e.message);
-                alert('Failed to update review. Please try again.');
-            } finally {
-                updateInProgress = false;
-            }
+            } catch (e) { console.warn('Save failed:', e.message); alert('Failed to save. Try again.'); } finally { updateInProgress = false; }
         }
 
         async function deleteReviewFromServer(id) {
             if (updateInProgress) return;
-            if (!confirm('Permanently delete this review? This cannot be undone.')) return;
+            if (!confirm('Permanently delete this review?')) return;
             updateInProgress = true;
             try {
                 const res = await fetch(`/queue/${id}`, { method: 'DELETE' });
-                if (!res.ok) throw new Error('Server returned ' + res.status);
+                if (!res.ok) throw new Error('Server ' + res.status);
                 identifications = identifications.filter(i => i.id !== id);
-                if (selectedItemId === id) {
-                    selectedItemId = null;
-                    expandedRow = null;
-                    toggleToolbar(false);
-                }
-                updateCounts();
-                filterByStatus(currentTab);
-            } catch (e) {
-                console.warn('Delete failed:', e.message);
-                alert('Failed to delete. Please try again.');
-            } finally {
-                updateInProgress = false;
-            }
+                if (selectedItemId === id) { selectedItemId = null; expandedRow = null; toggleToolbar(false); }
+                updateCounts(); filterByStatus(currentTab);
+            } catch (e) { alert('Delete failed.'); } finally { updateInProgress = false; }
         }
 
         function updateCounts() {
-            const total = identifications.length;
-            const pending = identifications.filter(i => i.status === 'pending').length;
-            const reviewed = identifications.filter(i => i.status === 'reviewed').length;
-            const incorrect = identifications.filter(i => i.status === 'incorrect').length;
-            const ambiguous = identifications.filter(i => i.status === 'ambiguous').length;
-
-            document.getElementById('stat-total').textContent = total;
-            document.getElementById('stat-pending').textContent = pending;
-            document.getElementById('stat-reviewed').textContent = reviewed;
-            document.getElementById('stat-ambiguous').textContent = ambiguous;
-
-            document.getElementById('countPending').textContent = pending;
-            document.getElementById('countReviewed').textContent = reviewed;
-            document.getElementById('countIncorrect').textContent = incorrect;
-            document.getElementById('countAmbiguous').textContent = ambiguous;
+            const p = identifications.filter(i => i.status === 'pending').length;
+            const r = identifications.filter(i => i.status === 'reviewed').length;
+            const inc = identifications.filter(i => i.status === 'incorrect').length;
+            const a = identifications.filter(i => i.status === 'ambiguous').length;
+            document.getElementById('stat-total').textContent = identifications.length;
+            document.getElementById('stat-pending').textContent = p;
+            document.getElementById('stat-reviewed').textContent = r;
+            document.getElementById('stat-ambiguous').textContent = a;
+            document.getElementById('countPending').textContent = p;
+            document.getElementById('countReviewed').textContent = r;
+            document.getElementById('countIncorrect').textContent = inc;
+            document.getElementById('countAmbiguous').textContent = a;
         }
 
-        function switchTab(tab) {
-            currentTab = tab;
-            expandedRow = null;
-            selectedItemId = null;
-            toggleToolbar(false);
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            const activeTab = document.querySelector(`.tab[data-tab="${tab}"]`);
-            if (activeTab) activeTab.classList.add('active');
-            filterByStatus(tab);
-        }
-
-        function filterByStatus(status) {
-            const filtered = identifications.filter(i => i.status === status);
-            renderGrid(filtered);
-        }
+        function switchTab(tab) { currentTab = tab; expandedRow = null; selectedItemId = null; toggleToolbar(false); document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); const at = document.querySelector(`.tab[data-tab="${tab}"]`); if (at) at.classList.add('active'); filterByStatus(tab); }
+        function filterByStatus(status) { renderGrid(identifications.filter(i => i.status === status)); }
 
         function renderGrid(items) {
             const tbody = document.getElementById('reviewTableBody');
             const tileGrid = document.getElementById('tileGrid');
             tbody.innerHTML = '';
             tileGrid.innerHTML = '';
-
             if (items.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:3rem;color:#999;">No entries in this category</td></tr>';
-                tileGrid.innerHTML = '<p style="text-align:center;padding:2rem;color:#999;grid-column:1/-1;">No entries in this category</p>';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:3rem;color:#999;">No entries</td></tr>';
+                tileGrid.innerHTML = '<p style="text-align:center;padding:1rem;color:#999;grid-column:1/-1;">No entries</p>';
                 return;
             }
-
             items.forEach(item => {
-                // ── Desktop row ──
-                const tr = document.createElement('tr');
-                tr.dataset.id = item.id;
-                tr.onclick = (e) => {
-                    if (!e.target.closest('[data-action]') && !e.target.closest('button')) {
-                        toggleExpand(item.id);
-                    }
-                };
-                if (expandedRow === item.id) tr.classList.add('expanded');
-
                 const confClass = item.confidence >= 70 ? 'high' : item.confidence >= 50 ? 'medium' : 'low';
-                let flag = '';
-                if (item.mlTrainingFlag && item.expert_family) flag = '<div class="corrected-flag">✓ Error Corrected</div>';
-
-                tr.innerHTML = `
-                    <td><img src="${item.photo}" alt="${item.genus}" data-action="open-zoom" data-src="${item.photo}"></td>
-                    <td>${item.family}</td>
-                    <td>${flag}${item.genus}</td>
-                    <td class="card-confidence ${confClass}">${item.confidence}%</td>
-                    <td>${formatDate(item.date)}</td>
-                    <td>${item.status}</td>
-                    <td style="text-align:center;">${expandedRow === item.id ? '▲' : '▼'}</td>
-                `;
-                tbody.appendChild(tr);
-
-                if (expandedRow === item.id) {
-                    const detailTr = document.createElement('tr');
-                    detailTr.className = 'expanded-details';
-                    detailTr.innerHTML = `<td colspan="7"><div class="expanded-content">${renderDetailContent(item)}</div></td>`;
-                    tbody.appendChild(detailTr);
-                }
-
-                // ── Mobile tile ──
-                const tile = document.createElement('div');
-                tile.className = 'tile-item' + (expandedRow === item.id ? ' selected' : '');
-                tile.dataset.id = item.id;
-
                 const confBg = confClass === 'high' ? '#d4edda' : confClass === 'medium' ? '#fff3cd' : '#f8d7da';
                 const confFg = confClass === 'high' ? '#28a745' : confClass === 'medium' ? '#e67e22' : '#c62828';
+                let flag = (item.mlTrainingFlag && item.expert_family) ? '<div style="color:#28a745;font-size:0.8rem;">✓ Corrected</div>' : '';
 
-                tile.innerHTML = `
-                    <img class="tile-thumb" src="${item.photo}" alt="${item.genus}" data-action="open-zoom" data-src="${item.photo}">
-                    <div class="tile-genus">${item.genus}</div>
-                    <div class="tile-meta">${item.family} · ${formatDate(item.date)}</div>
-                    <span class="tile-conf" style="background:${confBg};color:${confFg};">${item.confidence}%</span>
-                `;
+                // Desktop row
+                const tr = document.createElement('tr');
+                tr.dataset.id = item.id;
+                tr.onclick = (e) => { if (!e.target.closest('[data-action]') && !e.target.closest('button')) toggleExpand(item.id); };
+                if (expandedRow === item.id) tr.classList.add('expanded');
+                tr.innerHTML = `<td><img src="${item.photo}" alt="${item.genus}" data-action="open-zoom" data-src="${item.photo}"></td><td>${item.family}</td><td>${flag}${item.genus}</td><td class="card-confidence ${confClass}">${item.confidence}%</td><td>${formatDate(item.date)}</td><td>${item.status}</td><td style="text-align:center;">${expandedRow === item.id ? '▲' : '▼'}</td>`;
+                tbody.appendChild(tr);
+                if (expandedRow === item.id) {
+                    const dtr = document.createElement('tr'); dtr.className = 'expanded-details';
+                    dtr.innerHTML = `<td colspan="7"><div class="expanded-content">${renderDetailContent(item)}</div></td>`;
+                    tbody.appendChild(dtr);
+                }
 
-                tile.addEventListener('click', function(e) {
-                    if (!e.target.closest('[data-action]')) {
-                        toggleExpand(item.id);
-                    }
-                });
-
+                // Mobile tile — NO data-action on thumbnail (tap = expand, not zoom)
+                const tile = document.createElement('div');
+                tile.className = 'tile-item' + (expandedRow === item.id ? ' selected' : '');
+                tile.innerHTML = `<img class="tile-thumb" src="${item.photo}" alt="${item.genus}"><div class="tile-genus">${item.genus}</div><div class="tile-meta">${item.family}</div><span class="tile-conf" style="background:${confBg};color:${confFg};">${item.confidence}%</span>`;
+                tile.addEventListener('click', function(e) { if (!e.target.closest('[data-action]')) toggleExpand(item.id); });
                 tileGrid.appendChild(tile);
 
-                // ── Mobile expanded detail ──
                 if (expandedRow === item.id) {
-                    const detailDiv = document.createElement('div');
-                    detailDiv.className = 'tile-detail';
-                    detailDiv.innerHTML = renderDetailContent(item);
-                    tile.appendChild(detailDiv);
+                    const det = document.createElement('div'); det.className = 'tile-detail';
+                    det.style.gridColumn = '1 / -1';
+                    det.innerHTML = renderDetailContent(item);
+                    tileGrid.appendChild(det);
                 }
             });
         }
 
         function toggleExpand(id) {
-            if (expandedRow === id) {
-                expandedRow = null;
-                selectedItemId = null;
-                toggleToolbar(false);
-            } else {
-                expandedRow = id;
-                selectedItemId = id;
-                showToolbarForItem(id);
-            }
+            if (expandedRow === id) { expandedRow = null; selectedItemId = null; toggleToolbar(false); }
+            else { expandedRow = id; selectedItemId = id; showToolbarForItem(id); }
             filterByStatus(currentTab);
         }
 
         function renderDetailContent(item) {
-            const deleteInDays = item.autoDeleteDate && !item.keepForever ? 
-                Math.ceil((new Date(item.autoDeleteDate) - new Date()) / (1000 * 60 * 60 * 24)) : null;
-            let autoDeleteHTML = '';
-            if (!item.keepForever && deleteInDays !== null) {
-                const warningClass = deleteInDays <= 7 ? 'warning' : '';
-                autoDeleteHTML = `<div class="auto-delete-info ${warningClass}">⏱️ Auto-delete in ${deleteInDays} day${deleteInDays !== 1 ? 's' : ''}</div>`;
-            } else if (item.keepForever) {
-                autoDeleteHTML = `<div class="auto-delete-info" style="background:#d4edda;border-left-color:#28a745;">✓ Kept Forever</div>`;
-            }
-
             let correctionHTML = '';
-            if (item.mlTrainingFlag && item.expert_family) {
-                correctionHTML = `<div style="background:#d4edda;border-left:4px solid #28a745;padding:1rem;margin-bottom:1rem;border-radius:8px;">
-                    <strong style="color:#155724;">✓ Expert Correction Applied:</strong><br>
-                    Corrected to: <strong>${item.expert_family} - ${item.expert_genus}</strong><br>
-                    ${item.expert_notes ? `Notes: ${item.expert_notes}` : ''}
-                    <br><small style="color:#666;">Flagged for ML retraining</small>
-                </div>`;
-            }
-
-            let genusHTML = '';
-            if (item.genusBreakdown && item.genusBreakdown.length > 0) {
-                genusHTML = `<div class="genus-breakdown"><h4>Genera Likelihood</h4>
-                    ${item.genusBreakdown.map((g, i) => `<div class="genus-item ${i === 0 ? 'top' : ''}"><span>${g.genus}</span><span>${g.percentage}%</span></div>`).join('')}
-                </div>`;
-            }
-
+            if (item.mlTrainingFlag && item.expert_family) { correctionHTML = `<div style="background:#d4edda;border-left:4px solid #28a745;padding:0.75rem;margin-bottom:0.75rem;border-radius:8px;"><strong style="color:#155724;">✓ Corrected:</strong> ${item.expert_family} - ${item.expert_genus}${item.expert_notes ? '<br>Notes: '+item.expert_notes : ''}<br><small style="color:#666;">Flagged for ML</small></div>`; }
             const photos = item.allPhotos || [item.photo].filter(Boolean);
             const photosHtml = photos.map(p => `<img src="${p}" alt="${item.genus}" data-action="open-zoom" data-src="${p}">`).join('');
-
-            return `
-                ${autoDeleteHTML}
-                ${correctionHTML}
-                <div class="detail-photos">${photosHtml}</div>
-                <div class="detail-info">
-                    <div class="detail-item"><strong>Family</strong>${item.family}</div>
-                    <div class="detail-item"><strong>Genus</strong>${item.genus}</div>
-                    <div class="detail-item"><strong>Confidence</strong>${item.confidence}%</div>
-                    <div class="detail-item"><strong>Date</strong>${formatDate(item.date)}</div>
-                    <div class="detail-item"><strong>Status</strong>${item.status}</div>
-                </div>
-                ${genusHTML}
-            `;
+            return `${correctionHTML}<div class="detail-photos">${photosHtml}</div><div class="detail-info"><div class="detail-item"><strong>Family</strong>${item.family}</div><div class="detail-item"><strong>Genus</strong>${item.genus}</div><div class="detail-item"><strong>Confidence</strong>${item.confidence}%</div><div class="detail-item"><strong>Status</strong>${item.status}</div></div>`;
         }
 
-        // ── Mark functions ──
-        function markAsReviewed(id) {
-            const item = identifications.find(i => i.id === id);
-            if (item && !updateInProgress) {
-                item.status = 'reviewed';
-                item.reviewedAt = new Date().toISOString();
-                item.autoDeleteDate = null;
-                item.mlTrainingFlag = true;
-                saveReviewToDB(item);
-                expandedRow = null;
-                selectedItemId = null;
-                toggleToolbar(false);
-            }
-        }
-
-        function markAsAmbiguous(id) {
-            const item = identifications.find(i => i.id === id);
-            if (item && !updateInProgress) {
-                item.status = 'ambiguous';
-                item.markedAmbiguousAt = new Date().toISOString();
-                item.autoDeleteDate = null;
-                saveReviewToDB(item);
-                expandedRow = null;
-                selectedItemId = null;
-                toggleToolbar(false);
-            }
-        }
-
+        function markAsReviewed(id) { const item = identifications.find(i => i.id === id); if (item && !updateInProgress) { item.status = 'reviewed'; item.mlTrainingFlag = true; saveReviewToDB(item); expandedRow = null; selectedItemId = null; toggleToolbar(false); } }
+        function markAsAmbiguous(id) { const item = identifications.find(i => i.id === id); if (item && !updateInProgress) { item.status = 'ambiguous'; saveReviewToDB(item); expandedRow = null; selectedItemId = null; toggleToolbar(false); } }
         function deleteIdentification(id) { deleteReviewFromServer(id); }
+        function toggleKeepForever(id) { const item = identifications.find(i => i.id === id); if (item && !updateInProgress) { item.keepForever = !item.keepForever; saveReviewToDB(item); const kb = document.getElementById('toolbarKeepBtn'); kb.textContent = item.keepForever ? '✓ Kept Forever' : '☐ Keep Forever'; kb.className = item.keepForever ? 'btn-keep active' : 'btn-keep'; } }
 
-        function toggleKeepForever(id) {
-            const item = identifications.find(i => i.id === id);
-            if (item && !updateInProgress) {
-                item.keepForever = !item.keepForever;
-                item.autoDeleteDate = item.keepForever ? null : null;
-                saveReviewToDB(item);
-                const keepBtn = document.getElementById('toolbarKeepBtn');
-                keepBtn.textContent = item.keepForever ? '✓ Kept Forever' : '☐ Keep Forever';
-                keepBtn.className = item.keepForever ? 'btn-keep active' : 'btn-keep';
-                filterByStatus(currentTab);
-            }
-        }
-
-        // ── Correction modal ──
         let currentCorrectionId = null;
         const families = ['Hildoceratidae','Dactylioceratidae','Amaltheidae','Schiloceratidae','Eleganticeratidae','Androgynoceratidae','Arietitidae','Polymorphitidae','Eoderoceratidae'];
         const genera = ['Harpoceras','Hildoceras','Grammoceras','Pseudolioceras','Dactylioceras','Catacoeloceras','Peronoceras','Gagaticeras','Amaltheus','Arnioceras','Eleganticeras','Androgynoceras','Arietites','Polymorphites','Eoderoceras'];
 
-        function populateCorrectionDropdowns() {
-            const familySelect = document.getElementById('correctFamily');
-            const genusSelect = document.getElementById('correctGenus');
-            families.forEach(f => { const opt = document.createElement('option'); opt.value = f; opt.textContent = f; familySelect.appendChild(opt); });
-            genera.forEach(g => { const opt = document.createElement('option'); opt.value = g; opt.textContent = g; genusSelect.appendChild(opt); });
-        }
+        function populateCorrectionDropdowns() { const fs = document.getElementById('correctFamily'); const gs = document.getElementById('correctGenus'); families.forEach(f => { const o = document.createElement('option'); o.value = f; o.textContent = f; fs.appendChild(o); }); genera.forEach(g => { const o = document.createElement('option'); o.value = g; o.textContent = g; gs.appendChild(o); }); }
 
-        function openCorrectionModal(id) {
-            const item = identifications.find(i => i.id === id);
-            if (!item) return;
-            currentCorrectionId = id;
-            if (document.getElementById('correctFamily').options.length === 1) populateCorrectionDropdowns();
-            document.getElementById('aiIdentification').textContent = `${item.family} - ${item.genus} (${item.confidence}%)`;
-            document.getElementById('correctFamily').value = '';
-            document.getElementById('correctGenus').value = '';
-            document.getElementById('correctionNotes').value = '';
-            document.getElementById('correctionModal').classList.add('active');
-        }
-
+        function openCorrectionModal(id) { const item = identifications.find(i => i.id === id); if (!item) return; currentCorrectionId = id; if (document.getElementById('correctFamily').options.length === 1) populateCorrectionDropdowns(); document.getElementById('aiIdentification').textContent = `${item.family} - ${item.genus} (${item.confidence}%)`; document.getElementById('correctFamily').value = ''; document.getElementById('correctGenus').value = ''; document.getElementById('correctionNotes').value = ''; document.getElementById('correctionModal').classList.add('active'); }
         function closeCorrectionModal() { document.getElementById('correctionModal').classList.remove('active'); currentCorrectionId = null; }
+        function submitCorrection() { const f = document.getElementById('correctFamily').value; const g = document.getElementById('correctGenus').value; const n = document.getElementById('correctionNotes').value; if (!f || !g) { alert('Select both Family and Genus'); return; } const item = identifications.find(i => i.id === currentCorrectionId); if (item && !updateInProgress) { item.status = 'incorrect'; item.expert_family = f; item.expert_genus = g; item.expert_notes = n; item.mlTrainingFlag = true; saveReviewToDB(item); closeCorrectionModal(); expandedRow = null; selectedItemId = null; toggleToolbar(false); } }
 
-        function submitCorrection() {
-            const family = document.getElementById('correctFamily').value;
-            const genus = document.getElementById('correctGenus').value;
-            const notes = document.getElementById('correctionNotes').value;
-            if (!family || !genus) { alert('Please select both Family and Genus'); return; }
-            const item = identifications.find(i => i.id === currentCorrectionId);
-            if (item && !updateInProgress) {
-                item.status = 'incorrect';
-                item.expert_family = family;
-                item.expert_genus = genus;
-                item.expert_notes = notes;
-                item.markedIncorrectAt = new Date().toISOString();
-                item.autoDeleteDate = null;
-                item.mlTrainingFlag = true;
-                saveReviewToDB(item);
-                closeCorrectionModal();
-                expandedRow = null;
-                selectedItemId = null;
-                toggleToolbar(false);
-                alert('✓ Correction submitted!');
-            }
-        }
+        function formatDate(d) { const dt = new Date(d); return `${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}/${dt.getFullYear()}`; }
 
-        function formatDate(dateStr) {
-            const d = new Date(dateStr);
-            return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
-        }
-
-        // ── Zoom functions ──
         let currentZoom = 1, zoomImage, isDragging, startX, startY, translateX = 0, translateY = 0;
-
-        function openZoom(src) {
-            zoomImage = document.getElementById('zoomImage');
-            zoomImage.src = src;
-            currentZoom = 1; translateX = 0; translateY = 0; updateZoom();
-            document.getElementById('zoomModal').classList.add('active');
-            document.getElementById('zoomContainer').addEventListener('wheel', handleWheel);
-            zoomImage.addEventListener('mousedown', startDrag);
-            document.addEventListener('mousemove', drag);
-            document.addEventListener('mouseup', endDrag);
-        }
-
-        function closeZoom() {
-            document.getElementById('zoomModal').classList.remove('active');
-            document.getElementById('zoomContainer').removeEventListener('wheel', handleWheel);
-            zoomImage.removeEventListener('mousedown', startDrag);
-            document.removeEventListener('mousemove', drag);
-            document.removeEventListener('mouseup', endDrag);
-        }
-
+        function openZoom(src) { zoomImage = document.getElementById('zoomImage'); zoomImage.src = src; currentZoom = 1; translateX = 0; translateY = 0; updateZoom(); document.getElementById('zoomModal').classList.add('active'); document.getElementById('zoomContainer').addEventListener('wheel', handleWheel); zoomImage.addEventListener('mousedown', startDrag); document.addEventListener('mousemove', drag); document.addEventListener('mouseup', endDrag); }
+        function closeZoom() { document.getElementById('zoomModal').classList.remove('active'); document.getElementById('zoomContainer').removeEventListener('wheel', handleWheel); if (zoomImage) { zoomImage.removeEventListener('mousedown', startDrag); } document.removeEventListener('mousemove', drag); document.removeEventListener('endDrag', endDrag); }
         function zoomIn() { currentZoom = Math.min(currentZoom + 0.5, 5); updateZoom(); }
         function zoomOut() { currentZoom = Math.max(currentZoom - 0.5, 1); if (currentZoom === 1) { translateX = 0; translateY = 0; } updateZoom(); }
         function resetZoom() { currentZoom = 1; translateX = 0; translateY = 0; updateZoom(); }
         function updateZoom() { zoomImage.style.transform = `scale(${currentZoom}) translate(${translateX}px, ${translateY}px)`; }
-
         function handleWheel(e) { e.preventDefault(); e.deltaY < 0 ? zoomIn() : zoomOut(); }
         function startDrag(e) { if (currentZoom > 1) { isDragging = true; startX = e.clientX - translateX; startY = e.clientY - translateY; zoomImage.style.cursor = 'grabbing'; } }
         function drag(e) { if (isDragging) { translateX = e.clientX - startX; translateY = e.clientY - startY; updateZoom(); } }
-        function endDrag() { isDragging = false; zoomImage.style.cursor = currentZoom > 1 ? 'move' : 'default'; }
+        function endDrag() { isDragging = false; if (zoomImage) zoomImage.style.cursor = currentZoom > 1 ? 'move' : 'default'; }
 
         document.getElementById('zoomModal').onclick = function(e) { if (e.target === this) closeZoom(); };
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeCorrectionModal(); closeZoom(); } });
-
-        // ── Toolbar toggle click ──
         toolbarToggle.addEventListener('click', () => toggleToolbar());
 
-        // ── Event delegation ──
         document.addEventListener('click', function(e) {
             const el = e.target.closest('[data-action]');
             if (!el) return;
             const action = el.dataset.action;
             const id = el.dataset.id ? parseInt(el.dataset.id) : selectedItemId;
-
             switch (action) {
                 case 'switch-tab': switchTab(el.dataset.tab); break;
-                case 'mark-reviewed': if (id != null) { markAsReviewed(id); } break;
+                case 'mark-reviewed': if (id != null) markAsReviewed(id); break;
                 case 'open-correction': if (id != null) openCorrectionModal(id); break;
-                case 'mark-ambiguous': if (id != null) { markAsAmbiguous(id); } break;
-                case 'delete-item': if (id != null) { deleteIdentification(id); } break;
-                case 'toggle-keep': if (id != null) { toggleKeepForever(id); } break;
+                case 'mark-ambiguous': if (id != null) markAsAmbiguous(id); break;
+                case 'delete-item': if (id != null) deleteIdentification(id); break;
+                case 'toggle-keep': if (id != null) toggleKeepForever(id); break;
                 case 'open-zoom': openZoom(el.dataset.src); e.stopPropagation(); break;
                 case 'close-zoom': closeZoom(); break;
                 case 'zoom-in': zoomIn(); break;
@@ -1353,12 +447,7 @@
             }
         });
 
-        // ── Init ──
-        window.onload = function() {
-            updateCounts();
-            filterByStatus('pending');
-            setInterval(loadFromDB, 30000);
-        };
+        window.onload = function() { updateCounts(); filterByStatus('pending'); setInterval(loadFromDB, 30000); };
     </script>
 </body>
 </html>
