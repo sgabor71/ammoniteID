@@ -74,6 +74,17 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# ── Google Search Console verification ──────────────────────
+@app.get("/google01dae125f8fbd726.html")
+async def google_verification():
+    """Serves the Google Search Console verification file."""
+    try:
+        with open("google01dae125f8fbd726.html", "r") as f:
+            return f.read()
+    except FileNotFoundError:
+        # Return the verification content directly if file not found
+        return """google-site-verification: google01dae125f8fbd726.html"""
+
 # ── Service worker must be at root path, not /static/ ────────
 @app.get("/service-worker.js")
 async def service_worker():
