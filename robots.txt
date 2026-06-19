@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /auth/
+Disallow: /queue/
+Disallow: /admin/
+
+Sitemap: https://ammoniteid.com/sitemap.xml
